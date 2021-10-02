@@ -45,14 +45,14 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
     *> }                                                                                                        <* 
     *> /+---(prepare)------------------------+/                                                                 <* 
     *> rc = -1;                                                                                                 <* 
-    *> SOURCE__prep ();                                                                                         <* 
+    *> UPDATE_BEFORE_CHANGES;                                                                                                <* 
     *> /+---(check for initial mark)---------+/                                                                 <* 
     *> if (a_major == 'm') {                                                                                    <* 
     *>    DEBUG_USER   yLOG_note    ("mark replacement position and save existing");                            <* 
     *>    x_mode  = a_minor;                                                                                    <* 
     *>    if (a_minor == 'a')  yvikeys_src_one_append (G_CHAR_PLACE);                                           <* 
     *>    else                 yvikeys_src_one_insert (G_CHAR_PLACE);                                           <* 
-    *>    SOURCE__done   ();                                                                                    <* 
+    *>    UPDATE_AFTER_CHANGES;                                                                                      <* 
     *>    yvikeys_sundo_beg (__FUNCTION__);                                                                     <* 
     *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                                             <* 
     *>    return 0;                                                                                             <* 
@@ -100,7 +100,7 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
     *>       DEBUG_USER   yLOG_value   ("mode"     , yMODE_curr ());                                            <* 
     *>       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, yMODE_curr ()) != NULL) {                    <* 
     *>          DEBUG_USER   yLOG_note    ("fast path back to map mode");                                       <* 
-    *>          rc = SOURCE_mode (G_KEY_SPACE, a_minor);                                                        <* 
+    *>          rc = ysrc_source_mode (G_KEY_SPACE, a_minor);                                                        <* 
     *>       }                                                                                                  <* 
     *>    }                                                                                                     <* 
     *> }                                                                                                        <* 
@@ -144,7 +144,7 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
     *>    rc = ysrc_add_one (x_mode, a_minor);                                                                  <* 
     *> }                                                                                                        <* 
     *> /+---(wrap up)------------------------+/                                                                 <* 
-    *> SOURCE__done   ();                                                                                       <* 
+    *> UPDATE_AFTER_CHANGES;                                                                                         <* 
     *> /+---(check for history)--------------+/                                                                 <* 
     *> x_prevmode = yMODE_prev ();                                                                              <* 
     *> sprintf (x_history, "%c%c%c¤"  , x_prevmode, x_prevmode, x_prevmode);                                    <* 
@@ -152,11 +152,11 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
     *>    rc = yvikeys_src_one_delete ();                                                                       <* 
     *>    --s_cur->cpos;                                                                                        <* 
     *>    yvikeys_sundo_end (__FUNCTION__);                                                                     <* 
-    *>    SOURCE__done ();                                                                                      <* 
+    *>    UPDATE_AFTER_CHANGES;                                                                                      <* 
     *>    yMODE_exit ();                                                                                        <* 
     *>    /+> if (x_prevmode == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);   <*                    <* 
     *>     *> else                            strlcpy (s_cur->contents, ":", LEN_RECD);   <+/                   <* 
-    *>    /+> SOURCE__done   ();                                                          <+/                   <* 
+    *>    /+> UPDATE_AFTER_CHANGES;                                                            <+/                   <* 
     *>    yvikeys_hist__bounds ();                                                                              <* 
     *>    yMODE_enter  (UMOD_HISTORY);                                                                          <* 
     *>    myVIKEYS.cursor = '-';                                                                                <* 

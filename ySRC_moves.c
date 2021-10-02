@@ -6,24 +6,6 @@
 
 
 
-char         /*-> prepare for source mode move -------[ leaf   [gz.412.001.00]*/ /*-[00.0000.313.!]-*/ /*-[--.---.---.--]-*/
-ysrc_prep               (void)
-{
-   /*---(prepare)------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->contents);
-   s_cur->npos     = strlen (s_cur->contents);
-   /*---(display debugging)--------------*/
-   DEBUG_EDIT   yLOG_value   ("npos"     , s_cur->npos);
-   DEBUG_EDIT   yLOG_value   ("apos"     , s_cur->apos);
-   DEBUG_EDIT   yLOG_value   ("bpos"     , s_cur->bpos);
-   DEBUG_EDIT   yLOG_value   ("cpos"     , s_cur->cpos);
-   DEBUG_EDIT   yLOG_value   ("epos"     , s_cur->epos);
-   /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 char*        /*-> return current source label --------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
 SOURCE_label            (void)
 {
@@ -53,7 +35,7 @@ SOURCE__simple          (int a_major, int a_minor)
       return rce;
    }
    /*---(prepare)------------------------*/
-   ysrc_prep ();
+   UPDATE_BEFORE_CHANGES;
    /*---(horizontal moves)---------------*/
    switch (a_minor) {
    case '0' : s_cur->cpos  = 0;                    break;
@@ -64,7 +46,7 @@ SOURCE__simple          (int a_major, int a_minor)
    case '$' : s_cur->cpos  = s_cur->npos - 1;      break;
    }
    /*---(wrapup)-------------------------*/
-   SOURCE__done  ();
+   UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
    DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
@@ -92,7 +74,7 @@ SOURCE__goto       (int a_major, int a_minor)
       return rce;
    }
    /*---(prepare)------------------------*/
-   ysrc_prep ();
+   UPDATE_BEFORE_CHANGES;
    /*---(goto moves)---------------------*/
    x_qtr = s_cur->apos / 4;
    switch (a_minor) {
@@ -107,7 +89,7 @@ SOURCE__goto       (int a_major, int a_minor)
    case 'E' : s_cur->cpos  = s_cur->bpos + x_qtr * 8;  break;
    }
    /*---(wrapup)-------------------------*/
-   SOURCE__done  ();
+   UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
    DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
@@ -135,7 +117,7 @@ SOURCE__scroll     (char a_major, char a_minor)
       return rce;
    }
    /*---(prepare)------------------------*/
-   ysrc_prep ();
+   UPDATE_BEFORE_CHANGES;
    /*---(goto moves)---------------------*/
    x_qtr = s_cur->apos / 4;
    switch (a_minor) {
@@ -146,7 +128,7 @@ SOURCE__scroll     (char a_major, char a_minor)
    case 'e' : s_cur->bpos += s_cur->cpos - (s_cur->epos);              break;
    }
    /*---(wrapup)-------------------------*/
-   SOURCE__done  ();
+   UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
    DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
@@ -219,7 +201,7 @@ SOURCE__word            (int a_major, int a_minor)
       return rce;
    }
    /*---(prepare)------------------------*/
-   ysrc_prep ();
+   UPDATE_BEFORE_CHANGES;
    /*---(words)--------------------------*/
    if (strchr ("wW", a_minor) != 0) {
       for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
@@ -245,7 +227,7 @@ SOURCE__word            (int a_major, int a_minor)
       }
    }
    /*---(wrapup)-------------------------*/
-   SOURCE__done  ();
+   UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
    DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
    return 0;
@@ -258,7 +240,7 @@ SOURCE__charfindrev     (uchar a_ch)
    for (i = s_cur->cpos - 1; i >= 0; --i) {
       if (s_cur->contents [i] != a_ch)  continue;
       s_cur->cpos = i;
-      SOURCE__done ();
+      UPDATE_AFTER_CHANGES;
       return 0;
    }
    return -1;
@@ -271,7 +253,7 @@ SOURCE__charfind        (uchar a_ch)
    for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
       if (s_cur->contents [i] != a_ch)  continue;
       s_cur->cpos = i;
-      SOURCE__done ();
+      UPDATE_AFTER_CHANGES;
       return 0;
    }
    return -1;

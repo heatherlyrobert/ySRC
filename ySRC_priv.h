@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0b"
-#define     P_VERTXT    "many parts over -- select, sundo"
+#define     P_VERNUM    "2.0c"
+#define     P_VERTXT    "adapted and tested word identification"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -58,6 +58,7 @@
 #include    <yKEYS.h>             /* heatherly yVIKEYS key handling           */
 
 
+extern char    (*s_saver) (char *a_contents);
 extern uchar *g_stub;
 #define     S_SREG_NOT '-'
 #define     S_SREG_YES 'y'
@@ -81,9 +82,21 @@ extern int    g_nseq;
 
 
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+#define     UPDATE_BEFORE_CHANGES   ysrc_before_change ()
+#define     UPDATE_AFTER_CHANGES    ysrc_after_change ()
+/*---(program)--------------*/
 char*       ySRC_version            (void);
 char        ySRC_init               (void);
 char        ySRC_wrap               (void);
+/*---(ends)-----------------*/
+char        ysrc_reset              (void);
+char        ySRC_update             (char *a_label, char *a_contents);
+char        ySRC_start              (char *a_prefix);
+char        ysrc_before_change      (void);
+char        ysrc_after_change       (void);
+char        ysrc_accept             (void);
+char        ysrc_reject             (void);
+/*---(unittest)-------------*/
 char        ysrc__unit_quiet        (void);
 char        ysrc__unit_loud         (void);
 char        ysrc__unit_end          (void);
@@ -167,7 +180,7 @@ char        ysrc_input_umode        (uchar a_major, uchar a_minor);
 
 
 
-/*===[[ ySRC_input.c ]]=======================================================*/
+/*===[[ ySRC_sreg.c ]]========================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 #define        S_SREG_MAX      100
 typedef struct  cSREG  tSREG;
@@ -245,6 +258,17 @@ char        ysrc_words__type        (char a_1st, char a_curr, char a_save);
 char        ysrc_words__update      (int a_pos, char a_curr);
 char        ysrc_words              (void);
 
+
+
+/*===[[ ySRC_replace.c ]]=====================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_source_mode        (uchar a_major, uchar a_minor);
+
+
+
+/*===[[ ySRC_replace.c ]]=====================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_replace_umode      (int a_major, int a_minor);
 
 #endif
 
