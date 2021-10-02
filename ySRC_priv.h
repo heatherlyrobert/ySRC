@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0a"
-#define     P_VERTXT    "bare-bones"
+#define     P_VERNUM    "2.0b"
+#define     P_VERTXT    "many parts over -- select, sundo"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -58,13 +58,192 @@
 #include    <yKEYS.h>             /* heatherly yVIKEYS key handling           */
 
 
+extern uchar *g_stub;
+#define     S_SREG_NOT '-'
+#define     S_SREG_YES 'y'
+
+/*===[[ ySRC_sundo.c ]]=======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+#define     S_SUNDO_MAX      1000
+typedef struct cSUNDO  tSUNDO;
+struct cSUNDO {
+   int         seq;
+   char        major;
+   char        minor;
+   int         cpos;
+   uchar       before;
+   uchar       after;
+};
+extern tSUNDO g_sundos  [S_SUNDO_MAX];
+extern int    g_nsundo;
+extern int    g_csundo;
+extern int    g_nseq;
+
+
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char*       ySRC_version            (void);
+char        ySRC_init               (void);
+char        ySRC_wrap               (void);
+char        ysrc__unit_quiet        (void);
+char        ysrc__unit_loud         (void);
+char        ysrc__unit_end          (void);
+char*       ySRC__unit              (char *a_question, int n);
+
+
+
+/*===[[ ySRC_source.c ]]======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+typedef  struct cEDIT   tEDIT;
+struct cEDIT {
+   char        type;                      /* type of input                    */
+   char        label       [LEN_LABEL];   /* source label                     */
+   char        original    [LEN_RECD];    /* pre-edit content                 */
+   char        contents    [LEN_RECD];    /* working content                  */
+   int         wide;                      /* full display space width         */
+   int         apos;                      /* available space for display      */
+   int         npos;                      /* length of edited content         */
+   int         cpos;                      /* current character position       */
+   int         bpos;                      /* beginning of visiable part       */
+   int         epos;                      /* end of visiable part             */
+   char        words       [LEN_RECD];    /* working space for wbe keys       */
+};
+extern tEDIT   s_src;
+extern tEDIT   s_cmd;
+extern tEDIT  *s_cur;
+
+#define      EDIT_NORM        '-'
+#define      EDIT_CMDS        'c'
+#define      EDIT_SRCH        's'
+
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+/*---(workers)--------------*/
+char        ysrc_replace_one        (uchar a_key);
+char        ysrc_delete_one         (void);
+char        ysrc_backspace_one      (void);
+char        ysrc_insert_one         (uchar a_key);
+char        ysrc_append_one         (uchar a_key);
+/*---(actions)--------------*/
+char        ysrc_clear              (char a_major, char a_minor);
+char        ysrc_delete             (char a_major, char a_minor);
+char        ysrc_copy               (void);
+char        ysrc_replace            (void);
+char        ysrc_paste              (char a_dir);
+char        ysrc_swap_all           (char *a_new);
+/*---(accessors)------------*/
+int         ysrc_cpos               (void);
+int         ysrc_npos               (void);
+char       *ysrc_contents           (void);
+
 
 
 /*===[[ ySRC_sundo.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+/*---(program)--------------*/
+char        ysrc_sundo_trim         (int a_start);
+char        ysrc_sundo_init         (void);
+/*---(grouping)-------------*/
+char        ysrc_sundo_beg          (void);
+char        ysrc_sundo_chain        (void);
+char        ysrc_sundo_end          (void);
+/*---(record)---------------*/
+char        ysrc_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after);
+char        ysrc_sundo_single       (char a_minor, int a_pos, char a_before, char a_after);
+/*---(undo)-----------------*/
+char        ysrc_sundo__undo        (int *a_pos);
+char        ysrc_sundo_undo         (int *a_pos);
+/*---(redo)-----------------*/
+char        ysrc_sundo__redo        (int *a_pos);
+char        ysrc_sundo_redo         (int *a_pos);
+/*---(reporting)------------*/
+char        ysrc_sundo_status       (char *a_list);
+/*---(done)-----------------*/
 
 
 
+/*===[[ ySRC_input.c ]]=======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_add_one            (uchar a_mode, uchar a_minor);
+char        ysrc_input_umode        (uchar a_major, uchar a_minor);
+
+
+
+/*===[[ ySRC_input.c ]]=======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+#define        S_SREG_MAX      100
+typedef struct  cSREG  tSREG;
+struct cSREG {
+   /*---(active)------------*/
+   char        active;                      /* register in use                */
+   char        source;                      /* user, file, import             */
+   /*---(source)------------*/
+   char       *label;                       /* original cell                  */
+   short       beg;                         /* original starting point        */
+   short       end;                         /* original ending point          */
+   short       root;
+   /*---(contents)----------*/
+   short       len;                         /* length of text                 */
+   char       *data;                        /* text                           */
+   /*---(done)--------------*/
+};
+extern char   G_SREG_LIST     [S_SREG_MAX];
+extern tSREG  g_sreg;
+extern tSREG  g_sregs  [S_SREG_MAX];
+extern uchar  g_nsreg;
+extern uchar  g_csreg;
+extern uchar  g_wsreg;
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+/*---(support)--------------*/
+char        ysrc_sreg__wipedata     (tSREG *a_dst);
+char        ysrc_sreg__wipeall      (char a_scope, tSREG *a_dst);
+/*---(program)--------------*/
+char        ysrc_sreg_purge         (char a_scope);
+char        ysrc_sreg_init          (void);
+/*---(utility)--------------*/
+char        ysrc_sreg_index         (uchar a_abbr);
+char        ysrc_sreg_setreg        (uchar a_abbr);
+char        ysrc_sreg_setwork       (uchar a_abbr);
+char        ysrc_sreg_clear         (uchar a_abbr);
+char        ysrc_sreg_push          (uchar a_abbr, char *a_data);
+char        ysrc_sreg_pop           (uchar a_abbr, char *a_data);
+char        ysrc_sreg_fetch         (int *a_len, char *a_data);
+char        ysrc_sreg_save          (char *a_label, char *a_data);
+/*---(status)---------------*/
+char        ysrc_sreg__line         (uchar a_abbr, char *a_entry);
+char        ysrc_sreg_status        (char *a_entry);
+char        ysrc_sreg_info          (int a_index, char *a_entry);
+/*---(mode)-----------------*/
+char        ysrc_sreg__export       (char a_id);
+char        ysrc_sreg__import       (char a_id);
+char        ysrc_sreg__copy         (char a_id, char a_src);
+char        ysrc_sreg__save         (char a_id, char *a_string);
+char        ysrc_sreg_direct        (char *a_string);
+char        ysrc_sreg_smode         (uchar a_major, uchar a_minor);
+int         ysrc_sreg_dump          (void *a_file);
+/*---(done)-----------------*/
+
+
+
+/*===[[ ySRC_input.c ]]=======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_select_reset       (int a_pos);
+char        ysrc_select_update      (int a_pos);
+int         ysrc_select_reverse     (void);
+char        ysrc_select_exact       (int a_beg, int a_end, int a_root);
+char        ysrc_select_curr        (int *a_beg, int *a_end, int *a_root);
+char        ysrc_select_all         (void);
+char        ysrc_select_getlive     (void);
+char        ysrc_select_islive      (void);
+char        ysrc_select_isdead      (void);
+char        ysrc_select_makelive    (void);
+char        ysrc_select_makedead    (void);
+
+
+
+/*===[[ ySRC_input.c ]]=======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_words__type        (char a_1st, char a_curr, char a_save);
+char        ysrc_words__update      (int a_pos, char a_curr);
+char        ysrc_words              (void);
 
 
 #endif

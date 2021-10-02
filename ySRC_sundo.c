@@ -5,23 +5,10 @@
 
 
 
-
-
-#define     S_SUNDO_MAX      1000
-typedef struct cSUNDO  tSUNDO;
-struct cSUNDO {
-   int         seq;
-   char        major;
-   char        minor;
-   int         cpos;
-   uchar       before;
-   uchar       after;
-};
-static tSUNDO s_sundos  [S_SUNDO_MAX];
-
-static int    s_nsundo    =  0;
-static int    s_csundo    = -1;
-static int    s_nseq      = -1;
+tSUNDO g_sundos  [S_SUNDO_MAX];
+int    g_nsundo    =  0;
+int    g_csundo    = -1;
+int    g_nseq      = -1;
 
 
 
@@ -31,31 +18,29 @@ static int    s_nseq      = -1;
 static void  o___PROGRAM_________o () { return; }
 
 char
-ySRC_sundo_purge        (int a_start)
+ysrc_sundo_trim         (int a_start)
 {
    int         i           =    0;
    for (i = a_start; i < S_SUNDO_MAX; ++i) {
-      s_sundos [i].seq    = -1;
-      s_sundos [i].major  = '-';
-      s_sundos [i].minor  = '-';
-      s_sundos [i].cpos   = -1;
-      s_sundos [i].before = '-';
-      s_sundos [i].after  = '-';
+      g_sundos [i].seq    = -1;
+      g_sundos [i].major  = '-';
+      g_sundos [i].minor  = '-';
+      g_sundos [i].cpos   = -1;
+      g_sundos [i].before = '-';
+      g_sundos [i].after  = '-';
    }
-   if (a_start == 0) {
-      s_nsundo =  0;
-      s_csundo = -1;
-      s_nseq   = -1;
-   }
+   g_nsundo =  a_start;
+   g_csundo =  a_start - 1;
+   if (a_start == 0)   g_nseq   = -1;
    return 0;
 }
 
 char
-ySRC_sundo_init         (void)
+ysrc_sundo_init         (void)
 {
    char        rc          =    0;
-   rc = ySRC_sundo_purge (0);
-   /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "sundo", ySRC_sundo_status, "source editing undo stack");   <*/
+   rc = ysrc_sundo_trim (0);
+   /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "sundo", ysrc_sundo_status, "source editing undo stack");   <*/
    return 0;
 }
 
@@ -67,32 +52,32 @@ ySRC_sundo_init         (void)
 static void  o___GROUPING________o () { return; }
 
 char
-ySRC_sundo_beg       (char *a_function)
+ysrc_sundo_beg          (void)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    DEBUG_EDIT   yLOG_schar   (yKEYS_repeating   ());
    DEBUG_EDIT   yLOG_sint    (yKEYS_repeat_orig ());
    DEBUG_EDIT   yLOG_sint    (yKEYS_repeats     ());
-   DEBUG_EDIT   yLOG_sint    (s_nseq);
+   DEBUG_EDIT   yLOG_sint    (g_nseq);
    DEBUG_EDIT   yLOG_sint    (yKEYS_normal      ());
    DEBUG_EDIT   yLOG_sint    (yKEYS_unique ());
-   if      (s_nseq < 0)                       ++s_nseq;
-   else if (yKEYS_normal () && yKEYS_unique ())  ++s_nseq;
-   DEBUG_EDIT   yLOG_sint    (s_nseq);
+   if      (g_nseq < 0)                          ++g_nseq;
+   else if (yKEYS_normal () && yKEYS_unique ())  ++g_nseq;
+   DEBUG_EDIT   yLOG_sint    (g_nseq);
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char
-ySRC_sundo_chain        (void)
+ysrc_sundo_chain        (void)
 {
-   --s_nseq;
+   --g_nseq;
    return 0;
 }
 
 
 char
-ySRC_sundo_end          (char *a_function)
+ysrc_sundo_end          (void)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
@@ -107,27 +92,22 @@ ySRC_sundo_end          (char *a_function)
 static void  o___RECORD__________o () { return; }
 
 char
-ySRC_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after)
+ysrc_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
-   ++s_csundo;
-   s_sundos [s_csundo].seq    = s_nseq;
-   s_sundos [s_csundo].major  = a_major;
-   s_sundos [s_csundo].minor  = a_minor;
-   s_sundos [s_csundo].cpos   = a_pos;
-   s_sundos [s_csundo].before = chrvisible (a_before);
-   s_sundos [s_csundo].after  = chrvisible (a_after);
-   s_nsundo = s_csundo + 1;
+   ++g_csundo;
+   g_sundos [g_csundo].seq    = g_nseq;
+   g_sundos [g_csundo].major  = a_major;
+   g_sundos [g_csundo].minor  = a_minor;
+   g_sundos [g_csundo].cpos   = a_pos;
+   g_sundos [g_csundo].before = chrvisible (a_before);
+   g_sundos [g_csundo].after  = chrvisible (a_after);
+   g_nsundo = g_csundo + 1;
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
-char
-ySRC_sundo_single       (char a_minor, int a_pos, char a_before, char a_after)
-{
-   ySRC_sundo_add (G_KEY_SPACE, a_minor, a_pos, a_before, a_after);
-   return 0;
-}
+char ysrc_sundo_single       (char a_minor, int a_pos, char a_before, char a_after) { return ysrc_sundo_add (G_KEY_SPACE, a_minor, a_pos, a_before, a_after); }
 
 
 
@@ -137,21 +117,21 @@ ySRC_sundo_single       (char a_minor, int a_pos, char a_before, char a_after)
 static void  o___UNDO____________o () { return; }
 
 char
-ySRC_sundo__undo_one    (int *a_pos)
+ysrc_sundo__undo        (int *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_EDIT   yLOG_sint    (s_nsundo);
-   DEBUG_EDIT   yLOG_sint    (s_csundo);
-   --rce;  if (s_nsundo <= 0) {
+   DEBUG_EDIT   yLOG_sint    (g_nsundo);
+   DEBUG_EDIT   yLOG_sint    (g_csundo);
+   --rce;  if (g_nsundo <= 0) {
       DEBUG_EDIT   yLOG_snote   ("stack too small");
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (s_csundo <  0) {
+   --rce;  if (g_csundo <  0) {
       DEBUG_EDIT   yLOG_snote   ("current too small");
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
@@ -162,39 +142,39 @@ ySRC_sundo__undo_one    (int *a_pos)
       return rce;
    }
    /*---(position)-----------------------*/
-   *a_pos = s_sundos [s_csundo].cpos;
+   *a_pos = g_sundos [g_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , *a_pos);
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].major);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].after);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].major);
    /*---(single char)--------------------*/
-   if (s_sundos [s_csundo].major == G_KEY_SPACE) {
-      switch (s_sundos [s_csundo].minor) {
+   if (g_sundos [g_csundo].major == G_KEY_SPACE) {
+      switch (g_sundos [g_csundo].minor) {
       case 'r' : case 'R' :
-         ySRC_src_one_replace (s_sundos [s_csundo].before);
+         ysrc_replace_one (g_sundos [g_csundo].before);
          break;
       case 'i' : case 'a' :
-         ySRC_src_one_delete  ();
+         ysrc_delete_one  ();
          break;
       }
    }
    /*---(multi char)---------------------*/
-   else if (s_sundos [s_csundo].major == 'd') {
-      ySRC_src_one_insert  (s_sundos [s_csundo].before);
+   else if (g_sundos [g_csundo].major == 'd') {
+      ysrc_insert_one  (g_sundos [g_csundo].before);
    }
-   else if (s_sundos [s_csundo].major == 'x') {
-      ySRC_src_one_replace (s_sundos [s_csundo].before);
+   else if (g_sundos [g_csundo].major == 'x') {
+      ysrc_replace_one (g_sundos [g_csundo].before);
    }
    /*---(update)-------------------------*/
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
-   --s_csundo;
-   DEBUG_EDIT   yLOG_sint    (s_csundo);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].before);
+   --g_csundo;
+   DEBUG_EDIT   yLOG_sint    (g_csundo);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char
-ySRC_sundo_undo         (int *a_pos)
+ysrc_sundo_undo         (int *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -203,11 +183,11 @@ ySRC_sundo_undo         (int *a_pos)
    int         rc          =    0;
    /*---(prepare)------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   x_seq = s_sundos [s_csundo].seq;
+   x_seq = g_sundos [g_csundo].seq;
    DEBUG_EDIT   yLOG_value   ("x_seq"     , x_seq);
-   for (i = s_csundo; i >= 0; --i) {
-      if (s_sundos [s_csundo].seq != x_seq)  break;
-      rc = ySRC_sundo__undo_one (a_pos);
+   for (i = g_csundo; i >= 0; --i) {
+      if (g_sundos [g_csundo].seq != x_seq)  break;
+      rc = ysrc_sundo__undo (a_pos);
       if (rc < 0) break;
       ++c;
    }
@@ -225,21 +205,21 @@ ySRC_sundo_undo         (int *a_pos)
 static void  o___REDO____________o () { return; }
 
 char
-ySRC_sundo__redo_one    (int *a_pos)
+ysrc_sundo__redo        (int *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_EDIT   yLOG_sint    (s_nsundo);
-   DEBUG_EDIT   yLOG_sint    (s_csundo);
-   --rce;  if (s_csundo < -1) {
+   DEBUG_EDIT   yLOG_sint    (g_nsundo);
+   DEBUG_EDIT   yLOG_sint    (g_csundo);
+   --rce;  if (g_csundo < -1) {
       DEBUG_EDIT   yLOG_snote   ("current too small");
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (s_csundo >= s_nsundo - 1) {
+   --rce;  if (g_csundo >= g_nsundo - 1) {
       DEBUG_EDIT   yLOG_snote   ("current is too big");
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
@@ -250,40 +230,40 @@ ySRC_sundo__redo_one    (int *a_pos)
       return rce;
    }
    /*---(update)-------------------------*/
-   ++s_csundo;
-   DEBUG_EDIT   yLOG_sint    (s_csundo);
+   ++g_csundo;
+   DEBUG_EDIT   yLOG_sint    (g_csundo);
    /*---(position)-----------------------*/
-   *a_pos = s_sundos [s_csundo].cpos;
+   *a_pos = g_sundos [g_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , *a_pos);
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].before);
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].major);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].before);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].major);
    /*---(single char)--------------------*/
-   if (s_sundos [s_csundo].major == G_KEY_SPACE) {
-      switch (s_sundos [s_csundo].minor) {
+   if (g_sundos [g_csundo].major == G_KEY_SPACE) {
+      switch (g_sundos [g_csundo].minor) {
       case 'r' : case 'R' :
-         ySRC_src_one_replace (s_sundos [s_csundo].after);
+         ysrc_replace_one (g_sundos [g_csundo].after);
          break;
       case 'i' : case 'a' :
-         ySRC_src_one_insert  (s_sundos [s_csundo].after);
+         ysrc_insert_one  (g_sundos [g_csundo].after);
          break;
       }
    }
    /*---(multi char)---------------------*/
-   else if (s_sundos [s_csundo].major == 'd') {
-      ySRC_src_one_delete  ();
+   else if (g_sundos [g_csundo].major == 'd') {
+      ysrc_delete_one  ();
    }
-   else if (s_sundos [s_csundo].major == 'x') {
-      ySRC_src_one_replace (s_sundos [s_csundo].after);
+   else if (g_sundos [g_csundo].major == 'x') {
+      ysrc_replace_one (g_sundos [g_csundo].after);
    }
    /*---(update)-------------------------*/
-   DEBUG_EDIT   yLOG_schar   (s_sundos [s_csundo].after);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].after);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char
-ySRC_sundo_redo         (int *a_pos)
+ysrc_sundo_redo         (int *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -292,11 +272,11 @@ ySRC_sundo_redo         (int *a_pos)
    int         rc          =    0;
    /*---(prepare)------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   x_seq = s_sundos [s_csundo + 1].seq;
+   x_seq = g_sundos [g_csundo + 1].seq;
    DEBUG_EDIT   yLOG_value   ("x_seq"     , x_seq);
-   for (i = s_csundo; i < s_nsundo; ++i) {
-      if (s_sundos [s_csundo + 1].seq != x_seq)  break;
-      rc = ySRC_sundo__redo_one (a_pos);
+   for (i = g_csundo; i < g_nsundo; ++i) {
+      if (g_sundos [g_csundo + 1].seq != x_seq)  break;
+      rc = ysrc_sundo__redo (a_pos);
       if (rc < 0) break;
       ++c;
    }
@@ -314,31 +294,36 @@ ySRC_sundo_redo         (int *a_pos)
 static void  o___STATUS__________o () { return; }
 
 char
-ySRC_sundo_status       (char *a_list)
+ysrc_sundo_status       (char *a_list)
 {
    char        rce         =  -10;
    int         i           =    0;
    int         x_beg       =    0;
    int         x_end       =    0;
-   char        t           [LEN_LABEL];
+   char        t           [LEN_LABEL] = "";
    char        x_ch        =  ' ';
+   uchar       x_seq       =  '·';
    /*---(defenses)--------------------*/
    --rce;  if (a_list  == NULL) return rce;
+   strcpy (a_list, "");
    /*---(fast path)-------------------*/
-   if (s_nsundo == 0) {
-      sprintf (a_list, "%3dn, %3dc", s_nsundo, s_csundo);
-      return 0;
-   }
+   /*> if (g_nsundo == 0) {                                                           <* 
+    *>    sprintf (a_list, "%3dn, %3dc", g_nsundo, g_csundo);                         <* 
+    *>    return 0;                                                                   <* 
+    *> }                                                                              <*/
    /*---(prepare)---------------------*/
-   x_end = s_nsundo;
+   x_end = g_nsundo;
    x_beg = x_end - 10;
    if (x_beg < 0)  x_beg = 0;
    /*---(write line)------------------*/
-   sprintf (a_list, "%3dn, %3dc, ", s_nsundo, s_csundo);
+   /*> sprintf (a_list, "%3dn, %3dc, ", g_nsundo, g_csundo);                          <*/
    for (i = x_beg; i < x_end; ++i) {
-      x_ch = s_sundos [i].major;
-      if (x_ch != G_KEY_SPACE)  sprintf (t, "%d%c%c%d%c%c,", s_sundos [i].seq, x_ch, s_sundos [i].minor, s_sundos [i].cpos, s_sundos [i].before, s_sundos [i].after);
-      else              sprintf (t, "%d%c%d%c%c,"          , s_sundos [i].seq,       s_sundos [i].minor, s_sundos [i].cpos, s_sundos [i].before, s_sundos [i].after);
+      if (g_sundos [i].seq < 0)  x_seq = '·';
+      else                       x_seq = YSTR_CHARS [g_sundos [i].seq];
+      sprintf (t, "%c%c%c%d%c%c,", x_seq, g_sundos [i].major, g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);
+      /*> x_ch = g_sundos [i].major;                                                                                                                                        <* 
+       *> if (x_ch != G_KEY_SPACE)  sprintf (t, "%d%c%c%d%c%c,", g_sundos [i].seq, x_ch, g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <* 
+       *> else                      sprintf (t, "%d%c%d%c%c,"  , g_sundos [i].seq,       g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <*/
       strlcat (a_list, t, LEN_RECD);
    }
    /*---(complete)--------------------*/
