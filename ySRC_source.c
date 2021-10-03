@@ -470,7 +470,7 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>    }                                                                                     <* 
     *>    /+---(word movement)---------------+/                                                 <* 
     *>    if (strchr (g_hword, a_minor) != 0) {                                                 <* 
-    *>       rc = SOURCE__word    (a_major, a_minor);                                           <* 
+    *>       rc = ysrc_word_hmode (a_major, a_minor);                                           <* 
     *>    }                                                                                     <* 
     *>    /+---(other stuff)-----------------+/                                                 <* 
     *>    switch (a_minor) {                                                                    <* 

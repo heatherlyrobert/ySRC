@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0c"
-#define     P_VERTXT    "adapted and tested word identification"
+#define     P_VERNUM    "2.0d"
+#define     P_VERTXT    "word logic and details unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -112,12 +112,12 @@ struct cEDIT {
    char        label       [LEN_LABEL];   /* source label                     */
    char        original    [LEN_RECD];    /* pre-edit content                 */
    char        contents    [LEN_RECD];    /* working content                  */
-   int         wide;                      /* full display space width         */
-   int         apos;                      /* available space for display      */
-   int         npos;                      /* length of edited content         */
-   int         cpos;                      /* current character position       */
-   int         bpos;                      /* beginning of visiable part       */
-   int         epos;                      /* end of visiable part             */
+   short       wide;                      /* full display space width         */
+   short       apos;                      /* available space for display      */
+   short       npos;                      /* length of edited content         */
+   short       cpos;                      /* current character position       */
+   short       bpos;                      /* beginning of visiable part       */
+   short       epos;                      /* end of visiable part             */
    char        words       [LEN_RECD];    /* working space for wbe keys       */
 };
 extern tEDIT   s_src;
@@ -254,9 +254,15 @@ char        ysrc_select_makedead    (void);
 
 /*===[[ ySRC_input.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc_words__type        (char a_1st, char a_curr, char a_save);
-char        ysrc_words__update      (int a_pos, char a_curr);
-char        ysrc_words              (void);
+uchar       ysrc_word__type         (char a_type, char a_curr);
+char        ysrc_word__curr         (char a_type, char a_save, char a_mode);
+char        ysrc_word__prev         (char a_type, char a_save, char a_mode);
+char        ysrc_word__update       (int a_pos, char a_curr);
+char        ysrc_word_update        (void);
+char        ysrc_word_next          (char a_minor, short *a_cur, short *a_len);
+char        ysrc_word_end           (char a_minor, short *a_cur, short *a_len);
+char        ysrc_word_prev          (char a_minor, short *a_cur, short *a_len);
+char        ysrc_word_hmode         (uchar a_major, uchar a_minor);
 
 
 

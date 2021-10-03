@@ -264,7 +264,7 @@ ysrc_after_change       (void)
    ysrc_select_update (s_cur->cpos);
    DEBUG_EDIT   yLOG_complex ("post-sreg" , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(update word breaks)-------------*/
-   ysrc_words ();
+   ysrc_word_update ();
    DEBUG_EDIT   yLOG_complex ("post-words", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(display debugging)--------------*/
    DEBUG_EDIT   yLOG_value   ("s_npos"   , s_cur->npos);

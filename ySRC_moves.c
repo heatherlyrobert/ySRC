@@ -134,105 +134,6 @@ SOURCE__scroll     (char a_major, char a_minor)
    return 0;
 }
 
-int
-SOURCE__nextword        (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   int         i           =    0;
-   /*---(word forward)-------------------*/
-   for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
-      if (strchr ("<B", s_cur->words [i]) == NULL)  continue;
-      return i - s_cur->cpos;
-   }
-   /*---(complete)-----------------------*/
-   return s_cur->npos - s_cur->cpos;
-}
-
-int
-SOURCE__endword         (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   int         i           =    0;
-   /*---(word forward)-------------------*/
-   for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
-      if (strchr (">B", s_cur->words [i]) == NULL)  continue;
-      return i - s_cur->cpos + 1;
-   }
-   /*---(complete)-----------------------*/
-   return s_cur->npos - s_cur->cpos;
-}
-
-int
-SOURCE__prevword        (void)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   int         i           =    0;
-   int         x_len       =    0;
-   /*---(word backward)------------------*/
-   for (i = s_cur->cpos - 1; i >= 0 ; --i) {
-      if (strchr ("<B", s_cur->words [i]) == NULL)  continue;
-      x_len       = s_cur->cpos - i;
-      s_cur->cpos = i;
-      return x_len;
-   }
-   /*---(all)----------------------------*/
-   x_len       = s_cur->cpos - 1;
-   s_cur->cpos = 0;
-   return x_len;
-}
-
-char
-SOURCE__word            (int a_major, int a_minor)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   int         i           =    0;
-   char       *x_word      = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-";
-   int         x_not       =    0;
-   int         x_yes       =    0;
-   /*---(header)-------------------------*/
-   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
-   /*---(defense)------------------------*/
-   /*> DEBUG_EDIT  yLOG_info    ("g_hword"   , g_hword);                              <*/
-   --rce;  if (!yKEYS_is_horz_word (a_minor)) {
-      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
-      return rce;
-   }
-   /*---(prepare)------------------------*/
-   UPDATE_BEFORE_CHANGES;
-   /*---(words)--------------------------*/
-   if (strchr ("wW", a_minor) != 0) {
-      for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
-         if (strchr ("<B", s_cur->words [i]) == NULL)  continue;
-         s_cur->cpos = i;
-         break;
-      }
-   }
-   /*---(ends)---------------------------*/
-   if (strchr ("eE", a_minor) != 0) {
-      for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
-         if (strchr (">B", s_cur->words [i]) == NULL)  continue;
-         s_cur->cpos = i;
-         break;
-      }
-   }
-   /*---(beginnings)---------------------*/
-   if (strchr ("bB", a_minor) != 0) {
-      for (i = s_cur->cpos - 1; i >= 0; --i) {
-         if (strchr ("<B", s_cur->words [i]) == NULL)  continue;
-         s_cur->cpos = i;
-         break;
-      }
-   }
-   /*---(wrapup)-------------------------*/
-   UPDATE_AFTER_CHANGES;
-   /*---(complete)--------------------*/
-   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
 char
 SOURCE__charfindrev     (uchar a_ch)
 {
@@ -265,7 +166,7 @@ SOURCE_delete          (char a_major, char a_minor)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        i           =    0;
-   char        x_len       =    0;
+   short       x_len       =    0;
    char        x_pos       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
@@ -303,9 +204,9 @@ SOURCE_delete          (char a_major, char a_minor)
    switch (a_minor) {
    case 'h' : x_len = 1;                             break;
    case 'l' : x_len = 1;                             break;
-   case 'w' : x_len = SOURCE__nextword ();           break;
-   case 'b' : x_len = SOURCE__prevword ();           break;
-   case 'e' : x_len = SOURCE__endword  ();           break;
+   case 'w' : ysrc_word_next (a_minor, &(s_cur->cpos), &x_len);  break;
+   case 'b' : ysrc_word_prev (a_minor, &(s_cur->cpos), &x_len);  break;
+   case 'e' : ysrc_word_end  (a_minor, &(s_cur->cpos), &x_len);  break;
    case '0' : x_len = s_cur->cpos; s_cur->cpos = 0;  break;
    case '$' : x_len = s_cur->npos - s_cur->cpos;     break;
    }
