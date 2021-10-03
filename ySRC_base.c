@@ -200,6 +200,8 @@ ysrc_before_change      (void)
 char         /*-> complete a source mode move --------[ leaf   [gz.E45.001.A0]*/ /*-[02.0000.513.!]-*/ /*-[--.---.---.--]-*/
 ysrc_after_change       (void)
 {
+   char        rce         =    0;
+   char        rc          =    0;
    /*---(prepare)------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT   yLOG_info    ("s_contents", s_cur->contents);
@@ -212,18 +214,20 @@ ysrc_after_change       (void)
    DEBUG_EDIT   yLOG_value   ("s_epos"   , s_cur->epos);
    /*---(check over/underrun)---------*/
    DEBUG_EDIT   yLOG_note    ("correct s_npos over/underruns");
-   if (s_cur->npos  >= LEN_RECD) {
+   --rce;  if (s_cur->npos  >= LEN_RECD) {
       s_cur->npos = LEN_RECD - 1;
       s_cur->contents [s_cur->npos] = '\0';
+      rc = rce;
    }
-   if (s_cur->npos < 0) {
+   --rce;  if (s_cur->npos < 0) {
       s_cur->npos = 0;
+      rc = rce;
    }
    /*---(check min/max)---------------*/
    DEBUG_EDIT   yLOG_note    ("correct min/max limits");
-   if (s_cur->cpos >=  s_cur->npos)    s_cur->cpos = s_cur->npos - 1;
-   if (s_cur->cpos <   0          )    s_cur->cpos = 0;
-   if (s_cur->bpos <   0          )    s_cur->bpos = 0;
+   --rce;  if (s_cur->cpos >=  s_cur->npos)  {  s_cur->cpos = s_cur->npos - 1;  rc = rce; }
+   --rce;  if (s_cur->cpos <   0          )  {  s_cur->cpos = 0;                rc = rce; }
+   --rce;  if (s_cur->bpos <   0          )     s_cur->bpos = 0;
    DEBUG_EDIT   yLOG_complex ("limits"    , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(small strings)---------------*/
    if (s_cur->npos == 0) {
@@ -274,7 +278,7 @@ ysrc_after_change       (void)
    DEBUG_EDIT   yLOG_value   ("s_epos"   , s_cur->epos);
    /*---(complete)--------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 
@@ -347,6 +351,17 @@ ysrc_reset              (void)
    DEBUG_EDIT   yLOG_complex ("post-reset", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    return 0;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                       general accessors                      ----===*/
+/*====================------------------------------------====================*/
+static void  o___ACCESSORS_______o () { return; }
+
+char*   SOURCE_label            (void) { return s_src.label; }
+
+
 
 
 /*====================------------------------------------====================*/

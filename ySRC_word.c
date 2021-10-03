@@ -15,10 +15,13 @@ ysrc_word__type         (char a_type, char a_curr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        x_mode      =  ' ';
+   /*---(words)--------------------------*/
    if      (strchr (YSTR_CHARS, a_curr) != NULL)   x_mode = 'w';
    else if (a_type == 'f' && a_curr == '_')        x_mode = 'w';
    else if (a_type == '-' && a_curr == '-')        x_mode = 'w';
+   /*---(spaces)-------------------------*/
    else if (strchr (" ·²"     , a_curr) != NULL)   x_mode = 's';
+   /*---(others)-------------------------*/
    else if (strchr (YSTR_PUNCT, a_curr) != NULL)   x_mode = '²';
    else if (strchr (YSTR_GREEK, a_curr) != NULL)   x_mode = '²';
    else                                            x_mode = '²';
@@ -29,35 +32,36 @@ ysrc_word__type         (char a_type, char a_curr)
 char
 ysrc_word__curr         (char a_type, char a_save, char a_mode)
 {
-   /*---(fast track)------------------*/
+   /*---(fast track)---------------------*/
    if (a_mode == a_save)  return ' ';
-   /*---(beginning of string)---------*/
+   /*---(beginning of string)------------*/
    if      (a_save == '\0' && a_mode == 'w')                     return '[';
    else if (a_save == '\0' && a_mode == '²'  && a_type == '-')   return '[';
-   /*---(after space)-----------------*/
+   /*---(after space)--------------------*/
    else if (a_save == 's'  && a_mode == 'w')                     return '[';
    else if (a_save == 's'  && a_mode == '²'  && a_type == '-')   return '[';
-   /*---(after other)-----------------*/
+   /*---(after other)--------------------*/
    else if (a_save == '²'  && a_mode == 'w'  && a_type == '-')   return '<';
    else if (a_save == '²'  && a_mode == 'w'  && a_type == 'f')   return '[';
-   /*---(complete)--------------------*/
+   /*---(complete)-----------------------*/
    return ' ';
 }
 
 char
 ysrc_word__prev         (char a_type, char a_save, char a_mode)
 {
+   /*---(fast track)---------------------*/
    if (a_mode == a_save)  return ' ';
-   /*---(end of string)---------------*/
+   /*---(end of string)------------------*/
    if      (a_save == 'w'  && a_mode == '\0')                    return ']';
    else if (a_save == '²'  && a_mode == '\0' && a_type == '-')   return ']';
-   /*---(before space)----------------*/
+   /*---(before space)-------------------*/
    else if (a_save == 'w'  && a_mode == 's')                     return ']';
    else if (a_save == '²'  && a_mode == 's'  && a_type == '-')   return ']';
-   /*---(before other)----------------*/
+   /*---(before other)-------------------*/
    else if (a_save == 'w'  && a_mode == '²'  && a_type == '-')   return '>'; 
    else if (a_save == 'w'  && a_mode == '²'  && a_type == 'f')   return ']'; 
-   /*---(complete)--------------------*/
+   /*---(complete)-----------------------*/
    return ' ';
 }
 
@@ -119,18 +123,10 @@ ysrc_word_update        (void)
       x_update = ysrc_word__curr (x_type, x_save, x_mode);
       if (x_update != ' ') ysrc_word__update   (i    , x_update);
       DEBUG_EDIT   yLOG_char    ("curr"      , x_update);
-      /*> if (x_save == '²' && x_mode == 'w')   ysrc_word__update   (i    , '<');     <* 
-       *> if (x_save == '²' && x_mode == 's')   ysrc_word__update   (i    , '<');     <* 
-       *> if (x_save == 'w' && x_mode == 's')   ysrc_word__update   (i    , ']');     <* 
-       *> if (x_save == 's' && x_mode == 'w')   ysrc_word__update   (i    , '[');     <*/
       /*---(update previous)-------------*/
       x_update = ysrc_word__prev (x_type, x_save, x_mode);
       if (x_update != ' ') ysrc_word__update   (i - 1, x_update);
       DEBUG_EDIT   yLOG_char    ("prev"      , x_update);
-      /*> if (x_save == 'w' && x_mode == '²')   ysrc_word__update   (i - 1, '>');     <* 
-       *> if (x_save == 's' && x_mode == '²')   ysrc_word__update   (i - 1, '>');     <* 
-       *> if (x_save == 'w' && x_mode == 's')   ysrc_word__update   (i - 1, ']');     <* 
-       *> if (x_save == 's' && x_mode == 'w')   ysrc_word__update   (i - 1, '[');     <*/
       /*---(save)------------------------*/
       x_save = x_mode;
       /*---(done)------------------------*/

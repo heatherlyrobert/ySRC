@@ -402,15 +402,15 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>    case  '#' :                                                                           <* 
     *>       DEBUG_USER   yLOG_note    ("current char find");                                   <* 
     *>       x_char = s_cur->contents [s_cur->cpos];                                            <* 
-    *>       rc = SOURCE__charfind (x_char);                                                    <* 
+    *>       rc = ysrc_move_char_next (x_char);                                                    <* 
     *>       break;                                                                             <* 
     *>    case  'n' :                                                                           <* 
     *>       DEBUG_USER   yLOG_note    ("char find next");                                      <* 
-    *>       rc = SOURCE__charfind (x_char);                                                    <* 
+    *>       rc = ysrc_move_char_next (x_char);                                                    <* 
     *>       break;                                                                             <* 
     *>    case  'N' :                                                                           <* 
     *>       DEBUG_USER   yLOG_note    ("char find reverse");                                   <* 
-    *>       rc = SOURCE__charfindrev (x_char);                                                 <* 
+    *>       rc = ysrc_move_char_prev (x_char);                                                 <* 
     *>       break;                                                                             <* 
     *>    case  '"' :                                                                           <* 
     *>       DEBUG_USER   yLOG_note    ("switch to a text register mode (¶)");                  <* 
@@ -466,7 +466,7 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>    }                                                                                     <* 
     *>    /+---(basic movement)--------------+/                                                 <* 
     *>    if (strchr (g_hsimple, a_minor) != 0) {                                               <* 
-    *>       rc = SOURCE__simple  (a_major, a_minor);                                           <* 
+    *>       rc = ysrc_move_simple (a_major, a_minor);                                           <* 
     *>    }                                                                                     <* 
     *>    /+---(word movement)---------------+/                                                 <* 
     *>    if (strchr (g_hword, a_minor) != 0) {                                                 <* 
@@ -506,10 +506,10 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>    case 'g' :  rc = SOURCE__goto      (a_major, a_minor);  break;                        <* 
     *>    case 'z' :  rc = SOURCE__scroll    (a_major, a_minor);  break;                        <* 
     *>    case 'f' :  x_char = a_minor;                                                         <* 
-    *>                rc = SOURCE__charfind  (x_char);                                          <* 
+    *>                rc = ysrc_move_char_next  (x_char);                                          <* 
     *>                break;                                                                    <* 
     *>    case 'F' :  x_char = a_minor;                                                         <* 
-    *>                rc = SOURCE__charfindrev (x_char);                                        <* 
+    *>                rc = ysrc_move_char_prev (x_char);                                        <* 
     *>                break;                                                                    <* 
     *>    case 'c' :  n = yKEYS_repeat_useall ();                                               <* 
     *>                for (i = 0; i <= n; ++i) {                                                <* 

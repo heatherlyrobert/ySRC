@@ -5,20 +5,21 @@
 
 
 
-
-char*        /*-> return current source label --------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
-SOURCE_label            (void)
-{
-   return s_src.label;
-}
+uchar      g_char      = ' ';
 
 
+
+/*====================------------------------------------====================*/
+/*===----                    absolute position moves                   ----===*/
+/*====================------------------------------------====================*/
+static void      o___ABSOLUTE________________o (void) {;}
 
 char         /*-> tbd --------------------------------[ ------ [ge.DB2.162.62]*/ /*-[01.0000.403.!]-*/ /*-[--.---.---.--]-*/
-SOURCE__simple          (int a_major, int a_minor)
+ysrc_move_simple        (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
@@ -28,7 +29,6 @@ SOURCE__simple          (int a_major, int a_minor)
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   /*> DEBUG_EDIT  yLOG_info    ("g_hsimple" , g_hsimple);                            <*/
    --rce;  if (!yKEYS_is_horz_simple (a_minor)) {
       DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
@@ -38,19 +38,60 @@ SOURCE__simple          (int a_major, int a_minor)
    UPDATE_BEFORE_CHANGES;
    /*---(horizontal moves)---------------*/
    switch (a_minor) {
-   case '0' : s_cur->cpos  = 0;                    break;
-   case 'H' : s_cur->cpos -= 5;                    break;
+   case '0' : s_cur->cpos  =  0;                   break;
+   case 'H' : s_cur->cpos -=  5;                   break;
    case 'h' : --s_cur->cpos;                       break;
    case 'l' : ++s_cur->cpos;                       break;
-   case 'L' : s_cur->cpos += 5;                    break;
+   case 'L' : s_cur->cpos +=  5;                   break;
    case '$' : s_cur->cpos  = s_cur->npos - 1;      break;
    }
    /*---(wrapup)-------------------------*/
-   UPDATE_AFTER_CHANGES;
+   rc = UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
    DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
+
+char
+ysrc_move_char_next     (uchar a_ch)
+{
+   char        rc          =    0;
+   int         i           =    0;
+   if      (a_ch ==  0)  a_ch = g_char;
+   else if (a_ch ==  1)  a_ch = s_cur->contents [s_cur->cpos];
+   for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
+      if (s_cur->contents [i] != a_ch)  continue;
+      s_cur->cpos = i;
+      g_char      = a_ch;
+      rc = UPDATE_AFTER_CHANGES;
+      return rc;
+   }
+   return -1;
+}
+
+char
+ysrc_move_char_prev     (uchar a_ch)
+{
+   char        rc          =    0;
+   int         i           =    0;
+   if      (a_ch ==  0)  a_ch = g_char;
+   else if (a_ch ==  1)  a_ch = s_cur->contents [s_cur->cpos];
+   for (i = s_cur->cpos - 1; i >= 0; --i) {
+      if (s_cur->contents [i] != a_ch)  continue;
+      s_cur->cpos = i;
+      g_char      = a_ch;
+      rc = UPDATE_AFTER_CHANGES;
+      return rc;
+   }
+   return -1;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                     screen relative moves                    ----===*/
+/*====================------------------------------------====================*/
+static void      o___SCREEN__________________o (void) {;}
 
 char         /*-> tbd --------------------------------[ ------ [ge.DB2.162.62]*/ /*-[01.0000.403.!]-*/ /*-[--.---.---.--]-*/
 SOURCE__goto       (int a_major, int a_minor)
@@ -67,7 +108,6 @@ SOURCE__goto       (int a_major, int a_minor)
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   /*> DEBUG_EDIT  yLOG_info    ("g_hgoto"  , g_hgoto);                               <*/
    --rce;  if (!yKEYS_is_horz_goto (a_minor)) {
       DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
@@ -134,32 +174,6 @@ SOURCE__scroll     (char a_major, char a_minor)
    return 0;
 }
 
-char
-SOURCE__charfindrev     (uchar a_ch)
-{
-   int         i           =    0;
-   for (i = s_cur->cpos - 1; i >= 0; --i) {
-      if (s_cur->contents [i] != a_ch)  continue;
-      s_cur->cpos = i;
-      UPDATE_AFTER_CHANGES;
-      return 0;
-   }
-   return -1;
-}
-
-char
-SOURCE__charfind        (uchar a_ch)
-{
-   int         i           =    0;
-   for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
-      if (s_cur->contents [i] != a_ch)  continue;
-      s_cur->cpos = i;
-      UPDATE_AFTER_CHANGES;
-      return 0;
-   }
-   return -1;
-}
-
 char         /*-> complex delete action --------------[ ------ [gz.430.031.02]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
 SOURCE_delete          (char a_major, char a_minor)
 {
@@ -204,9 +218,9 @@ SOURCE_delete          (char a_major, char a_minor)
    switch (a_minor) {
    case 'h' : x_len = 1;                             break;
    case 'l' : x_len = 1;                             break;
-   case 'w' : ysrc_word_next (a_minor, &(s_cur->cpos), &x_len);  break;
-   case 'b' : ysrc_word_prev (a_minor, &(s_cur->cpos), &x_len);  break;
-   case 'e' : ysrc_word_end  (a_minor, &(s_cur->cpos), &x_len);  break;
+   case 'w' : case 'W' : ysrc_word_next (a_minor, &(s_cur->cpos), &x_len);  break;
+   case 'b' : case 'B' : ysrc_word_prev (a_minor, &(s_cur->cpos), &x_len);  break;
+   case 'e' : case 'E' : ysrc_word_end  (a_minor, &(s_cur->cpos), &x_len);  break;
    case '0' : x_len = s_cur->cpos; s_cur->cpos = 0;  break;
    case '$' : x_len = s_cur->npos - s_cur->cpos;     break;
    }
