@@ -99,8 +99,8 @@ ysrc_clear              (void)
    char        rce         =  -10;
    char        rc          =    0;
    int         i           =    0;
-   int         x_beg       =    0;
-   int         x_end       =    0;
+   short       x_beg       =    0;
+   short       x_end       =    0;
    /*---(defense)------------------------*/
    --rce;  if (s_cur->npos <= 0)  return rce;
    /*---(prepare)------------------------*/
@@ -129,20 +129,28 @@ char         /*-> process keys for register action ---[ ------ [gz.430.031.02]*/
 ysrc_delete             (char a_major, char a_minor)
 {
    /*---(locals)-----------+-----------+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
    int         x_diff      =   0;
    int         i           =   0;
-   int         x_beg       =   0;
-   int         x_end       =   0;
+   short       x_beg       =   0;
+   short       x_end       =   0;
+   /*---(defense)------------------------*/
+   --rce;  if (s_cur->npos <= 0)  return rce;
    /*---(prepare)------------------------*/
-   ysrc_select_curr (&x_beg, &x_end, NULL);
+   rc = ysrc_select_curr (&x_beg, &x_end, NULL);
+   --rce;  if (rc < 0)  return rce;
    /*---(short-path)---------------------*/
-   ysrc_sundo_beg ();
+   rc = ysrc_sundo_beg ();
+   --rce;  if (rc < 0)  return rce;
    /*---(short-path)---------------------*/
-   if (!ysrc_select_islive () && a_minor == 'D') {
+   --rce;  if (!ysrc_select_islive () && a_minor == 'D') {
       if (s_cur->cpos <= 0)  return -1;
       --s_cur->cpos;
-      ysrc_sundo_add (a_major, tolower (a_minor), i, s_cur->contents [i], G_KEY_NULL);
-      ysrc_delete_one ();
+      rc = ysrc_sundo_add (a_major, tolower (a_minor), i, s_cur->contents [i], G_KEY_NULL);
+      if (rc < 0)  return rce;
+      rc = ysrc_delete_one ();
+      if (rc < 0)  return rce;
       return 0;
    }
    else {
@@ -151,11 +159,16 @@ ysrc_delete             (char a_major, char a_minor)
       /*---(delete)-------------------------*/
       s_cur->cpos = x_beg;
       for (i = 0; i < x_diff; ++i) {
-         ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
-         ysrc_delete_one ();
+         rc = ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         if (rc < 0)  break;
+         rc = ysrc_delete_one ();
+         if (rc < 0)  break;
       }
    }
-   ysrc_sundo_end ();
+   --rce;  if (rc < 0)  return rce;
+   /*---(end)----------------------------*/
+   rc = ysrc_sundo_end ();
+   --rce;  if (rc < 0)  return rce;
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -167,8 +180,8 @@ ysrc_copy              (void)
    char       *x_start     = NULL;
    int         x_len       =   0;
    char        x_data      [LEN_RECD];
-   int         x_beg       =   0;
-   int         x_end       =   0;
+   short       x_beg       =   0;
+   short       x_end       =   0;
    /*---(prepare)------------------------*/
    ysrc_select_curr (&x_beg, &x_end, NULL);
    /*---(set size)-----------------------*/
@@ -188,8 +201,8 @@ ysrc_replace            (void)
    /*---(locals)-----------+-----------+-*/
    int         x_dlen      =   0;
    char        x_data      [LEN_RECD];
-   int         x_beg       =   0;
-   int         x_end       =   0;
+   short       x_beg       =   0;
+   short       x_end       =   0;
    int         x_len       =   0;
    int         i           =   0;
    char        x_ch        = G_CHAR_STORAGE;
@@ -238,8 +251,8 @@ ysrc_paste              (char a_dir)
    /*---(locals)-----------+-----------+-*/
    int         x_dlen      =   0;
    char        x_data      [LEN_RECD];
-   int         x_beg       =   0;
-   int         x_end       =   0;
+   short       x_beg       =   0;
+   short       x_end       =   0;
    int         i           =   0;
    /*---(get register data)--------------*/
    ysrc_sreg_fetch  (&x_dlen, x_data);

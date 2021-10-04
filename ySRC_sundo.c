@@ -303,6 +303,7 @@ ysrc_sundo_status       (char *a_list)
    char        t           [LEN_LABEL] = "";
    char        x_ch        =  ' ';
    uchar       x_seq       =  '·';
+   uchar       x_pos       =  '·';
    /*---(defenses)--------------------*/
    --rce;  if (a_list  == NULL) return rce;
    strcpy (a_list, "");
@@ -318,9 +319,11 @@ ysrc_sundo_status       (char *a_list)
    /*---(write line)------------------*/
    /*> sprintf (a_list, "%3dn, %3dc, ", g_nsundo, g_csundo);                          <*/
    for (i = x_beg; i < x_end; ++i) {
-      if (g_sundos [i].seq < 0)  x_seq = '·';
-      else                       x_seq = YSTR_CHARS [g_sundos [i].seq];
-      sprintf (t, "%c%c%c%d%c%c,", x_seq, g_sundos [i].major, g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);
+      if (g_sundos [i].seq  < 0)  x_seq = '·';
+      else                        x_seq = YSTR_CHARS [g_sundos [i].seq];
+      if (g_sundos [i].cpos < 0)  x_pos = '·';
+      else                        x_pos = YSTR_CHARS [g_sundos [i].cpos];
+      sprintf (t, "%c%c%c%c%c%c,", x_seq, g_sundos [i].major, g_sundos [i].minor, x_pos, g_sundos [i].before, g_sundos [i].after);
       /*> x_ch = g_sundos [i].major;                                                                                                                                        <* 
        *> if (x_ch != G_KEY_SPACE)  sprintf (t, "%d%c%c%d%c%c,", g_sundos [i].seq, x_ch, g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <* 
        *> else                      sprintf (t, "%d%c%d%c%c,"  , g_sundos [i].seq,       g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <*/
