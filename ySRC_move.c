@@ -255,9 +255,9 @@ SOURCE_delete          (char a_major, char a_minor)
    switch (a_minor) {
    case 'h' : x_len = 1;                             break;
    case 'l' : x_len = 1;                             break;
-   case 'w' : case 'W' : ysrc_word_next (a_minor, &(s_cur->cpos), &x_len);  break;
-   case 'b' : case 'B' : ysrc_word_prev (a_minor, &(s_cur->cpos), &x_len);  break;
-   case 'e' : case 'E' : ysrc_word_end  (a_minor, &(s_cur->cpos), &x_len);  break;
+   case 'w' : case 'W' : ysrc_word_next (a_minor, NULL, &x_len);  break;
+   case 'b' : case 'B' : ysrc_word_prev (a_minor, NULL, &x_len);  break;
+   case 'e' : case 'E' : ysrc_word_end  (a_minor, NULL, &x_len);  break;
    case '0' : x_len = s_cur->cpos; s_cur->cpos = 0;  break;
    case '$' : x_len = s_cur->npos - s_cur->cpos;     break;
    }

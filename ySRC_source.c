@@ -9,64 +9,6 @@ tEDIT   s_cmd;
 tEDIT  *s_cur    = &s_src;
 
 
-/*====================------------------------------------====================*/
-/*===----                      working functions                       ----===*/
-/*====================------------------------------------====================*/
-static void  o___WORKERS_________o () { return; }
-
-char
-ysrc_replace_one        (uchar a_key)
-{
-   s_cur->contents [s_cur->cpos] = a_key;
-   return 0;
-}
-
-char
-ysrc_delete_one         (void)
-{
-   int         i           =   0;
-   for (i = s_cur->cpos; i < s_cur->npos; ++i) {
-      s_cur->contents [i] = s_cur->contents [i + 1];
-   }
-   --s_cur->npos;
-   return 0;
-}
-
-char
-ysrc_backspace_one      (void)
-{
-   if (s_cur->cpos <= 0)  return -1;
-   --s_cur->cpos;
-   ysrc_delete_one  ();
-   return 0;
-}
-
-char
-ysrc_insert_one         (uchar a_key)
-{
-   int         i           =   0;
-   for (i = s_cur->npos + 1; i >= s_cur->cpos; --i) {
-      s_cur->contents [i + 1] = s_cur->contents [i];
-   }
-   ++s_cur->npos;
-   ysrc_replace_one (a_key);
-   return 0;
-}
-
-char
-ysrc_append_one         (uchar a_key)
-{
-   if (s_cur->npos == 0) {
-      ysrc_insert_one (a_key);
-   } else {
-      ++s_cur->cpos;
-      ysrc_insert_one (a_key);
-   }
-   ++s_cur->npos;
-   return 0;
-}
-
-
 
 /*====================------------------------------------====================*/
 /*===----                      text reg actions                        ----===*/
