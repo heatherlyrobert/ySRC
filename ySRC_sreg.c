@@ -773,7 +773,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       case  'x' : case  'X' :
          DEBUG_USER   yLOG_note    ("clear selection source");
          ysrc_copy          ();
-         ysrc_clear         (a_major, a_minor);
+         ysrc_clear         ();
          ysrc_select_reset (g_sreg.end);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;

@@ -430,7 +430,9 @@ ySRC__unit              (char *a_question, int n)
       return unit_answer;
    }
    else if (strcmp (a_question, "selection"      )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SREG selection   :    %c, %3db, %3de, %3d#, %3dr", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root);
+      strlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
+      /*> t [g_sreg.root - g_sreg.beg] = 'Ï';                                         <*/
+      snprintf (unit_answer, LEN_FULL, "SRC selection    : %c %2db %2de %2d# %2dr å%sæ", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root, t);
       return unit_answer;
    }
    else if (strcmp (a_question, "register"       )   == 0) {

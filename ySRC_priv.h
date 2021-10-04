@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0i"
-#define     P_VERTXT    "action workers all updated, tightened, and unit tested"
+#define     P_VERNUM    "2.0j"
+#define     P_VERTXT    "select functions all updated, tightened, and unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -143,7 +143,7 @@ char        ysrc_insert_one         (uchar a_key);
 char        ysrc_insert_and_move    (uchar a_key);
 char        ysrc_append_one         (uchar a_key);
 /*---(actions)--------------*/
-char        ysrc_clear              (char a_major, char a_minor);
+char        ysrc_clear              (void);
 char        ysrc_delete             (char a_major, char a_minor);
 char        ysrc_copy               (void);
 char        ysrc_replace            (void);
@@ -245,17 +245,15 @@ int         ysrc_sreg_dump          (void *a_file);
 
 /*===[[ ySRC_input.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc_select_reset       (int a_pos);
-char        ysrc_select_update      (int a_pos);
-int         ysrc_select_reverse     (void);
-char        ysrc_select_exact       (int a_beg, int a_end, int a_root);
-char        ysrc_select_curr        (int *a_beg, int *a_end, int *a_root);
+char        ysrc_select_reset       (short a_pos);
+char        ysrc_select_update      (short a_pos);
+short       ysrc_select_reverse     (void);
+char        ysrc_select_exact       (short a_beg, short a_end, short a_root);
+char        ysrc_select_curr        (short *a_beg, short *a_end, short *a_root);
 char        ysrc_select_all         (void);
 char        ysrc_select_getlive     (void);
 char        ysrc_select_islive      (void);
-char        ysrc_select_isdead      (void);
 char        ysrc_select_makelive    (void);
-char        ysrc_select_makedead    (void);
 
 
 
@@ -264,7 +262,7 @@ char        ysrc_select_makedead    (void);
 uchar       ysrc_word__type         (char a_type, char a_curr);
 char        ysrc_word__curr         (char a_type, char a_save, char a_mode);
 char        ysrc_word__prev         (char a_type, char a_save, char a_mode);
-char        ysrc_word__update       (int a_pos, char a_curr);
+char        ysrc_word__update       (short a_pos, char a_curr);
 char        ysrc_word_update        (void);
 char        ysrc_word_next          (char a_minor, short *a_cur, short *a_len);
 char        ysrc_word_end           (char a_minor, short *a_cur, short *a_len);

@@ -12,16 +12,17 @@
 static void  o___SELECTION_______o () { return; }
 
 char         /*-> go back to defaults ----------------[ shoot  [gz.530.011.00]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-ysrc_select_reset       (int a_pos)
+ysrc_select_reset       (short a_pos)
 {
    ysrc_sreg__wipeall ('-', &g_sreg);
    g_sreg.root  = g_sreg.end   = g_sreg.beg   = a_pos;
    g_csreg = '"';
+   g_sreg.active = S_SREG_NOT;
    return 0;
 }
 
 char
-ysrc_select_update      (int a_pos)
+ysrc_select_update      (short a_pos)
 {
    if (g_sreg.active != S_SREG_YES) {
       g_sreg.root = g_sreg.beg = g_sreg.end = a_pos;
@@ -35,7 +36,7 @@ ysrc_select_update      (int a_pos)
    return 0;
 }
 
-int
+short
 ysrc_select_reverse     (void)
 {
    if      (g_sreg.root == g_sreg.beg) {
@@ -49,16 +50,27 @@ ysrc_select_reverse     (void)
 }
 
 char
-ysrc_select_exact       (int a_beg, int a_end, int a_root)
+ysrc_select_exact       (short a_beg, short a_end, short a_root)
 {
-   g_sreg.beg  = a_beg;
-   g_sreg.end  = a_end;
-   g_sreg.root = a_root;
+   /*---(locals)-----------+-----+-----+-*/
+   short       a           =    0;
+   /*---(save)---------------------------*/
+   g_sreg.beg    = a_beg;
+   g_sreg.end    = a_end;
+   g_sreg.root   = a_root;
+   g_sreg.active = S_SREG_YES;
+   /*---(correct directions)-------------*/
+   if (g_sreg.beg > g_sreg.end) {
+      a          = g_sreg.beg;
+      g_sreg.beg = g_sreg.end;
+      g_sreg.end = a;
+   }
+   /*---(complete)-----------------------*/
    return 0;
 }
 
 char
-ysrc_select_curr        (int *a_beg, int *a_end, int *a_root)
+ysrc_select_curr        (short *a_beg, short *a_end, short *a_root)
 {
    if (a_beg  != NULL)  *a_beg  = g_sreg.beg;
    if (a_end  != NULL)  *a_end  = g_sreg.end;
@@ -69,17 +81,15 @@ ysrc_select_curr        (int *a_beg, int *a_end, int *a_root)
 char
 ysrc_select_all         (void)
 {
-   g_sreg.beg  = 0;
-   g_sreg.end  = ysrc_npos() - 1;
-   g_sreg.root = 0;
+   g_sreg.beg    = 0;
+   g_sreg.end    = ysrc_npos () - 1;
+   g_sreg.root   = 0;
+   g_sreg.active = S_SREG_YES;
    return 0;
 }
 
-char ysrc_select_getlive    (void) { return g_sreg.active; }
 char ysrc_select_islive     (void) { if (g_sreg.active == S_SREG_YES)  return 1; return 0; }
-char ysrc_select_isdead     (void) { if (g_sreg.active == S_SREG_NOT)  return 1; return 0; }
 char ysrc_select_makelive   (void) { g_sreg.active = S_SREG_YES; return 0; }
-char ysrc_select_makedead   (void) { g_sreg.active = S_SREG_NOT; return 0; }
 
 
 

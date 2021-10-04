@@ -66,7 +66,7 @@ ysrc_word__prev         (char a_type, char a_save, char a_mode)
 }
 
 char
-ysrc_word__update       (int a_pos, char a_curr)
+ysrc_word__update       (short a_pos, char a_curr)
 {
    /*---(before start)-------------------*/
    if (a_curr < 0)  return 0;
