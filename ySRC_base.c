@@ -451,6 +451,12 @@ ySRC__unit              (char *a_question, int n)
       snprintf (unit_answer, LEN_FULL, "SRC details      : %2dw %2da %2db %2dc %2de %-12.12s %s", s_cur->wide, s_cur->apos, s_cur->bpos, s_cur->cpos, s_cur->epos, s, t);
       return unit_answer;
    }
+   else if (strcmp (a_question, "display"        )   == 0) {
+      strlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
+      t [s_cur->cpos - s_cur->bpos] = 'Ï';
+      snprintf (unit_answer, LEN_FULL, "SRC display (%2d) : å%sæ", s_cur->apos, t);
+      return unit_answer;
+   }
    /*> else if (strcmp (a_question, "clip"           )   == 0) {                             <* 
     *>    yvikeys_dump_read (n, t, &x_len);                                                  <* 
     *>    snprintf (unit_answer, LEN_RECD, "SREG clip   (%2d) : %2d[%.40s]", n, x_len, t);   <* 

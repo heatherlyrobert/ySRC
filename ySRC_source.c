@@ -503,8 +503,8 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>       rc = SOURCE_delete     (a_major, a_minor);                                         <* 
     *>       SOURCE__done ();                                                                   <* 
     *>       break;                                                                             <* 
-    *>    case 'g' :  rc = SOURCE__goto      (a_major, a_minor);  break;                        <* 
-    *>    case 'z' :  rc = SOURCE__scroll    (a_major, a_minor);  break;                        <* 
+    *>    case 'g' :  rc = ysrc_move_goto    (a_major, a_minor);  break;                        <* 
+    *>    case 'z' :  rc = ysrc_move_scroll  (a_major, a_minor);  break;                        <* 
     *>    case 'f' :  x_char = a_minor;                                                         <* 
     *>                rc = ysrc_move_char_next  (x_char);                                          <* 
     *>                break;                                                                    <* 

@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0f"
-#define     P_VERTXT    "character moves, incl curr and saved, are unit tested"
+#define     P_VERNUM    "2.0h"
+#define     P_VERTXT    "scrolls are unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -58,9 +58,14 @@
 #include    <yKEYS.h>             /* heatherly yVIKEYS key handling           */
 
 
+
 extern char    (*s_saver) (char *a_contents);
 extern uchar    *g_stub;
 extern uchar     g_char;
+extern uchar     g_goto;
+
+
+
 #define     S_SREG_NOT '-'
 #define     S_SREG_YES 'y'
 
@@ -268,9 +273,14 @@ char        ysrc_word_hmode         (uchar a_major, uchar a_minor);
 
 /*===[[ ySRC_move.c ]]========================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+/*---(absolute)-------------*/
 char        ysrc_move_simple        (uchar a_major, uchar a_minor);
 char        ysrc_move_char_next     (uchar a_ch);
 char        ysrc_move_char_prev     (uchar a_ch);
+/*---(screen)---------------*/
+char        ysrc_move_goto          (uchar a_major, uchar a_minor);
+char        ysrc_move_scroll        (uchar a_major, uchar a_minor);
+/*---(done)-----------------*/
 
 
 

@@ -6,6 +6,7 @@
 
 
 uchar      g_char      = ' ';
+uchar      g_goto      = 'c';
 
 
 
@@ -94,11 +95,24 @@ ysrc_move_char_prev     (uchar a_ch)
 static void      o___SCREEN__________________o (void) {;}
 
 char         /*-> tbd --------------------------------[ ------ [ge.DB2.162.62]*/ /*-[01.0000.403.!]-*/ /*-[--.---.---.--]-*/
-SOURCE__goto       (int a_major, int a_minor)
+ysrc_move_goto          (uchar a_major, uchar a_minor)
 {
+   /*---(design notes)-------------------*/
+   /*
+    *  SHLE move screen, but maintain relative cursor position
+    *
+    *  SE   overlay the new and old screens by one column
+    *  H    begining goes to center (mostly, except if even columns)
+    *  L    end goes to center (mostly, except if even columns)
+    *
+    *  gg   means repeat last goto
+    *
+    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         x_qtr       =    0;
+   int         x_haf       =    0;
+   int         x_ful       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
@@ -108,26 +122,40 @@ SOURCE__goto       (int a_major, int a_minor)
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   --rce;  if (!yKEYS_is_horz_goto (a_minor)) {
+   --rce;  if (a_minor == 0 || !yKEYS_is_horz_goto (a_minor)) {
       DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
    UPDATE_BEFORE_CHANGES;
+   /*---(distances)----------------------*/
+   x_qtr  = s_cur->apos / 4;
+   x_haf  = s_cur->apos / 2;
+   x_ful  = s_cur->apos;
+   /*---(repeating)----------------------*/
+   if (a_minor == 'g')  a_minor = g_goto;
    /*---(goto moves)---------------------*/
-   x_qtr = s_cur->apos / 4;
    switch (a_minor) {
-   case 'S' : s_cur->cpos  = s_cur->bpos - x_qtr * 4;  break;
-   case 'H' : s_cur->cpos  = s_cur->bpos - x_qtr * 2;  break;
-   case 's' : s_cur->cpos  = s_cur->bpos;              break;
-   case 'h' : s_cur->cpos  = s_cur->bpos + x_qtr * 1;  break;
-   case 'c' : s_cur->cpos  = s_cur->bpos + x_qtr * 2;  break;
-   case 'l' : s_cur->cpos  = s_cur->bpos + x_qtr * 3;  break;
-   case 'e' : s_cur->cpos  = s_cur->epos;              break;
-   case 'L' : s_cur->cpos  = s_cur->bpos + x_qtr * 6;  break;
-   case 'E' : s_cur->cpos  = s_cur->bpos + x_qtr * 8;  break;
+   case 'S' : s_cur->bpos  = s_cur->bpos - x_ful + 1;
+              s_cur->cpos  = s_cur->cpos - x_ful + 1;
+              break;
+   case 'H' : s_cur->bpos  = s_cur->bpos - x_haf + 1;
+              s_cur->cpos  = s_cur->cpos - x_haf + 1;
+              break;
+   case 's' : s_cur->cpos  = s_cur->bpos;                         break;
+   case 'h' : s_cur->cpos  = s_cur->bpos + x_qtr * 1 - 1;         break;
+   case 'c' : s_cur->cpos  = s_cur->bpos + x_haf     - 1;         break;
+   case 'l' : s_cur->cpos  = s_cur->bpos + x_qtr * 3 - 1;         break;
+   case 'e' : s_cur->cpos  = s_cur->epos;                         break;
+   case 'L' : s_cur->bpos  = s_cur->bpos + x_haf - 1;
+              s_cur->cpos  = s_cur->cpos + x_haf - 1;
+              break;
+   case 'E' : s_cur->bpos  = s_cur->bpos + x_ful - 1;
+              s_cur->cpos  = s_cur->cpos + x_ful - 1;
+              break;
    }
+   g_goto = a_minor;
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
@@ -136,11 +164,19 @@ SOURCE__goto       (int a_major, int a_minor)
 }
 
 char         /*-> tbd --------------------------------[ ------ [ge.DB2.162.62]*/ /*-[01.0000.403.!]-*/ /*-[--.---.---.--]-*/
-SOURCE__scroll     (char a_major, char a_minor)
+ysrc_move_scroll        (uchar a_major, uchar a_minor)
 {
+   /*---(design notes)-------------------*/
+   /*
+    *  all positions should match where goto's end up (shcle)
+    *
+    *  current position stays the same, beg/end move
+    *
+    */
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    int         x_qtr       =    0;
+   int         x_haf       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
    DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
@@ -150,22 +186,23 @@ SOURCE__scroll     (char a_major, char a_minor)
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   /*> DEBUG_EDIT  yLOG_info    ("g_hscroll" , g_hscroll);                            <*/
-   --rce;  if (!yKEYS_is_horz_scroll (a_minor)) {
+   --rce;  if (a_minor == 0 || !yKEYS_is_horz_scroll (a_minor)) {
       DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
    UPDATE_BEFORE_CHANGES;
-   /*---(goto moves)---------------------*/
-   x_qtr = s_cur->apos / 4;
+   /*---(distances)----------------------*/
+   x_qtr  = s_cur->apos / 4;
+   x_haf  = s_cur->apos / 2;
+   /*---(scrolls)------------------------*/
    switch (a_minor) {
-   case 's' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 0);  break;
-   case 'h' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 1);  break;
-   case 'c' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 2);  break;
-   case 'l' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 3);  break;
-   case 'e' : s_cur->bpos += s_cur->cpos - (s_cur->epos);              break;
+   case 's' : s_cur->bpos += s_cur->cpos -  s_cur->bpos;               break;
+   case 'h' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 1) + 1;  break;
+   case 'c' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_haf) + 1;  break;
+   case 'l' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 3) + 1;  break;
+   case 'e' : s_cur->bpos += s_cur->cpos -  s_cur->epos;               break;
    }
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
