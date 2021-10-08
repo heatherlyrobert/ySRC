@@ -183,24 +183,20 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>       rc = tolower (a_minor);                                                            <* 
     *>       break;                                                                             <* 
     *>    case  'D' :                                                                           <* 
-    *>       rc = ysrc_multi     ('d', 'l');                                                 <* 
-    *>       SOURCE__done ();                                                                   <* 
+    *>       rc = ysrc_multi_pure ('d', 'l');                                                 <* 
     *>       break;                                                                             <* 
     *>    case  'X' :                                                                           <* 
-    *>       rc = ysrc_multi     ('x', 'l');                                                 <* 
-    *>       SOURCE__done ();                                                                   <* 
+    *>       rc = ysrc_multi_pure ('x', 'l');                                                 <* 
     *>       break;                                                                             <* 
     *>    }                                                                                     <* 
     *>    /+---(check for backspace)------------+/                                              <* 
     *>    if (a_minor == G_KEY_BS) {                                                            <* 
     *>       DEBUG_USER   yLOG_note    ("handle a backspace");                                  <* 
-    *>       rc = ysrc_multi     ('d', 'h');                                                 <* 
-    *>       SOURCE__done ();                                                                   <* 
+    *>       rc = ysrc_multi_pure ('d', 'h');                                                 <* 
     *>    }                                                                                     <* 
     *>    if (a_minor == G_KEY_DEL) {                                                           <* 
     *>       DEBUG_USER   yLOG_note    ("handle a delete");                                     <* 
-    *>       rc = ysrc_multi     ('d', 'l');                                                 <* 
-    *>       SOURCE__done ();                                                                   <* 
+    *>       rc = ysrc_multi_pure ('d', 'l');                                                 <* 
     *>    }                                                                                     <* 
     *>    /+---(basic movement)--------------+/                                                 <* 
     *>    if (strchr (g_hsimple, a_minor) != 0) {                                               <* 
@@ -238,8 +234,7 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *> else {                                                                                   <* 
     *>    switch (a_major) {                                                                    <* 
     *>    case 'd' : case 'x' :                                                                 <* 
-    *>       rc = ysrc_multi     (a_major, a_minor);                                         <* 
-    *>       SOURCE__done ();                                                                   <* 
+    *>       rc = ysrc_multi_pure (a_major, a_minor);                                         <* 
     *>       break;                                                                             <* 
     *>    case 'g' :  rc = ysrc_move_goto    (a_major, a_minor);  break;                        <* 
     *>    case 'z' :  rc = ysrc_move_scroll  (a_major, a_minor);  break;                        <* 
@@ -251,8 +246,7 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
     *>                break;                                                                    <* 
     *>    case 'c' :  n = yKEYS_repeat_useall ();                                               <* 
     *>                for (i = 0; i <= n; ++i) {                                                <* 
-    *>                   ysrc_multi  ('d', a_minor);                                         <* 
-    *>                   SOURCE__done   ();                                                     <* 
+    *>                   ysrc_multi_pure  ('d', a_minor);                                         <* 
     *>                }                                                                         <* 
     *>                yMODE_enter (UMOD_INPUT);                                                 <* 
     *>                SRC_INPT_umode ('m', tolower (a_minor));                                  <* 

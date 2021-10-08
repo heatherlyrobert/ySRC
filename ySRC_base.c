@@ -421,6 +421,7 @@ ySRC__unit              (char *a_question, int n)
    char        s           [LEN_FULL]  = "";
    char        t           [LEN_FULL]  = "";
    int         x_len       =    0;
+   uchar       x_abbr      =  '-';
    /*---(preprare)-----------------------*/
    strcpy  (unit_answer, "SRC unit         : question not understood");
    /*---(selection)----------------------*/
@@ -435,8 +436,8 @@ ySRC__unit              (char *a_question, int n)
       snprintf (unit_answer, LEN_FULL, "SRC selection    : %c %2db %2de %2d# %2dr å%sæ", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root, t);
       return unit_answer;
    }
-   else if (strcmp (a_question, "register"       )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SREG register    : %c  %c", g_csreg, g_wsreg);
+   else if (strcmp (a_question, "inventory"      )   == 0) {
+      snprintf (unit_answer, LEN_FULL, "SRC reg inven    : %c  %c  å%sæ", g_csreg, g_wsreg, G_SREG_LIST);
       return unit_answer;
    }
    else if (strcmp (a_question, "contents"       )   == 0) {
@@ -465,7 +466,8 @@ ySRC__unit              (char *a_question, int n)
     *>    return unit_answer;                                                                <* 
     *> }                                                                                     <*/
    /*---(complex)------------------------*/
-   n = ysrc_sreg_index  (n);
+   x_abbr = n;
+   n = ysrc_sreg_index  (x_abbr);
    if (n < 0) {
       strlcpy  (unit_answer, "SRC sreg         : not a valid register name", LEN_FULL);
       return unit_answer;
@@ -473,8 +475,10 @@ ySRC__unit              (char *a_question, int n)
    if      (strcmp (a_question, "saved"          )   == 0) {
       snprintf (unit_answer, LEN_FULL, "SRC reg save (%c) : %c %3d[%.40s]", n, g_sregs [n].active, g_sregs [n].len, g_sregs [n].data);
    }
-   if      (strcmp (a_question, "source"         )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SRC reg src  (%c) : %c  %c  %-12.12s  %3db  %3de  %3dr", n, g_sregs [n].active, g_sregs [n].source, g_sregs [n].label, g_sregs [n].beg, g_sregs [n].end, g_sregs [n].root);
+   if      (strcmp (a_question, "register"       )   == 0) {
+      sprintf (r, "å%.10sæ", g_sregs [n].label);
+      sprintf (t, "%2då%.40sæ", g_sregs [n].len, g_sregs [n].data);
+      snprintf (unit_answer, LEN_FULL, "SRC reg   (%c/%2d) : %c %c %-12.12s %2d %2d %2d %s", x_abbr, n, g_sregs [n].active, g_sregs [n].source, r, g_sregs [n].beg, g_sregs [n].end, g_sregs [n].root, t);
    }
 
    /*---(complete)-----------------------*/

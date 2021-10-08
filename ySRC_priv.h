@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0j"
-#define     P_VERTXT    "clear is better and unit tested.  found improvements to select also"
+#define     P_VERNUM    "2.0k"
+#define     P_VERTXT    "all base sreg functions tested, but not mode stuff yet"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -142,9 +142,10 @@ char        ysrc_backspace_one      (void);
 char        ysrc_insert_one         (uchar a_key);
 char        ysrc_insert_and_move    (uchar a_key);
 char        ysrc_append_one         (uchar a_key);
-/*---(actions)--------------*/
-char        ysrc_clear              (void);
-char        ysrc_delete             (char a_major, char a_minor);
+/*---(selection)------------*/
+char        ysrc_clear_select       (void);
+char        ysrc_delete_select      (void);
+char        ysrc_multi_pure         (uchar a_major, uchar a_minor);
 char        ysrc_copy               (void);
 char        ysrc_replace            (void);
 char        ysrc_paste              (char a_dir);
@@ -160,6 +161,7 @@ char       *ysrc_contents           (void);
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 /*---(program)--------------*/
 char        ysrc_sundo_trim         (int a_start);
+char        ysrc_sundo_reset        (void);
 char        ysrc_sundo_init         (void);
 /*---(grouping)-------------*/
 char        ysrc_sundo_beg          (void);
@@ -225,8 +227,8 @@ char        ysrc_sreg_setwork       (uchar a_abbr);
 char        ysrc_sreg_clear         (uchar a_abbr);
 char        ysrc_sreg_push          (uchar a_abbr, char *a_data);
 char        ysrc_sreg_pop           (uchar a_abbr, char *a_data);
-char        ysrc_sreg_fetch         (int *a_len, char *a_data);
-char        ysrc_sreg_save          (char *a_label, char *a_data);
+char        ysrc_sreg_fetch         (short *a_len, char *a_data);
+char        ysrc_sreg_save          (void);
 /*---(status)---------------*/
 char        ysrc_sreg__line         (uchar a_abbr, char *a_entry);
 char        ysrc_sreg_status        (char *a_entry);
@@ -250,6 +252,7 @@ char        ysrc_select_update      (short a_pos);
 short       ysrc_select_reverse     (void);
 char        ysrc_select_exact       (short a_beg, short a_end, short a_root);
 char        ysrc_select_curr        (short *a_beg, short *a_end, short *a_root);
+char        ysrc_select_get         (short *a_beg, short *a_end, short *a_root, short *a_len, char *a_data);
 char        ysrc_select_all         (void);
 char        ysrc_select_getlive     (void);
 char        ysrc_select_islive      (void);

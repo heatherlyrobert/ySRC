@@ -174,7 +174,7 @@ ysrc_word_next          (char a_minor, short *a_cur, short *a_len)
    /*---(check)--------------------------*/
    if (n < 0)  return n;
    /*---(save-back)----------------------*/
-   if (a_len != NULL)  *a_len = n - s_cur->cpos;
+   if (a_len != NULL)  *a_len = n - s_cur->cpos + 1;
    if (a_cur != NULL)  *a_cur = n;
    /*---(complete)-----------------------*/
    return 0;
@@ -203,7 +203,7 @@ ysrc_word_end           (char a_minor, short *a_cur, short *a_len)
    /*---(check)--------------------------*/
    if (n < 0)  return n;
    /*---(save-back)----------------------*/
-   if (a_len != NULL)  *a_len = n - s_cur->cpos;
+   if (a_len != NULL)  *a_len = n - s_cur->cpos + 1;
    if (a_cur != NULL)  *a_cur = n;
    /*---(complete)-----------------------*/
    return 0;
@@ -233,7 +233,7 @@ ysrc_word_prev          (char a_minor, short *a_cur, short *a_len)
    /*---(check)--------------------------*/
    if (n < 0)  return n;
    /*---(save-back)----------------------*/
-   if (a_len != NULL)  *a_len = s_cur->cpos - n;
+   if (a_len != NULL)  *a_len = s_cur->cpos - n + 1;
    if (a_cur != NULL)  *a_cur = n;
    /*---(complete)-----------------------*/
    return 0;

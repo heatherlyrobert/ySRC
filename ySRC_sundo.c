@@ -35,6 +35,9 @@ ysrc_sundo_trim         (int a_start)
    return 0;
 }
 
+char ysrc_sundo_reset        (void) { return ysrc_sundo_trim (0); }
+
+
 char
 ysrc_sundo_init         (void)
 {

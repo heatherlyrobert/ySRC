@@ -4,6 +4,18 @@
 #include    "ySRC_priv.h"
 
 
+/*
+ *  source registers are meant to be kept flexible and macro-ready
+ *  so automation can be through the roof.  i have added some sourcing
+ *  information to *potentially* help in the future, but also assist
+ *  testing.
+ *
+ *  users have a-z easily available and appendable
+ *
+ *  0-9 and è-ÿ are useful for the system and macros to reduce collisions.
+ *
+ */
+
 
 
 char        G_SREG_LIST [S_SREG_MAX];
@@ -18,6 +30,7 @@ uchar       g_wsreg   = '"';
 #define     S_SREG_NONE     '-'
 #define     S_SREG_AUTO     'a'
 #define     S_SREG_USER     'u'
+#define     S_SREG_MULTI    'M'
 #define     S_SREG_IMPORT   'i'
 #define     S_SREG_DIRECT   'd'
 
@@ -141,7 +154,7 @@ ysrc_sreg_init          (void)
       return rce;
    }
    /*---(macro abbrev list)--------------*/
-   strlcpy (G_SREG_LIST, "¶"          , S_SREG_MAX);
+   strlcpy (G_SREG_LIST, "¶"        , S_SREG_MAX);
    strlcat (G_SREG_LIST, YSTR_LOWER , S_SREG_MAX);
    strlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
    strlcat (G_SREG_LIST, YSTR_GREEK , S_SREG_MAX);
@@ -181,8 +194,14 @@ ysrc_sreg_index         (uchar a_abbr)
    /*---(header)-------------------------*/
    DEBUG_MEMS   yLOG_senter  (__FUNCTION__);
    /*---(check)--------------------------*/
+   DEBUG_MEMS   yLOG_schar   (a_abbr);
+   --rce;  if (a_abbr == 0) {
+      DEBUG_MEMS   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
    DEBUG_MEMS   yLOG_snote   ("check");
-   n  = strlchr (G_SREG_LIST, a_abbr, g_nsreg);
+   if (a_abbr == '"')  n  = 0;
+   else                n  = strlchr (G_SREG_LIST, a_abbr, g_nsreg);
    DEBUG_MEMS   yLOG_sint    (n);
    --rce;  if (n  < 0) {
       DEBUG_MEMS   yLOG_sexitr  (__FUNCTION__, n);
@@ -247,6 +266,13 @@ ysrc_sreg_setwork       (uchar a_abbr)
    return 0;
 }
 
+
+
+/*====================------------------------------------====================*/
+/*===----                        data movement                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___DATA____________o () { return; }
+
 char
 ysrc_sreg_clear         (uchar a_abbr)
 {
@@ -295,7 +321,7 @@ ysrc_sreg_push          (uchar a_abbr, char *a_data)
    /*---(prepare)------------------------*/
    a_dst = &g_sregs [n];
    /*---(push data)----------------------*/
-   if (a_abbr == tolower (a_abbr))  {
+   if (a_abbr == tolower (a_abbr) || a_dst->data == g_stub)  {
       DEBUG_MEMS   yLOG_note    ("normal, replace mode");
       ysrc_sreg__wipeall  ('-', a_dst);
       a_dst->active = S_SREG_YES;
@@ -345,7 +371,57 @@ ysrc_sreg_pop           (uchar a_abbr, char *a_data)
 }
 
 char
-ysrc_sreg_fetch         (int *a_len, char *a_data)
+ysrc_sreg_save          (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   int         n           =    0;
+   tSREG      *a_dst       = NULL;
+   char        s           [LEN_RECD] = "";
+   char        t           [LEN_RECD] = "";
+   /*---(header)-------------------------*/
+   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
+   /*> DEBUG_MEMS   yLOG_complex ("args"      , "label %-10p, data %-10p", a_label, a_data);   <*/
+   /*---(defense)------------------------*/
+   n = ysrc_sreg_index  (tolower (g_csreg));
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(prepare)------------------------*/
+   a_dst = &g_sregs [n];
+   /*---(save)---------------------------*/
+   if (g_csreg == tolower (g_csreg) || a_dst->data == g_stub) {
+      DEBUG_MEMS   yLOG_note    ("normal, replace mode");
+      ysrc_sreg__wipeall  ('-', a_dst);
+      a_dst->active = S_SREG_YES;
+      a_dst->source = S_SREG_USER;
+      a_dst->label  = strdup (s_cur->label);
+      ysrc_select_get (&(a_dst->beg), &(a_dst->end), &(a_dst->root), &(a_dst->len), t);
+      /*> a_dst->root   = g_sreg.beg;                                                 <*/
+      /*> a_dst->beg    = g_sreg.beg;                                                 <*/
+      /*> a_dst->end    = g_sreg.end;                                                 <*/
+      a_dst->data   = strdup (t);
+   } else {
+      DEBUG_MEMS   yLOG_note    ("append mode");
+      strlcpy (s, a_dst->data, LEN_RECD);
+      ysrc_sreg__wipedata (a_dst);
+      ysrc_select_get (NULL         , NULL         , NULL          , &(a_dst->len), t);
+      strlcat (s, t , LEN_RECD );
+      a_dst->source = S_SREG_MULTI;
+      a_dst->data   = strdup (s);
+      a_dst->len    = strllen (a_dst->data , LEN_RECD);
+   }
+   a_dst->len    = strllen (a_dst->data , LEN_RECD);
+   DEBUG_MEMS   yLOG_value   ("len"       , a_dst->len);
+   /*---(complete)-----------------------*/
+   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+ysrc_sreg_fetch         (short *a_len, char *a_data)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -371,59 +447,6 @@ ysrc_sreg_fetch         (int *a_len, char *a_data)
    /*---(init)---------------------------*/
    if (a_len  != NULL)  *a_len = g_sregs [n].len;
    if (a_data != NULL)  strlcpy (a_data, g_sregs [n].data, LEN_RECD);
-   /*---(complete)-----------------------*/
-   DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
-ysrc_sreg_save          (char *a_label, char *a_data)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   int         n           =    0;
-   tSREG      *a_dst       = NULL;
-   char        t           [LEN_RECD] = "";
-   /*---(header)-------------------------*/
-   DEBUG_MEMS   yLOG_enter   (__FUNCTION__);
-   DEBUG_MEMS   yLOG_complex ("args"      , "label %-10p, data %-10p", a_label, a_data);
-   /*---(defense)------------------------*/
-   --rce;  if (a_label  == NULL) {
-      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   --rce;  if (a_data  == NULL) {
-      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   n = ysrc_sreg_index  (tolower (g_csreg));
-   DEBUG_MEMS   yLOG_value   ("n"         , n);
-   --rce;  if (n < 0) {
-      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   /*---(prepare)------------------------*/
-   a_dst = &g_sregs [n];
-   /*---(save)---------------------------*/
-   if (g_csreg == tolower (g_csreg)) {
-      DEBUG_MEMS   yLOG_note    ("normal, replace mode");
-      ysrc_sreg__wipeall  ('-', a_dst);
-      a_dst->active = S_SREG_YES;
-      a_dst->source = S_SREG_USER;
-      a_dst->label  = strdup (a_label);
-      a_dst->root   = g_sreg.beg;
-      a_dst->beg    = g_sreg.beg;
-      a_dst->end    = g_sreg.end;
-      a_dst->data   = strdup (a_data);
-   } else {
-      DEBUG_MEMS   yLOG_note    ("append mode");
-      strlcpy (t, a_dst->data, LEN_RECD);
-      ysrc_sreg__wipedata (a_dst);
-      strlcat (t, a_data , LEN_RECD );
-      a_dst->data   = strdup (t);
-   }
-   a_dst->len    = strllen (a_dst->data , LEN_RECD);
-   DEBUG_MEMS   yLOG_value   ("len"       , a_dst->len);
    /*---(complete)-----------------------*/
    DEBUG_MEMS   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -773,7 +796,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       case  'x' : case  'X' :
          DEBUG_USER   yLOG_note    ("clear selection source");
          ysrc_copy          ();
-         ysrc_clear         ();
+         ysrc_clear_select  ();
          ysrc_select_reset (g_sreg.end);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
@@ -781,8 +804,8 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       case  'd' : case  'D' :
          DEBUG_USER   yLOG_note    ("delete selection source");
          ysrc_copy          ();
-         ysrc_delete        (a_major, a_minor);
-         ysrc_select_reset (g_sreg.beg);
+         ysrc_delete_select ();
+         ysrc_select_reset  (g_sreg.beg);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
@@ -795,10 +818,10 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          break;
       case  's' :
          DEBUG_USER   yLOG_note    ("substitute selection source");
-         ysrc_delete       (a_major, 'd');
-         ysrc_sundo_chain  ();
-         ysrc_paste        ('i');
-         ysrc_select_reset (g_sreg.end);
+         ysrc_delete_select ();
+         ysrc_sundo_chain   ();
+         ysrc_paste         ('i');
+         ysrc_select_reset  (g_sreg.end);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
