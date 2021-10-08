@@ -36,8 +36,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0k"
-#define     P_VERTXT    "all base sreg functions tested, but not mode stuff yet"
+#define     P_VERNUM    "2.0l"
+#define     P_VERTXT    "sreg import, export, and copy are unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -234,10 +234,10 @@ char        ysrc_sreg__line         (uchar a_abbr, char *a_entry);
 char        ysrc_sreg_status        (char *a_entry);
 char        ysrc_sreg_info          (int a_index, char *a_entry);
 /*---(mode)-----------------*/
-char        ysrc_sreg__export       (char a_id);
-char        ysrc_sreg__import       (char a_id);
-char        ysrc_sreg__copy         (char a_id, char a_src);
-char        ysrc_sreg__save         (char a_id, char *a_string);
+char        ysrc_sreg__export       (char a_abbr);
+char        ysrc_sreg__import       (char a_abbr);
+char        ysrc_sreg__copy         (char a_abbr, char a_dst);
+char        ysrc_sreg__save         (char a_abbr, char *a_string);
 char        ysrc_sreg_direct        (char *a_string);
 char        ysrc_sreg_smode         (uchar a_major, uchar a_minor);
 int         ysrc_sreg_dump          (void *a_file);

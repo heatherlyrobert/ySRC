@@ -33,6 +33,7 @@ uchar       g_wsreg   = '"';
 #define     S_SREG_MULTI    'M'
 #define     S_SREG_IMPORT   'i'
 #define     S_SREG_DIRECT   'd'
+#define     S_SREG_FILE     'f'
 
 
 
@@ -333,6 +334,7 @@ ysrc_sreg_push          (uchar a_abbr, char *a_data)
       ysrc_sreg__wipedata (a_dst);
       strlcat (t, a_data     , LEN_RECD);
       a_dst->data   = strdup (t);
+      a_dst->source = S_SREG_MULTI;
    }
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
    /*---(complete)-----------------------*/
@@ -548,7 +550,7 @@ ysrc_sreg_status_sel    (char *a_list)
 static void  o___MODE____________o () { return; }
 
 char
-ysrc_sreg__export       (char a_id)
+ysrc_sreg__export       (char a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -557,7 +559,7 @@ ysrc_sreg__export       (char a_id)
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   n = ysrc_sreg_index (a_id);
+   n = ysrc_sreg_index (a_abbr);
    --rce;  if (n <  0)  {
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -570,12 +572,13 @@ ysrc_sreg__export       (char a_id)
 }
 
 char
-ysrc_sreg__import       (char a_id)
+ysrc_sreg__import       (char a_abbr)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
    char        x_recd      [LEN_RECD];
+   int         n           =    0;
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(read)---------------------------*/
@@ -587,15 +590,23 @@ ysrc_sreg__import       (char a_id)
    }
    DEBUG_SCRP   yLOG_info    ("x_recd"    , x_recd);
    /*---(add)----------------------------*/
-   rc = ysrc_sreg_push       (a_id, x_recd);
+   rc = ysrc_sreg_push       (a_abbr, x_recd);
    DEBUG_SCRP   yLOG_value   ("push"      , rc);
+   /*---(mark imported)------------------*/
+   n = ysrc_sreg_index  (tolower (a_abbr));
+   DEBUG_MEMS   yLOG_value   ("n"         , n);
+   --rce;  if (n < 0) {
+      DEBUG_MEMS   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   if (g_sregs [n].source == 'd')  g_sregs [n].source = S_SREG_IMPORT;
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
 char
-ysrc_sreg__copy         (char a_id, char a_src)
+ysrc_sreg__copy         (char a_abbr, char a_dst)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -607,9 +618,8 @@ ysrc_sreg__copy         (char a_id, char a_src)
    /*---(header)-------------------------*/
    DEBUG_SCRP   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_SCRP   yLOG_char    ("a_id"      , a_id);
-   DEBUG_SCRP   yLOG_char    ("a_src"     , a_src);
-   s = ysrc_sreg_index  (a_src);
+   DEBUG_SCRP   yLOG_char    ("a_abbr"      , a_abbr);
+   s = ysrc_sreg_index  (a_abbr);
    DEBUG_SCRP   yLOG_value   ("s"         , s);
    --rce;  if (s <  0) {
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
@@ -624,7 +634,8 @@ ysrc_sreg__copy         (char a_id, char a_src)
       return rce;
    }
    /*---(add)----------------------------*/
-   rc = ysrc_sreg_push       (a_id, x_recd);
+   DEBUG_SCRP   yLOG_char    ("a_dst"     , a_dst);
+   rc = ysrc_sreg_push       (a_dst, x_recd);
    DEBUG_SCRP   yLOG_value   ("push"      , rc);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
@@ -632,7 +643,7 @@ ysrc_sreg__copy         (char a_id, char a_src)
 }
 
 char
-ysrc_sreg__save         (char a_id, char *a_string)
+ysrc_sreg__save         (char a_abbr, char *a_string)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -652,7 +663,7 @@ ysrc_sreg__save         (char a_id, char *a_string)
       p = x_recd + 1;
    }
    /*---(add)----------------------------*/
-   rc = ysrc_sreg_push       (a_id, p);
+   rc = ysrc_sreg_push       (a_abbr, p);
    DEBUG_SCRP   yLOG_value   ("push"      , rc);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
@@ -666,7 +677,7 @@ ysrc_sreg_direct        (char *a_string)
    char        rce         =  -10;
    char        rc          =    0;
    int         x_len       =    0;
-   char        x_id        =  '-';
+   char        x_abbr      =  '-';
    char        x_div       =  '-';
    char       *x_valid     = "*aA0è";
    /*---(header)-------------------------*/
@@ -690,36 +701,52 @@ ysrc_sreg_direct        (char *a_string)
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   x_id  = a_string [0];
-   DEBUG_SCRP   yLOG_char    ("x_id"      , x_id);
+   x_abbr  = a_string [0];
+   DEBUG_SCRP   yLOG_char    ("x_abbr"      , x_abbr);
    x_div = a_string [1];
    DEBUG_SCRP   yLOG_char    ("x_div"     , x_div);
    /*---(check for purge)----------------*/
    --rce;  if (x_len == 1) {
-      rc = ysrc_sreg_purge  (x_id);
+      rc = ysrc_sreg_purge  (x_abbr);
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return rc;
+   }
+   /*---(check dividers)-----------------*/
+   --rce;  if (strchr ("#-+>=", x_div) == NULL)  {
+      DEBUG_SCRP   yLOG_note    ("divider (x_div) not understood");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
    }
    /*---(check for shorts)---------------*/
    --rce;  if (x_len == 2) {
       switch (x_div) {
-      case '=' : rc = ysrc_sreg_clear       (x_id);        break;
-      case '-' : rc = ysrc_sreg__export     (x_id);        break;
-      case '+' : rc = ysrc_sreg__import     (x_id);        break;
-      default  : rc = ysrc_sreg__copy       (x_id, x_div); break;
+      case '#' : rc = ysrc_sreg_clear       (x_abbr);        break;
+      case '-' : rc = ysrc_sreg__export     (x_abbr);        break;
+      case '+' : rc = ysrc_sreg__import     (x_abbr);        break;
+      default  :
+                 DEBUG_SCRP   yLOG_note    ("divider (x_div) not a 2-char version");
+                 DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+                 return rce;
       }
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return rc;
    }
-   /*---(assignment)---------------------*/
-   --rce;  if (x_len >  2 && x_div == '=') {
-      rc = ysrc_sreg__save (x_id, a_string + 2);
+   /*---(copy)---------------------------*/
+   --rce;  if (x_len == 3 && x_div == '>') {
+      rc = ysrc_sreg__copy (x_abbr, a_string [2]);
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return rc;
    }
+   /*---(assignment)---------------------*/
+   --rce;  if (x_div != '=') {
+      DEBUG_SCRP   yLOG_note    ("action not understood");
+      DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   rc = ysrc_sreg__save (x_abbr, a_string + 2);
    /*---(complete)-----------------------*/
    DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 char         /*-> process keys for register actions --[ leaf   [ge.QG5.287.FB]*/ /*-[02.0000.102.!]-*/ /*-[--.---.---.--]-*/
