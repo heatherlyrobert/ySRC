@@ -11,10 +11,11 @@
 
 #define     P_FOCUS     "RS (run-time support)"
 #define     P_NICHE     "us (user control)"
-#define     P_SUBJECT   "source input"
+#define     P_SUBJECT   "efficent ascii-text content creation"
 #define     P_PURPOSE   ""
 
 #define     P_NAMESAKE  "angelia-minyma (the message)"
+#define     P_TERSE     "embodiment of the gods communications"
 #define     P_HERITAGE  ""
 #define     P_IMAGERY   ""
 #define     P_REASON    ""
@@ -36,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0l"
-#define     P_VERTXT    "sreg import, export, and copy are unit tested"
+#define     P_VERNUM    "2.0m"
+#define     P_VERTXT    "action copy, cut, delete, paste, and replace unit tested"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -68,6 +69,65 @@ extern uchar     g_goto;
 
 #define     S_SREG_NOT '-'
 #define     S_SREG_YES 'y'
+
+
+typedef  struct cEDIT   tEDIT;
+struct cEDIT {
+   char        type;                      /* type of input                    */
+   char        label       [LEN_LABEL];   /* source label                     */
+   char        original    [LEN_RECD];    /* pre-edit content                 */
+   char        contents    [LEN_RECD];    /* working content                  */
+   short       wide;                      /* full display space width         */
+   short       apos;                      /* available space for display      */
+   short       npos;                      /* length of edited content         */
+   short       cpos;                      /* current character position       */
+   short       bpos;                      /* beginning of visiable part       */
+   short       epos;                      /* end of visiable part             */
+   char        words       [LEN_RECD];    /* working space for wbe keys       */
+};
+extern tEDIT   s_src;
+extern tEDIT   s_cmd;
+extern tEDIT  *s_cur;
+
+#define      EDIT_NORM        '-'
+#define      EDIT_CMDS        'c'
+#define      EDIT_SRCH        's'
+
+
+
+
+#define        S_SREG_MAX      100
+typedef struct  cSREG  tSREG;
+struct cSREG {
+   /*---(active)------------*/
+   char        active;                      /* register in use                */
+   char        source;                      /* user, file, import             */
+   /*---(source)------------*/
+   char       *label;                       /* original cell                  */
+   short       beg;                         /* original starting point        */
+   short       end;                         /* original ending point          */
+   short       root;
+   /*---(contents)----------*/
+   short       len;                         /* length of text                 */
+   char       *data;                        /* text                           */
+   /*---(done)--------------*/
+};
+extern char   G_SREG_LIST     [S_SREG_MAX];
+extern tSREG  g_sreg;
+extern tSREG  g_sregs  [S_SREG_MAX];
+extern uchar  g_nsreg;
+extern uchar  g_csreg;
+extern uchar  g_wsreg;
+extern tSREG  g_save;                       /* last selection                 */
+
+#define   G_SREG_ZERO    'z'
+#define   G_SREG_CURR    'c'
+#define   G_SREG_BEG     'b'
+#define   G_SREG_END     'e'
+#define   G_SREG_ROOT    'r'
+
+
+
 
 /*===[[ ySRC_sundo.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
@@ -112,28 +172,6 @@ char*       ySRC__unit              (char *a_question, int n);
 
 /*===[[ ySRC_source.c ]]======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-typedef  struct cEDIT   tEDIT;
-struct cEDIT {
-   char        type;                      /* type of input                    */
-   char        label       [LEN_LABEL];   /* source label                     */
-   char        original    [LEN_RECD];    /* pre-edit content                 */
-   char        contents    [LEN_RECD];    /* working content                  */
-   short       wide;                      /* full display space width         */
-   short       apos;                      /* available space for display      */
-   short       npos;                      /* length of edited content         */
-   short       cpos;                      /* current character position       */
-   short       bpos;                      /* beginning of visiable part       */
-   short       epos;                      /* end of visiable part             */
-   char        words       [LEN_RECD];    /* working space for wbe keys       */
-};
-extern tEDIT   s_src;
-extern tEDIT   s_cmd;
-extern tEDIT  *s_cur;
-
-#define      EDIT_NORM        '-'
-#define      EDIT_CMDS        'c'
-#define      EDIT_SRCH        's'
-
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 /*---(workers)--------------*/
 char        ysrc_replace_one        (uchar a_key);
@@ -147,9 +185,11 @@ char        ysrc_clear_select       (void);
 char        ysrc_delete_select      (void);
 char        ysrc_multi_pure         (uchar a_major, uchar a_minor);
 char        ysrc_copy               (void);
-char        ysrc_replace            (void);
+char        ysrc_cut                (void);
+char        ysrc_delete             (void);
 char        ysrc_paste              (char a_dir);
-char        ysrc_swap_all           (char *a_new);
+char        ysrc_replace            (void);
+char        ysrc_swap               (char *a_new);
 /*---(accessors)------------*/
 int         ysrc_cpos               (void);
 int         ysrc_npos               (void);
@@ -191,28 +231,6 @@ char        ysrc_input_umode        (uchar a_major, uchar a_minor);
 
 /*===[[ ySRC_sreg.c ]]========================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-#define        S_SREG_MAX      100
-typedef struct  cSREG  tSREG;
-struct cSREG {
-   /*---(active)------------*/
-   char        active;                      /* register in use                */
-   char        source;                      /* user, file, import             */
-   /*---(source)------------*/
-   char       *label;                       /* original cell                  */
-   short       beg;                         /* original starting point        */
-   short       end;                         /* original ending point          */
-   short       root;
-   /*---(contents)----------*/
-   short       len;                         /* length of text                 */
-   char       *data;                        /* text                           */
-   /*---(done)--------------*/
-};
-extern char   G_SREG_LIST     [S_SREG_MAX];
-extern tSREG  g_sreg;
-extern tSREG  g_sregs  [S_SREG_MAX];
-extern uchar  g_nsreg;
-extern uchar  g_csreg;
-extern uchar  g_wsreg;
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 /*---(support)--------------*/
 char        ysrc_sreg__wipedata     (tSREG *a_dst);
@@ -247,7 +265,7 @@ int         ysrc_sreg_dump          (void *a_file);
 
 /*===[[ ySRC_input.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc_select_reset       (short a_pos);
+char        ysrc_select_reset       (char a_type);
 char        ysrc_select_update      (short a_pos);
 short       ysrc_select_reverse     (void);
 char        ysrc_select_exact       (short a_beg, short a_end, short a_root);

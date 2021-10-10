@@ -35,11 +35,19 @@ ysrc_select__trim       (void)
 }
 
 char         /*-> go back to defaults ----------------[ shoot  [gz.530.011.00]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-ysrc_select_reset       (short a_pos)
+ysrc_select_reset       (char a_type)
 {
+   short       x_pos       =    0;
+   switch (a_type) {
+   case G_SREG_ZERO  :  x_pos =  0;              break;
+   case G_SREG_CURR  :  x_pos = ysrc_cpos ();    break;
+   case G_SREG_BEG   :  x_pos = g_sreg.beg;      break;
+   case G_SREG_END   :  x_pos = g_sreg.end;      break;
+   case G_SREG_ROOT  :  x_pos = g_sreg.root;     break;
+   }
    /*---(defaults)-----------------------*/
    ysrc_sreg__wipeall ('-', &g_sreg);
-   g_sreg.root  = g_sreg.end   = g_sreg.beg   = a_pos;
+   g_sreg.root  = g_sreg.end   = g_sreg.beg   = x_pos;
    g_csreg = '"';
    g_sreg.active = S_SREG_NOT;
    /*---(complete)-----------------------*/

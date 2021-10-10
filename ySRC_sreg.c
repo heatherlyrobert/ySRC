@@ -24,6 +24,7 @@ tSREG       g_sregs  [S_SREG_MAX];
 uchar       g_nsreg  =   0;
 uchar       g_csreg   = '"';
 uchar       g_wsreg   = '"';
+tSREG       g_save;
 
 
 
@@ -165,7 +166,7 @@ ysrc_sreg_init          (void)
    /*---(registers)----------------------*/
    ysrc_sreg_purge    (YVIKEYS_FULL);
    /*---(globals)------------------------*/
-   ysrc_select_reset   (0);
+   ysrc_select_reset   (G_SREG_ZERO);
    g_wsreg = '"';
    /*---(commands)-----------------------*/
    DEBUG_PROG   yLOG_note    ("add commands/status");
@@ -401,9 +402,6 @@ ysrc_sreg_save          (void)
       a_dst->source = S_SREG_USER;
       a_dst->label  = strdup (s_cur->label);
       ysrc_select_get (&(a_dst->beg), &(a_dst->end), &(a_dst->root), &(a_dst->len), t);
-      /*> a_dst->root   = g_sreg.beg;                                                 <*/
-      /*> a_dst->beg    = g_sreg.beg;                                                 <*/
-      /*> a_dst->end    = g_sreg.end;                                                 <*/
       a_dst->data   = strdup (t);
    } else {
       DEBUG_MEMS   yLOG_note    ("append mode");
@@ -712,7 +710,7 @@ ysrc_sreg_direct        (char *a_string)
       return rc;
    }
    /*---(check dividers)-----------------*/
-   --rce;  if (strchr ("#-+>=", x_div) == NULL)  {
+   --rce;  if (strchr ("#-+>])=", x_div) == NULL)  {
       DEBUG_SCRP   yLOG_note    ("divider (x_div) not understood");
       DEBUG_SCRP   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -734,6 +732,22 @@ ysrc_sreg_direct        (char *a_string)
    /*---(copy)---------------------------*/
    --rce;  if (x_len == 3 && x_div == '>') {
       rc = ysrc_sreg__copy (x_abbr, a_string [2]);
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(move)---------------------------*/
+   --rce;  if (x_len == 3 && x_div == ']') {
+      rc = ysrc_sreg__copy  (x_abbr, a_string [2]);
+      rc = ysrc_sreg_clear  (x_abbr);
+      DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(swap)---------------------------*/
+   --rce;  if (x_len == 3 && x_div == ')') {
+      rc = ysrc_sreg__copy  (a_string [2], '¶');
+      rc = ysrc_sreg__copy  (x_abbr      , a_string [2]);
+      rc = ysrc_sreg__copy  ('¶'         , x_abbr);
+      rc = ysrc_sreg_clear  ('¶');
       DEBUG_SCRP   yLOG_exit    (__FUNCTION__);
       return rc;
    }
@@ -776,7 +790,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    /*---(escape)-------------------------*/
    if (a_minor == G_KEY_ESCAPE)  {
       DEBUG_USER   yLOG_note    ("escape and return to previous mode");
-      ysrc_select_reset (ysrc_cpos ());
+      ysrc_select_reset (G_SREG_CURR);
       yMODE_exit ();
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return  0;
@@ -817,14 +831,14 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       case  'y' :
          DEBUG_USER   yLOG_note    ("yank selection source to register");
          ysrc_copy          ();
-         ysrc_select_reset (g_sreg.root);
+         ysrc_select_reset (G_SREG_ROOT);
          yMODE_exit   ();
          break;
       case  'x' : case  'X' :
          DEBUG_USER   yLOG_note    ("clear selection source");
          ysrc_copy          ();
          ysrc_clear_select  ();
-         ysrc_select_reset (g_sreg.end);
+         ysrc_select_reset (G_SREG_END);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
@@ -832,14 +846,14 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          DEBUG_USER   yLOG_note    ("delete selection source");
          ysrc_copy          ();
          ysrc_delete_select ();
-         ysrc_select_reset  (g_sreg.beg);
+         ysrc_select_reset (G_SREG_BEG);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'r' :
          DEBUG_USER   yLOG_note    ("replace source from register");
          ysrc_replace        ();
-         ysrc_select_reset (g_sreg.end);
+         ysrc_select_reset (G_SREG_END);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
@@ -848,21 +862,21 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          ysrc_delete_select ();
          ysrc_sundo_chain   ();
          ysrc_paste         ('i');
-         ysrc_select_reset  (g_sreg.end);
+         ysrc_select_reset (G_SREG_END);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'p' : case  'a' :
          DEBUG_USER   yLOG_note    ("paste after selection source");
          ysrc_paste        ('a');
-         ysrc_select_reset (g_sreg.end);
+         ysrc_select_reset (G_SREG_END);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'P' : case  'i' :
          DEBUG_USER   yLOG_note    ("paste before selection source");
          ysrc_paste        ('i');
-         ysrc_select_reset (g_sreg.end);
+         ysrc_select_reset (G_SREG_END);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;

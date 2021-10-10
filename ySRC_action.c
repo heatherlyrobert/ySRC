@@ -269,73 +269,26 @@ static void  o___REGISTER________o () { return; }
 char         /*-> process keys for register actions --[ ------ [ge.640.051.04]*/ /*-[00.0000.213.!]-*/ /*-[--.---.---.--]-*/
 ysrc_copy              (void)
 {
-   /*---(locals)-----------+-----------+-*/
-   char       *x_start     = NULL;
-   int         x_len       =   0;
-   char        x_data      [LEN_RECD];
-   short       x_beg       =   0;
-   short       x_end       =   0;
-   /*---(prepare)------------------------*/
-   /*> ysrc_select_curr (&x_beg, &x_end, NULL);                                       <*/
-   /*---(set size)-----------------------*/
-   /*> x_start = s_cur->contents + x_beg;                                             <* 
-    *> x_len   = x_end - x_beg + 1;                                                   <*/
-   /*---(copy)---------------------------*/
-   /*> strlcpy (x_data, x_start, x_len + 1);                                          <* 
-    *> ysrc_sreg_save (s_cur->label, x_data);                                         <*/
-   ysrc_sreg_save ();
-   ysrc_select_curr (NULL, NULL, &(s_cur->cpos));
-   /*---(complete)-----------------------*/
+   ysrc_sreg_save     ();
+   ysrc_select_reset  (G_SREG_BEG);
    return 0;
 }
 
-char         /*-> replace with register text ---------[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
-ysrc_replace            (void)
+char
+ysrc_cut               (void)
 {
-   /*---(locals)-----------+-----------+-*/
-   short       x_dlen      =   0;
-   char        x_data      [LEN_RECD];
-   short       x_beg       =   0;
-   short       x_end       =   0;
-   int         x_len       =   0;
-   int         i           =   0;
-   char        x_ch        = G_CHAR_STORAGE;
-   /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   /*---(get register data)--------------*/
-   ysrc_sreg_fetch  (&x_dlen, x_data);
-   DEBUG_EDIT   yLOG_value   ("x_dlen"    , x_dlen);
-   DEBUG_EDIT   yLOG_info    ("x_data"    , x_data);
-   ysrc_select_curr (&x_beg, &x_end, NULL);
-   DEBUG_EDIT   yLOG_value   ("x_beg"     , x_beg);
-   DEBUG_EDIT   yLOG_value   ("x_end"     , x_end);
-   s_cur->cpos = x_beg;
-   /*---(set the length)-----------------*/
-   DEBUG_EDIT   yLOG_value   ("islive"    , ysrc_select_islive ());
-   if (ysrc_select_islive ())   x_len = x_end - x_beg + 1;
-   else                         x_len = x_dlen;
-   DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
-   /*---(set the start)------------------*/
-   ysrc_sundo_beg ();
-   for (i = 0; i < x_len; ++i) {
-      /*---(get char)--------------------*/
-      if (i < x_dlen)    x_ch = x_data [i];
-      else               x_ch = G_CHAR_STORAGE;
-      /*---(add to source)---------------*/
-      if (s_cur->cpos < s_cur->npos) {
-         ysrc_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
-         ysrc_replace_one (x_ch);
-         ++s_cur->cpos;
-      } else {
-         ysrc_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
-         ysrc_append_one  (x_ch);
-      }
-      /*---(done)------------------------*/
-   }
-   ysrc_sundo_end ();
-   --s_cur->cpos;
-   /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   ysrc_sreg_save     ();
+   ysrc_delete_select ();
+   ysrc_select_reset  (G_SREG_BEG);
+   return 0;
+}
+
+char
+ysrc_delete            (void)
+{
+   ysrc_sreg_save     ();
+   ysrc_delete_select ();
+   ysrc_select_reset  (G_SREG_BEG);
    return 0;
 }
 
@@ -348,63 +301,101 @@ ysrc_paste              (char a_dir)
    short       x_beg       =   0;
    short       x_end       =   0;
    int         i           =   0;
+   /*---(defense)------------------------*/
+   if (a_dir == 0 || strchr ("ai", a_dir) == NULL)   return 0;
    /*---(get register data)--------------*/
    ysrc_sreg_fetch  (&x_dlen, x_data);
-   ysrc_select_curr (&x_beg, &x_end, NULL);
-   s_cur->cpos = x_beg;
-   /*---(prepare)------------------------*/
-   if (a_dir == 'a' && s_cur->npos > 0) {
-      ++s_cur->cpos;
+   /*---(handle if selected)-------------*/
+   if (ysrc_select_islive ()) {
+      ysrc_select_curr (&x_beg, &x_end, NULL);
+      if (a_dir == 'a') {
+         s_cur->cpos = x_end;
+      } else {
+         s_cur->cpos = x_beg;
+      }
    }
    /*---(set the start)------------------*/
    ysrc_sundo_beg ();
+   /*---(walk the data)------------------*/
    for (i = 0; i < x_dlen; ++i) {
-      ysrc_sundo_add (G_KEY_SPACE, 'i', s_cur->cpos, G_CHAR_NULL, x_data [i]);
-      ysrc_insert_one (x_data [i]);
-      ++s_cur->cpos;
+      if (a_dir == 'a') {
+         ysrc_sundo_add (G_KEY_SPACE, 'a', s_cur->cpos, G_CHAR_NULL, x_data [i]);
+         ysrc_append_one (x_data [i]);
+      } else  {
+         ysrc_sundo_add (G_KEY_SPACE, 'i', s_cur->cpos, G_CHAR_NULL, x_data [i]);
+         ysrc_insert_one (x_data [i]);
+         ++s_cur->cpos;
+      }
    }
+   /*---(set the end)--------------------*/
    ysrc_sundo_end ();
-   --s_cur->cpos;
    /*---(complete)-----------------------*/
    return 0;
 }
 
-char         /*-> remove existing and add new --------[ ------ [gz.640.151.11]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
-ysrc_swap_all           (char *a_new)
+char         /*-> replace with register text ---------[ ------ [gz.740.061.21]*/ /*-[01.0000.013.!]-*/ /*-[--.---.---.--]-*/
+ysrc_replace            (void)
 {
-   /*---(locals)-----------+-----+-----+-*/
-   int         i           =    0;
-   int         x_len       =    0;
-   char        x_old       [LEN_RECD];
+   /*---(locals)-----------+-----------+-*/
+   char        rc          =   0;
+   short       x_dlen      =   0;
+   char        x_data      [LEN_RECD];
+   short       x_beg       =   0;
+   short       x_end       =   0;
+   int         x_len       =   0;
+   int         i           =   0;
+   char        x_ch        = G_CHAR_STORAGE;
+   char        x_append    = '-';
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_info    ("a_new"     , a_new);
-   /*---(start undo logging)-------------*/
+   /*---(get register data)--------------*/
+   ysrc_sreg_fetch  (&x_dlen, x_data);
+   DEBUG_EDIT   yLOG_value   ("x_dlen"    , x_dlen);
+   DEBUG_EDIT   yLOG_info    ("x_data"    , x_data);
+   /*---(handle if selected)-------------*/
+   DEBUG_EDIT   yLOG_value   ("islive"    , ysrc_select_islive ());
+   if (ysrc_select_islive ()) {
+      ysrc_select_curr (&x_beg, &x_end, NULL);
+      x_len = x_end - x_beg + 1;
+   } else {
+      x_beg = s_cur->cpos;
+      x_len = x_dlen;
+      x_end = x_beg + x_len - 1;
+   }
+   DEBUG_EDIT   yLOG_value   ("x_beg"     , x_beg);
+   DEBUG_EDIT   yLOG_value   ("x_end"     , x_end);
+   DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
+   /*---(set the start)------------------*/
    ysrc_sundo_beg ();
-   /*---(remove existing)----------------*/
-   DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);
-   x_len = s_cur->npos;
-   s_cur->cpos = 0;
+   /*---(walk the data)------------------*/
    for (i = 0; i < x_len; ++i) {
-      DEBUG_EDIT   yLOG_complex ("delete"    , "%2d, %c", s_cur->cpos, s_cur->contents [s_cur->cpos]);
-      ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
-      ysrc_delete_one ();
+      /*---(get char)--------------------*/
+      if (i < x_dlen)    x_ch = x_data [i];
+      else               x_ch = G_CHAR_STORAGE;
+      DEBUG_EDIT   yLOG_complex ("PASS"      , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
+      /*---(add to source)---------------*/
+      if (x_append == '-' && s_cur->cpos < s_cur->npos) {
+         DEBUG_EDIT   yLOG_note    ("replace mode");
+         ysrc_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
+         rc = ysrc_replace_one (x_ch);
+         ++s_cur->cpos;
+      } else {
+         DEBUG_EDIT   yLOG_note    ("append mode");
+         x_append = 'y';
+         s_cur->cpos = s_cur->npos - 1;
+         DEBUG_EDIT   yLOG_complex ("new pass"  , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
+         ysrc_sundo_add   (G_KEY_SPACE, 'a', s_cur->cpos, G_CHAR_NULL, x_ch);
+         rc = ysrc_append_one  (x_ch);
+      }
+      DEBUG_EDIT   yLOG_complex ("after"     , "%3d, %2d, %2d", rc, s_cur->cpos, s_cur->npos);
+      /*---(done)------------------------*/
    }
-   /*---(add new)------------------------*/
-   x_len  = strllen (a_new, LEN_RECD);
-   for (i = 0; i < x_len; ++i) {
-      DEBUG_EDIT   yLOG_complex ("append"    , "%2d, %c", i, a_new [i]);
-      ysrc_append_one (a_new [i]);
-      ysrc_sundo_add (G_KEY_SPACE, 'a', i, G_KEY_NULL, a_new [i]);
-   }
-   /*---(stop undo logging)--------------*/
+   /*---(set the end)--------------------*/
    ysrc_sundo_end ();
-   s_cur->cpos = 1;
-   UPDATE_AFTER_CHANGES;
+   ysrc_select_reset  (G_SREG_CURR);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 0;
 }
-
 
 

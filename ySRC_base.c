@@ -344,7 +344,7 @@ ysrc_reset              (void)
    strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    DEBUG_EDIT   yLOG_complex ("reset"     , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
-   ysrc_select_reset (0);
+   ysrc_select_reset (G_SREG_ZERO);
    ysrc_sundo_trim   (0);
    ySRC_update       (s_src.label, s_src.original);
    /*> yvikeys_map_reposition  ();                                                    <*/
