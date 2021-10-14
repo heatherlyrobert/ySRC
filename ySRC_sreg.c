@@ -173,7 +173,7 @@ ysrc_sreg_init          (void)
    /*> yVIKEYS_view_optionX (YVIKEYS_STATUS  , "sreg", ysrc_sreg_status   , "details of current source register");   <*/
    /*> yVIKEYS_cmds_addX    (YVIKEYS_M_CONFIG, "sreg", "", "a", ysrc_sreg_direct, "direct definition of source registers");   <*/
    /*---(update status)------------------*/
-   yMODE_init_set   (SMOD_SREG, ysrc_sreg_smode);
+   yMODE_init_set   (SMOD_SREG, NULL, ysrc_sreg_smode);
    DEBUG_PROG   yLOG_info    ("sreg"      , yMODE_actual (SMOD_SREG));
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);

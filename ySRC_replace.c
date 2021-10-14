@@ -30,7 +30,7 @@ ysrc_replace_umode      (int a_major, int a_minor)
     *>    return rce;                                                                            <* 
     *> }                                                                                         <* 
     *> /+---(prepare)------------------------+/                                                  <* 
-    *> ysrc_before_change   ();                                                                  <* 
+    *> ysrc_before ();                                                                           <* 
     *> /+---(check for mark)-----------------+/                                                  <* 
     *> if (a_major == 'm') {                                                                     <* 
     *>    DEBUG_USER   yLOG_note    ("mark replacement position and save existing");             <* 

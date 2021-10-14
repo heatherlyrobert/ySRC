@@ -67,13 +67,13 @@ ySRC_init               (void)
    /*---(clear)--------------------------*/
    ysrc_sundo_trim (0);
    /*---(update status)------------------*/
-   yMODE_init_set   (MODE_SOURCE , ysrc_source_mode);
+   yMODE_init_set   (MODE_SOURCE , NULL, ysrc_source_mode);
    DEBUG_PROG   yLOG_info    ("source"    , yMODE_actual (MODE_SOURCE));
-   yMODE_init_set   (UMOD_REPLACE, ysrc_replace_umode);
+   yMODE_init_set   (UMOD_REPLACE, NULL, ysrc_replace_umode);
    DEBUG_PROG   yLOG_info    ("replace"   , yMODE_actual (UMOD_REPLACE));
-   yMODE_init_set   (UMOD_INPUT  , ysrc_input_umode);
+   yMODE_init_set   (UMOD_INPUT  , NULL, ysrc_input_umode);
    DEBUG_PROG   yLOG_info    ("input"     , yMODE_actual (UMOD_INPUT));
-   yMODE_init_set   (UMOD_SUNDO  , yMODE_handler_stub);
+   yMODE_init_set   (UMOD_SUNDO  , NULL, yMODE_handler_stub);
    DEBUG_PROG   yLOG_info    ("sundo"     , yMODE_actual (UMOD_SUNDO));
    /*---(sreg)---------------------------*/
    ysrc_sreg_init ();
@@ -179,7 +179,7 @@ ySRC_start         (char *a_prefix)
 static void      o___DURING__________________o (void) {;}
 
 char         /*-> prepare for source mode move -------[ leaf   [gz.412.001.00]*/ /*-[00.0000.313.!]-*/ /*-[--.---.---.--]-*/
-ysrc_before_change      (void)
+ysrc_before             (void)
 {
    /*---(prepare)------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
@@ -198,7 +198,7 @@ ysrc_before_change      (void)
 
 
 char         /*-> complete a source mode move --------[ leaf   [gz.E45.001.A0]*/ /*-[02.0000.513.!]-*/ /*-[--.---.---.--]-*/
-ysrc_after_change       (void)
+ysrc_after              (void)
 {
    char        rce         =    0;
    char        rc          =    0;
@@ -363,7 +363,6 @@ char*   SOURCE_label            (void) { return s_src.label; }
 
 
 
-
 /*====================------------------------------------====================*/
 /*===----                         unit testing                         ----===*/
 /*====================------------------------------------====================*/
@@ -422,6 +421,7 @@ ySRC__unit              (char *a_question, int n)
    char        t           [LEN_FULL]  = "";
    int         x_len       =    0;
    uchar       x_abbr      =  '-';
+   uchar       x_char      =  '-';
    /*---(preprare)-----------------------*/
    strcpy  (unit_answer, "SRC unit         : question not understood");
    /*---(selection)----------------------*/
@@ -455,16 +455,21 @@ ySRC__unit              (char *a_question, int n)
       return unit_answer;
    }
    else if (strcmp (a_question, "display"        )   == 0) {
-      strlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
-      t [s_cur->cpos - s_cur->bpos] = 'Ï';
-      snprintf (unit_answer, LEN_FULL, "SRC display (%2d) : å%sæ", s_cur->apos, t);
+      if (strlen (s_cur->contents) > 0) {
+         strlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
+         x_char = chrvisible (t [s_cur->cpos - s_cur->bpos]);
+         t [s_cur->cpos - s_cur->bpos] = 'Ï';
+      } else {
+         x_char = G_CHAR_NULL;
+      }
+      snprintf (unit_answer, LEN_FULL, "SRC display (%2d) : %c å%sæ", s_cur->apos, x_char, t);
       return unit_answer;
    }
-   /*> else if (strcmp (a_question, "clip"           )   == 0) {                             <* 
-    *>    yvikeys_dump_read (n, t, &x_len);                                                  <* 
-    *>    snprintf (unit_answer, LEN_RECD, "SREG clip   (%2d) : %2d[%.40s]", n, x_len, t);   <* 
-    *>    return unit_answer;                                                                <* 
-    *> }                                                                                     <*/
+   else if (strcmp (a_question, "input"          )   == 0) {
+      ysrc_input__status (t);
+      snprintf (unit_answer, LEN_FULL, "SRC input        : %s", t);
+      return unit_answer;
+   }
    /*---(complex)------------------------*/
    x_abbr = n;
    n = ysrc_sreg_index  (x_abbr);

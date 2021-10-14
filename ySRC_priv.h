@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0m"
-#define     P_VERTXT    "action copy, cut, delete, paste, and replace unit tested"
+#define     P_VERNUM    "2.0n"
+#define     P_VERTXT    "source mode is unit tested, except undo/redo and mode changes"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -57,6 +57,7 @@
 #include    <yVIKEYS_solo.h>      /* heatherly vi/vim keys processing         */
 #include    <yMODE.h>             /* heatherly yVIKEYS mode tracking          */
 #include    <yKEYS.h>             /* heatherly yVIKEYS key handling           */
+#include    <yMACRO.h>            /* heatherly yVIKEYS macro processing       */
 
 
 
@@ -148,8 +149,8 @@ extern int    g_nseq;
 
 
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-#define     UPDATE_BEFORE_CHANGES   ysrc_before_change ()
-#define     UPDATE_AFTER_CHANGES    ysrc_after_change ()
+#define     UPDATE_BEFORE_CHANGES   ysrc_before ()
+#define     UPDATE_AFTER_CHANGES    ysrc_after  ()
 /*---(program)--------------*/
 char*       ySRC_version            (void);
 char        ySRC_init               (void);
@@ -158,8 +159,8 @@ char        ySRC_wrap               (void);
 char        ysrc_reset              (void);
 char        ySRC_update             (char *a_label, char *a_contents);
 char        ySRC_start              (char *a_prefix);
-char        ysrc_before_change      (void);
-char        ysrc_after_change       (void);
+char        ysrc_before             (void);
+char        ysrc_after              (void);
 char        ysrc_accept             (void);
 char        ysrc_reject             (void);
 /*---(unittest)-------------*/
@@ -224,7 +225,11 @@ char        ysrc_sundo_status       (char *a_list);
 
 /*===[[ ySRC_input.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc_add_one            (uchar a_mode, uchar a_minor);
+char        ysrc_input__status      (char *a_text);
+char        ysrc_input__beg         (uchar a_minor);
+char        ysrc_input__add         (uchar a_minor);
+char        ysrc_input__end         (uchar a_minor);
+char        ysrc_input__escaped     (uchar a_minor);
 char        ysrc_input_umode        (uchar a_major, uchar a_minor);
 
 
@@ -304,8 +309,14 @@ char        ysrc_move_scroll        (uchar a_major, uchar a_minor);
 
 
 
-/*===[[ ySRC_replace.c ]]=====================================================*/
+/*===[[ ySRC_source.c ]]======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc__source_universal  (uchar a_major, uchar a_minor);
+char        ysrc__source_macro      (uchar a_major, uchar a_minor);
+char        ysrc__source_subs       (uchar a_major, uchar a_minor);
+char        ysrc__source_findchar   (uchar a_major, uchar a_minor);
+char        ysrc__source_editing    (uchar a_major, uchar a_minor);
+char        ysrc__source_multikey   (uchar a_major, uchar a_minor);
 char        ysrc_source_mode        (uchar a_major, uchar a_minor);
 
 

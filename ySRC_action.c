@@ -169,6 +169,7 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    short       x_len       =    0;
    char        x_pos       =    0;
    char        x_last      =  '-';
+   char        x_left      =  '-';
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
@@ -222,8 +223,9 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    case '$' : x_len = s_cur->npos - s_cur->cpos;                  break;
    }
    DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
-   if (strchr ("HhBb0$", a_minor) != NULL)  x_pos = s_cur->cpos;
-   else                                     x_pos = s_cur->cpos + x_len;
+   if (strchr ("HhBb0" , a_minor) != NULL)  x_left = 'y';
+   if (strchr ("HhBb0$", a_minor) != NULL)  x_pos  = s_cur->cpos;
+   else                                     x_pos  = s_cur->cpos + x_len;
    DEBUG_EDIT   yLOG_value   ("x_pos"     , x_pos);
    /*---(end)----------------------------*/
    rc = ysrc_sundo_beg ();
@@ -236,11 +238,11 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
          if (rc < 0)  break;
          rc = ysrc_delete_one ();
          if (rc < 0)  break;
-         if (x_last == 'y')  { rc = rce;  break; }
-         if (strchr ("HhBb", a_minor) != NULL)  --s_cur->cpos;
+         if (x_left != 'y' && x_last == 'y')  { rc = rce;  break; }
+         if (strchr ("HhBb", a_minor) != NULL && x_last != 'y')  --s_cur->cpos;
       } else {
-         if (s_cur->cpos < 0)                 { rc = rce; break; }
-         if (s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
+         if (x_left == 'y' && s_cur->cpos < 0)                 { rc = rce; break; }
+         if (x_left != 'y' && s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
          rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
          if (rc < 0)  break;
          rc = ysrc_replace_one (G_CHAR_STORAGE);
@@ -254,6 +256,7 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
    if (a_minor == '0')  s_cur->cpos = x_pos;
+   if (strchr ("0$"  , a_minor) != NULL)  yKEYS_repeat_reset ();
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return rc;
@@ -269,6 +272,7 @@ static void  o___REGISTER________o () { return; }
 char         /*-> process keys for register actions --[ ------ [ge.640.051.04]*/ /*-[00.0000.213.!]-*/ /*-[--.---.---.--]-*/
 ysrc_copy              (void)
 {
+   yKEYS_repeat_reset ();
    ysrc_sreg_save     ();
    ysrc_select_reset  (G_SREG_BEG);
    return 0;
@@ -277,6 +281,7 @@ ysrc_copy              (void)
 char
 ysrc_cut               (void)
 {
+   yKEYS_repeat_reset ();
    ysrc_sreg_save     ();
    ysrc_delete_select ();
    ysrc_select_reset  (G_SREG_BEG);
@@ -286,6 +291,7 @@ ysrc_cut               (void)
 char
 ysrc_delete            (void)
 {
+   yKEYS_repeat_reset ();
    ysrc_sreg_save     ();
    ysrc_delete_select ();
    ysrc_select_reset  (G_SREG_BEG);
