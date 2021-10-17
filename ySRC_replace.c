@@ -63,7 +63,7 @@ ysrc__replace_place     (void)
    if (s_cur->cpos < s_cur->npos) {
       ysrc_replace_one (G_CHAR_PLACE);
    } else {
-      --s_cur->cpos;
+      if (s_cur->npos > 0)  s_cur->cpos = s_cur->npos - 1;
       ysrc_append_one  (G_CHAR_PLACE);
    }
    if (s_save == '\0')  s_cur->contents [s_cur->cpos + 1] = '\0';
@@ -266,7 +266,10 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
       return rce;
    }
    /*---(prepare)------------------------*/
-   ysrc_before ();
+   s_last  = s_minor;
+   s_major = a_major;
+   s_minor = a_minor;
+   UPDATE_BEFORE_CHANGES;
    /*---(universal)----------------------*/
    rc = ysrc__replace_biggies (a_major, a_minor);
    DEBUG_USER   yLOG_value   ("biggies"   , rc);
@@ -305,7 +308,7 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
       rc = 0;
    }
    /*---(wrap up)------------------------*/
-   ysrc_after  ();
+   UPDATE_AFTER_CHANGES;
    /*---(complete)-----------------------*/
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return rc;

@@ -146,10 +146,7 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
       break;
    case  'i' : case  'a' : case  'I' : case  'A' :
       DEBUG_USER   yLOG_note    ("enter input mode");
-      if (a_minor == 'A')  s_cur->cpos = s_cur->npos - 1;
-      if (a_minor == 'I')  s_cur->cpos = 0;
       yMODE_enter (UMOD_INPUT);
-      /*> SRC_INPT_umode ('m', tolower (a_minor));                                    <*/
       rc = tolower (a_minor);
       break;
    }

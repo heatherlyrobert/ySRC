@@ -5,6 +5,7 @@
 
 
 
+static  uchar  s_mode      = '-';           /* detailed A, a, I, i            */
 static  uchar  s_dir       = '-';           /* a=append, i=input, -=unknown   */
 static  uchar  s_prev      = '-';           /* source, command, search, hint  */
 static  uchar  s_major     = '-';           /* major key                      */
@@ -16,12 +17,15 @@ static  uchar  s_quoting   = G_CHAR_SPACE;  /* inside quotes                  */
 /*
  *  missing backslash 
  *
+ *
  *  \a  alt
  *  \c  control
  *  \m
  *  \t  tab
  *  \u  undo micro mode
  *  \w  wander (also `)
+ *  \J  join lines
+ *  \V
  *  \;
  *  \=
  *  \^  
@@ -32,20 +36,28 @@ static  uchar  s_quoting   = G_CHAR_SPACE;  /* inside quotes                  */
 
 
 /*====================------------------------------------====================*/
-/*===----                      helpful reporting                       ----===*/
+/*===----                        program level                         ----===*/
 /*====================------------------------------------====================*/
 static void  o___PROGRAM_________o () { return; }
 
 char
-ysrc_input_init         (void)
+ysrc__input_wipe        (void)
 {
-   s_dir       = '-';
+   s_mode      = '-';
    s_prev      = '-';
+   s_dir       = '-';
    s_major     = '-';
    s_minor     = '-';
    s_last      = '-';
    s_escaping  = G_CHAR_SPACE;
    s_quoting   = G_CHAR_SPACE;
+   return 0;
+}
+
+char
+ysrc_input_init         (void)
+{
+   ysrc__input_wipe   ();
    return 0;
 }
 
@@ -57,59 +69,78 @@ ysrc_input_init         (void)
 static void  o___WORKERS_________o () { return; }
 
 char
-ysrc_input__beg         (uchar a_minor)
+ysrc_input_prepper      (void)
 {
-   DEBUG_USER   yLOG_note    ("mark replacement position and save existing");
-   s_dir      = a_minor;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_USER   yLOG_note    ("mark insert/append position and save existing");
+   /*---(wipe)---------------------------*/
+   ysrc__input_wipe ();
+   /*---(save key information)-----------*/
+   s_mode     = yKEYS_current ();
    s_prev     = yMODE_prev ();
-   s_major    = '-';
-   s_minor    = a_minor;
-   s_last     = '-';
-   s_escaping = G_CHAR_SPACE;
-   s_quoting  = G_CHAR_SPACE;
-   if (a_minor == 'a')  ysrc_append_one (G_CHAR_PLACE);
+   switch (s_mode) {
+   case  'A' :
+      s_cur->cpos = s_cur->npos - 1;
+   case  'a' :
+      s_dir = 'a';
+      break;
+   case  'I' :
+      s_cur->cpos = 0;
+   case  'i' :
+      s_dir = 'i';
+      break;
+   }
+   yKEYS_repeat_reset ();   /* no repeats allowed */
+   /*---(add placeholder)----------------*/
+   if (s_dir == 'a')    ysrc_append_one (G_CHAR_PLACE);
    else                 ysrc_insert_one (G_CHAR_PLACE);
+   /*---(ready for use)------------------*/
    UPDATE_AFTER_CHANGES;
    ysrc_sundo_beg ();
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
 char
-ysrc_input__end         (uchar a_minor)
+ysrc__input_biggies     (uchar a_major, uchar a_minor)
 {
-   char        rc          =    0;
-   s_dir      = '-';
-   s_prev     = '-';
-   s_escaping = G_CHAR_SPACE;
-   s_quoting  = G_CHAR_SPACE;
-   DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
-   rc = ysrc_delete_one ();
-   if (s_cur->cpos < s_cur->npos - 1)  --s_cur->cpos;
-   ysrc_sundo_end ();
-   yMODE_exit ();
-   DEBUG_USER   yLOG_value   ("mode"     , yMODE_curr ());
-   if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, yMODE_curr ()) != NULL) {
-      DEBUG_USER   yLOG_note    ("fast path back to map mode");
-      rc = ysrc_source_mode (G_KEY_SPACE, a_minor);
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =   -1;
+   int         c           =    0;
+   int         i           =    0;
+   uchar       x_ch        = '\0';
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   switch (a_minor) {
+   case G_KEY_ESCAPE : case G_KEY_RETURN :
+      /*---(get rid of placeholder)------*/
+      DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
+      rc = ysrc_delete_one ();
+      if (s_dir == 'a' && s_cur->cpos < s_cur->npos - 1)  --s_cur->cpos;
+      ysrc_sundo_end ();
+      yMODE_exit     ();
+      DEBUG_USER   yLOG_value   ("mode"     , yMODE_curr ());
+      if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, yMODE_curr ()) != NULL) {
+         DEBUG_USER   yLOG_note    ("fast path back to map mode");
+         ysrc_source_mode (G_KEY_SPACE, G_KEY_RETURN);
+      }
+      ysrc__input_wipe ();
+      UPDATE_AFTER_CHANGES;
+      break;
+   default        :
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return 0;
+      break;
    }
-   UPDATE_AFTER_CHANGES;
-   return 0;
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return 1;
 }
 
 char
-ysrc_input__add         (uchar a_minor)
-{
-   DEBUG_USER   yLOG_note    ("add and move remaining chars to the right");
-   a_minor = chrvisible (a_minor);
-   ysrc_sundo_single (s_dir, s_cur->cpos, G_CHAR_NULL, a_minor);
-   ysrc_insert_one   (a_minor);
-   ++s_cur->cpos;
-   UPDATE_AFTER_CHANGES;
-   return 0;
-}
-
-char
-ysrc_input__escaped         (uchar a_minor)
+ysrc__input_escaped         (uchar a_major, uchar a_minor)
 {
    /*---(normal)-------------------------*/
    if (s_escaping == G_CHAR_SPACE) {
@@ -140,6 +171,60 @@ ysrc_input__escaped         (uchar a_minor)
       return 4;
    }
    /*---(complete)-----------------------*/
+   return 0;
+}
+
+char
+ysrc__input_editing     (uchar a_major, uchar a_minor)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =   -1;
+   char        rc2         =    1;
+   /*---(quick out)----------------------*/
+   /*> if (a_major != G_KEY_SPACE)  return 0;                                         <*/
+   if (s_mode  != 'R')          return 0;
+   /*---(header)-------------------------*/
+   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   /*---(delete/clear)----------------*/
+   switch (a_minor) {
+   case  G_KEY_DEL : case  G_CHAR_DEL :
+      DEBUG_USER   yLOG_note    ("handle a delete");
+      if (s_cur->cpos < s_cur->npos - 1) {
+         ++s_cur->cpos;
+         ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         rc = ysrc_delete_one ();
+         --s_cur->cpos;
+      }
+      UPDATE_AFTER_CHANGES;
+      if (rc >= 0)  rc = 1;
+      break;
+   case  G_KEY_BS  : case  G_CHAR_BS  :
+      DEBUG_USER   yLOG_note    ("handle a backspace");
+      if (s_cur->cpos > 0) {
+         ysrc_sundo_add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
+         rc = ysrc_backspace_one ();
+      }
+      UPDATE_AFTER_CHANGES;
+      if (rc >= 0)  rc = 1;
+      break;
+   default   :
+      rc = 0;
+      break;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   return rc;
+}
+
+char
+ysrc_input__add         (uchar a_minor)
+{
+   DEBUG_USER   yLOG_note    ("add and move remaining chars to the right");
+   a_minor = chrvisible (a_minor);
+   ysrc_sundo_single (s_dir, s_cur->cpos, G_CHAR_NULL, a_minor);
+   ysrc_insert_one   (a_minor);
+   ++s_cur->cpos;
+   UPDATE_AFTER_CHANGES;
    return 0;
 }
 
@@ -179,61 +264,36 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
    s_major = a_major;
    s_minor = a_minor;
    UPDATE_BEFORE_CHANGES;
-   /*---(check for initial mark)---------*/
-   if (a_major == 'm') {
-      ysrc_input__beg (a_minor);
+   /*---(universal)----------------------*/
+   rc = ysrc__input_biggies (a_major, a_minor);
+   DEBUG_USER   yLOG_value   ("biggies"   , rc);
+   if (rc > 0) {
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(escaped chars)------------------*/
-   rc = ysrc_input__escaped (a_minor);
+   rc = ysrc__input_escaped (a_major, a_minor);
    DEBUG_USER   yLOG_value   ("escaped"   , rc);
    if (rc > 0) {
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
    }
-   /*---(mode changes)-------------------*/
-   if (a_minor == G_KEY_ESCAPE || a_minor == G_KEY_RETURN) {
-      ysrc_input__end (a_minor);
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return 0;
-   }
-   /*---(prepare)------------------------*/
-   rc = -1;
-   /*---(check for backspace)------------*/
-   if (a_minor == G_KEY_BS) {
-      DEBUG_USER   yLOG_note    ("handle a backspace");
-      if (s_cur->cpos > 0) {
-         ysrc_sundo_add ('d', 'h', s_cur->cpos - 1, s_cur->contents [s_cur->cpos - 1], G_KEY_NULL);
-         rc = ysrc_backspace_one ();
-      }
-      UPDATE_AFTER_CHANGES;
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
-      return rc;
-   }
-   /*---(check for delete)---------------*/
-   else if (a_minor == G_KEY_DEL) {
-      DEBUG_USER   yLOG_note    ("handle a delete");
-      if (s_cur->cpos < s_cur->npos - 1) {
-         ++s_cur->cpos;
-         ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
-         rc = ysrc_delete_one ();
-         --s_cur->cpos;
-      }
-      UPDATE_AFTER_CHANGES;
+   /*---(editing)------------------------*/
+   rc = ysrc__input_editing (a_major, a_minor);
+   if (rc != 0) {
+      if (rc > 0)  rc = 0;
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(wander mode)--------------------*/
-   /*> else if (a_minor == G_KEY_BTICK) {                                             <* 
-    *>    yvikeys_map_wander_prep ();                                                 <* 
-    *>    rc = yMODE_enter (UMOD_WANDER);                                             <* 
-    *>    DEBUG_USER   yLOG_exit    (__FUNCTION__);                                   <* 
-    *>    return rc;                                                                  <* 
-    *> }                                                                              <*/
-   /*---(handle new character)-----------*/
-   if (a_minor == G_KEY_SPACE)   a_minor = G_CHAR_STORAGE;
-   if ((a_minor > 32 && a_minor < 127) || (a_minor > 127 && a_minor < 256)) {
+   else if (a_minor == G_KEY_BTICK) {
+      rc = yMODE_enter (UMOD_WANDER);
+      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      return rc;
+   }
+   /*---(normal text)--------------------*/
+   if (a_minor >= 32 && a_minor != 127) {
+      if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_STORAGE;
       DEBUG_USER   yLOG_note    ("handle normal keys");
       rc = ysrc_input__add (a_minor);
    }
@@ -269,7 +329,7 @@ static void  o___UNITTEST________o () { return; }
 char
 ysrc__input_unit        (char *a_text)
 {
-   snprintf (a_text, LEN_FULL, "%c %c   %c %c %c   %c %c", s_dir, s_prev, s_major, s_minor, s_last, s_escaping, s_quoting);
+   snprintf (a_text, LEN_FULL, "%c %c %c   %c %c %c   %c %c", s_mode, s_dir, s_prev, s_major, s_minor, s_last, s_escaping, s_quoting);
    return 0;
 }
 

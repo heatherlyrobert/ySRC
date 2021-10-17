@@ -1,0 +1,113 @@
+.TH ySRC· 9 2013-jan "linux" "user interface behavior guarantees"
+
+.SH NAME
+.B ySRC
+- efficient, flexible ascii-text content creation
+
+.SH PATRON
+.B angelia-minyma (message)
+embodiment of the gods communications
+
+.SH IMAGERY
+beautiful young woman with graceful wings and feathers in her hair
+
+.SH SUMMARY
+ySRC is a custom c library providing universal vi/vim-ish ascii-text content
+creation and editing -- including navigation, selection, copy registers,
+undo/redo, display, and status to custom programs.
+
+.SH SERIOUS DISCLAIMER
+i'm a crazy, naive, dog-fooding c programmer.  i'm NOT trying to be best.
+i optimize for learning, transparency, and ease of maintenance.  if i wanted
+awesome, fast, and cutting-edge, i'd use yours ;)
+
+.SH DOCUMENTATION FILES
+.nf  
+ySRC·(3)           interfacing applications with library
+ySRC·(6)           interactive usage and navigation
+ySRC·(7)           decision rationale, scope, and objectives
+.B ySRC·(9)···········user interface behavior guarantees
+
+.SH FILE PURPOSE
+efficient usage and reliable automation both require very predictable user
+interface behaviors -- the tighter the better.  most of this information is
+defined in ySRC·(6), this file typically only expands on mode changes and
+non-navigation cursor positioning.
+
+.SH TABLE OF CONTENTS
+.nf  
+a) replace         replace micro-mode
+b) insert          insert/append micro-mode
+
+.SH A) REPLACE (micro-mode)
+
+.B variations
+   ´ 'r' is single character replace mode
+   ´ 'R' is string replace mode
+
+.B entering
+   ´ only available to enter from source mode, nowhere else
+   ´ typing 'r' or 'R' in source immediately enters replace
+   ´ cursor does not move from the current position
+
+.B exiting
+   ´ 'r' mode exits after a single character, e.g., a, µG, or µ_t
+   ´ '¥' returns to source mode
+   ´ '¦' exits source mode also, to the calling mode (quick path)
+   ´ both save any changes
+   ´ cursor remains on last updated character
+
+.B movement
+   ´ 'r' mode never leaves the current character, ever
+   ´ entering a character moves one character right
+   ´ escapes are accepted and handled like normal characters
+   ´ <BS>  or '¿' (macros) moves one character left (no changes)
+   ´ <DEL> or '¾' (macros) moves one character right (no changes)
+
+.B sundo/change history in source
+   ´ 'r' undo/redo positions cursor on the changed character
+   ´ undo positions cursor on first update in 'R' session
+   ´ redo positions cursor on last update in 'R' session
+
+.SH B) INPUT (micro-mode)
+
+.B variations
+   ´ 'i' inserts before the current character
+   ´ 'a' appends after the current character
+
+.B entering
+   ´ only available to enter from source mode, nowhere else
+   ´ typing 'i', 'I', 'a' or 'A' in source immediately enters input
+   ´ 'A' is really "$a", moves cursor to end ($) first
+   ´ 'I' is really '0i', moves cursor to beg (0) first
+   ´ adds an input placeholder '¤' to string, making it one longer
+   ´ 'i' adds '¤' before current, shifts rest right (cursor stays)
+   ´ 'a' adds '¤' after current, shifts rest right (cursor one right)
+   ´ if current source is null, it creates a single open space
+
+.B exiting
+   ´ '¥' returns to source mode
+   ´ '¦' exits source mode also, to the calling mode (quick path)
+   ´ both save any changes
+   ´ 'i' cursor is on the same char as when it started
+   ´ 'a' cursor is on last char added (just before where it started)
+
+.B editing movement
+   ´ each character typed replaces the placeholder '¤'
+   ´ placeholder '¤' openned to the right (cursor moves right)
+   ´ the source is lengthened by each new character
+   ´ escapes are accepted and handled like normal characters
+   ´ <BS>  or '¿' (macros) removes char to left (cursor goes left)
+   ´ <DEL> or '¾' (macros) removes char to right (cursor stays)
+
+.B sundo/change history in source
+   ´ undo positions cursor on first update in session
+   ´ redo positions cursor on last update in session
+
+.SH AUTHOR
+jelloshrike at gmail dot com
+
+.SH COLOPHON
+this page is part of a documentation package meant to make use of the
+these tools easier and faster.
+

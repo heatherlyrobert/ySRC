@@ -67,13 +67,13 @@ ySRC_init               (void)
    /*---(clear)--------------------------*/
    ysrc_sundo_trim (0);
    /*---(update status)------------------*/
-   yMODE_init_set   (MODE_SOURCE , NULL, ysrc_source_mode);
+   yMODE_init_set   (MODE_SOURCE , NULL                , ysrc_source_mode);
    DEBUG_PROG   yLOG_info    ("source"    , yMODE_actual (MODE_SOURCE));
    yMODE_init_set   (UMOD_REPLACE, ysrc_replace_prepper, ysrc_replace_umode);
    DEBUG_PROG   yLOG_info    ("replace"   , yMODE_actual (UMOD_REPLACE));
-   yMODE_init_set   (UMOD_INPUT  , NULL, ysrc_input_umode);
+   yMODE_init_set   (UMOD_INPUT  , ysrc_input_prepper  , ysrc_input_umode);
    DEBUG_PROG   yLOG_info    ("input"     , yMODE_actual (UMOD_INPUT));
-   yMODE_init_set   (UMOD_SUNDO  , NULL, yMODE_handler_stub);
+   yMODE_init_set   (UMOD_SUNDO  , NULL                , yMODE_handler_stub);
    DEBUG_PROG   yLOG_info    ("sundo"     , yMODE_actual (UMOD_SUNDO));
    /*---(sreg)---------------------------*/
    ysrc_sreg_init    ();

@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0o"
-#define     P_VERTXT    "replace mode fixed, unit tested with undo/redo too"
+#define     P_VERNUM    "2.0p"
+#define     P_VERTXT    "input biggies and escapes unit tested, interface defined"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -225,12 +225,15 @@ char        ysrc_sundo_status       (char *a_list);
 
 /*===[[ ySRC_input.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc__input_unit        (char *a_text);
-char        ysrc_input__beg         (uchar a_minor);
+char        ysrc__input_wipe        (void);
+char        ysrc_input_init         (void);
+char        ysrc_input_prepper      (void);
+char        ysrc__input_biggies     (uchar a_major, uchar a_minor);
+char        ysrc__input_escaped     (uchar a_major, uchar a_minor);
+char        ysrc__input_editing     (uchar a_major, uchar a_minor);
 char        ysrc_input__add         (uchar a_minor);
-char        ysrc_input__end         (uchar a_minor);
-char        ysrc_input__escaped     (uchar a_minor);
 char        ysrc_input_umode        (uchar a_major, uchar a_minor);
+char        ysrc__input_unit        (char *a_text);
 
 
 
