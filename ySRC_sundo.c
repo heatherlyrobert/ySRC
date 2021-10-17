@@ -95,7 +95,7 @@ ysrc_sundo_end          (void)
 static void  o___RECORD__________o () { return; }
 
 char
-ysrc_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after)
+ysrc_sundo_add          (char a_major, char a_minor, short a_pos, char a_before, char a_after)
 {
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    ++g_csundo;
@@ -110,7 +110,7 @@ ysrc_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, c
    return 0;
 }
 
-char ysrc_sundo_single       (char a_minor, int a_pos, char a_before, char a_after) { return ysrc_sundo_add (G_KEY_SPACE, a_minor, a_pos, a_before, a_after); }
+char ysrc_sundo_single       (char a_minor, short a_pos, char a_before, char a_after) { return ysrc_sundo_add (G_CHAR_SPACE, a_minor, a_pos, a_before, a_after); }
 
 
 
@@ -120,10 +120,13 @@ char ysrc_sundo_single       (char a_minor, int a_pos, char a_before, char a_aft
 static void  o___UNDO____________o () { return; }
 
 char
-ysrc_sundo__undo        (int *a_pos)
+ysrc_sundo__undo        (short *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   uchar       x_major     =  '-';
+   uchar       x_minor     =  '-';
+   short       x_pos       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -144,31 +147,52 @@ ysrc_sundo__undo        (int *a_pos)
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
+   /*---(master data)--------------------*/
+   DEBUG_EDIT   yLOG_snote   ("master");
+   x_major = g_sundos [g_csundo].major;
+   x_minor = g_sundos [g_csundo].minor;
+   x_pos   = g_sundos [g_csundo].cpos;
+   DEBUG_EDIT   yLOG_schar   (x_major);
+   DEBUG_EDIT   yLOG_schar   (x_minor);
+   *a_pos = x_pos;
+   DEBUG_EDIT   yLOG_sint    (*a_pos);
+   DEBUG_EDIT   yLOG_sint    (s_cur->cpos);
    /*---(position)-----------------------*/
-   *a_pos = g_sundos [g_csundo].cpos;
-   DEBUG_EDIT   yLOG_value   ("cpos"      , *a_pos);
+   DEBUG_EDIT   yLOG_snote   ("before");
+   DEBUG_EDIT   yLOG_schar   (s_cur->contents [s_cur->cpos]);
    DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].after);
-   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].major);
    /*---(single char)--------------------*/
-   if (g_sundos [g_csundo].major == G_KEY_SPACE) {
-      switch (g_sundos [g_csundo].minor) {
+   --rce;  if (strchr (" ·", x_major) != NULL) {
+      switch (x_minor) {
       case 'r' : case 'R' :
+         DEBUG_EDIT   yLOG_snote   ("replace");
          ysrc_replace_one (g_sundos [g_csundo].before);
          break;
       case 'i' : case 'a' :
+         DEBUG_EDIT   yLOG_snote   ("insert/append");
          ysrc_delete_one  ();
          break;
       }
    }
    /*---(multi char)---------------------*/
-   else if (g_sundos [g_csundo].major == 'd') {
+   else if (x_major == 'd') {
+      DEBUG_EDIT   yLOG_snote   ("delete");
       ysrc_insert_one  (g_sundos [g_csundo].before);
    }
-   else if (g_sundos [g_csundo].major == 'x') {
+   else if (x_major == 'x') {
+      DEBUG_EDIT   yLOG_snote   ("clear");
       ysrc_replace_one (g_sundos [g_csundo].before);
    }
+   /*---(trouble)------------------------*/
+   else {
+      DEBUG_EDIT   yLOG_snote   ("UNKNOWN");
+      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(update)-------------------------*/
+   DEBUG_EDIT   yLOG_snote   ("after");
    DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].before);
+   DEBUG_EDIT   yLOG_schar   (s_cur->contents [s_cur->cpos]);
    --g_csundo;
    DEBUG_EDIT   yLOG_sint    (g_csundo);
    /*---(complete)-----------------------*/
@@ -177,7 +201,7 @@ ysrc_sundo__undo        (int *a_pos)
 }
 
 char
-ysrc_sundo_undo         (int *a_pos)
+ysrc_sundo_undo         (short *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -196,6 +220,7 @@ ysrc_sundo_undo         (int *a_pos)
    }
    if (c <= 0)  rc = -1;
    DEBUG_EDIT   yLOG_value   ("rc"        , rc);
+   UPDATE_AFTER_CHANGES;
    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return rc;
 }
@@ -208,10 +233,13 @@ ysrc_sundo_undo         (int *a_pos)
 static void  o___REDO____________o () { return; }
 
 char
-ysrc_sundo__redo        (int *a_pos)
+ysrc_sundo__redo        (short *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   uchar       x_major     =  '-';
+   uchar       x_minor     =  '-';
+   short       x_pos       =    0;
    /*---(header)-------------------------*/
    DEBUG_EDIT   yLOG_senter  (__FUNCTION__);
    /*---(defense)------------------------*/
@@ -235,38 +263,62 @@ ysrc_sundo__redo        (int *a_pos)
    /*---(update)-------------------------*/
    ++g_csundo;
    DEBUG_EDIT   yLOG_sint    (g_csundo);
+   /*---(master data)--------------------*/
+   DEBUG_EDIT   yLOG_snote   ("master");
+   x_major = g_sundos [g_csundo].major;
+   x_minor = g_sundos [g_csundo].minor;
+   x_pos   = g_sundos [g_csundo].cpos;
+   DEBUG_EDIT   yLOG_schar   (x_major);
+   DEBUG_EDIT   yLOG_schar   (x_minor);
+   *a_pos = x_pos;
+   DEBUG_EDIT   yLOG_sint    (*a_pos);
+   DEBUG_EDIT   yLOG_sint    (s_cur->cpos);
+   /*---(position)-----------------------*/
+   DEBUG_EDIT   yLOG_snote   ("before");
+   DEBUG_EDIT   yLOG_schar   (s_cur->contents [s_cur->cpos]);
+   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].before);
    /*---(position)-----------------------*/
    *a_pos = g_sundos [g_csundo].cpos;
    DEBUG_EDIT   yLOG_value   ("cpos"      , *a_pos);
-   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].before);
-   DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].major);
    /*---(single char)--------------------*/
-   if (g_sundos [g_csundo].major == G_KEY_SPACE) {
-      switch (g_sundos [g_csundo].minor) {
+   --rce;  if (strchr (" ·", x_major) != NULL) {
+      switch (x_minor) {
       case 'r' : case 'R' :
+         DEBUG_EDIT   yLOG_snote   ("replace");
          ysrc_replace_one (g_sundos [g_csundo].after);
          break;
       case 'i' : case 'a' :
+         DEBUG_EDIT   yLOG_snote   ("insert/append");
          ysrc_insert_one  (g_sundos [g_csundo].after);
          break;
       }
    }
    /*---(multi char)---------------------*/
-   else if (g_sundos [g_csundo].major == 'd') {
+   else if (x_major == 'd') {
+      DEBUG_EDIT   yLOG_snote   ("delete");
       ysrc_delete_one  ();
    }
-   else if (g_sundos [g_csundo].major == 'x') {
+   else if (x_major == 'x') {
+      DEBUG_EDIT   yLOG_snote   ("delete");
       ysrc_replace_one (g_sundos [g_csundo].after);
    }
+   /*---(trouble)------------------------*/
+   else {
+      DEBUG_EDIT   yLOG_snote   ("UNKNOWN");
+      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
+      return rce;
+   }
    /*---(update)-------------------------*/
+   DEBUG_EDIT   yLOG_snote   ("after");
    DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].after);
+   DEBUG_EDIT   yLOG_schar   (s_cur->contents [s_cur->cpos]);
    /*---(complete)-----------------------*/
    DEBUG_EDIT   yLOG_sexit   (__FUNCTION__);
    return 0;
 }
 
 char
-ysrc_sundo_redo         (int *a_pos)
+ysrc_sundo_redo         (short *a_pos)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;

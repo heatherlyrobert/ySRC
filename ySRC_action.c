@@ -13,9 +13,18 @@ static void  o___WORKERS_________o () { return; }
 char
 ysrc_replace_one        (uchar a_key)
 {
+   /*---(defense)------------------------*/
    if (s_cur->cpos <  0)            return -1;
-   if (s_cur->cpos >= s_cur->npos)  return -2;
+   if (s_cur->cpos >  s_cur->npos)  return -2;
+   /*---(replace)------------------------*/
+   if (a_key == G_CHAR_NULL)       a_key = '\0';
    s_cur->contents [s_cur->cpos] = a_key;
+   /*---(handle tail replaces)-----------*/
+   if (s_cur->cpos >= s_cur->npos) {
+      s_cur->contents [s_cur->cpos + 1] = '\0';
+      ++s_cur->npos;
+   }
+   /*---(complete)-----------------------*/
    return 0;
 }
 

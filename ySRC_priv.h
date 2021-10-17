@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0n"
-#define     P_VERTXT    "source mode is unit tested, except undo/redo and mode changes"
+#define     P_VERNUM    "2.0o"
+#define     P_VERTXT    "replace mode fixed, unit tested with undo/redo too"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -76,8 +76,8 @@ typedef  struct cEDIT   tEDIT;
 struct cEDIT {
    char        type;                      /* type of input                    */
    char        label       [LEN_LABEL];   /* source label                     */
-   char        original    [LEN_RECD];    /* pre-edit content                 */
-   char        contents    [LEN_RECD];    /* working content                  */
+   uchar       original    [LEN_RECD];    /* pre-edit content                 */
+   uchar       contents    [LEN_RECD];    /* working content                  */
    short       wide;                      /* full display space width         */
    short       apos;                      /* available space for display      */
    short       npos;                      /* length of edited content         */
@@ -209,14 +209,14 @@ char        ysrc_sundo_beg          (void);
 char        ysrc_sundo_chain        (void);
 char        ysrc_sundo_end          (void);
 /*---(record)---------------*/
-char        ysrc_sundo_add          (char a_major, char a_minor, int a_pos, char a_before, char a_after);
-char        ysrc_sundo_single       (char a_minor, int a_pos, char a_before, char a_after);
+char        ysrc_sundo_add          (char a_major, char a_minor, short a_pos, char a_before, char a_after);
+char        ysrc_sundo_single       (char a_minor, short a_pos, char a_before, char a_after);
 /*---(undo)-----------------*/
-char        ysrc_sundo__undo        (int *a_pos);
-char        ysrc_sundo_undo         (int *a_pos);
+char        ysrc_sundo__undo        (short *a_pos);
+char        ysrc_sundo_undo         (short *a_pos);
 /*---(redo)-----------------*/
-char        ysrc_sundo__redo        (int *a_pos);
-char        ysrc_sundo_redo         (int *a_pos);
+char        ysrc_sundo__redo        (short *a_pos);
+char        ysrc_sundo_redo         (short *a_pos);
 /*---(reporting)------------*/
 char        ysrc_sundo_status       (char *a_list);
 /*---(done)-----------------*/
@@ -225,7 +225,7 @@ char        ysrc_sundo_status       (char *a_list);
 
 /*===[[ ySRC_input.c ]]=======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc_input__status      (char *a_text);
+char        ysrc__input_unit        (char *a_text);
 char        ysrc_input__beg         (uchar a_minor);
 char        ysrc_input__add         (uchar a_minor);
 char        ysrc_input__end         (uchar a_minor);
@@ -311,7 +311,7 @@ char        ysrc_move_scroll        (uchar a_major, uchar a_minor);
 
 /*===[[ ySRC_source.c ]]======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc__source_universal  (uchar a_major, uchar a_minor);
+char        ysrc__source_biggies    (uchar a_major, uchar a_minor);
 char        ysrc__source_macro      (uchar a_major, uchar a_minor);
 char        ysrc__source_subs       (uchar a_major, uchar a_minor);
 char        ysrc__source_findchar   (uchar a_major, uchar a_minor);
@@ -323,7 +323,13 @@ char        ysrc_source_mode        (uchar a_major, uchar a_minor);
 
 /*===[[ ySRC_replace.c ]]=====================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
-char        ysrc_replace_umode      (int a_major, int a_minor);
+char        ysrc_replace_init       (void);
+char        ysrc__replace_wipe      (void);
+char        ysrc_replace_prepper    (void);
+char        ysrc__replace_biggies   (uchar a_major, uchar a_minor);
+char        ysrc__replace_escaped   (uchar a_major, uchar a_minor);
+char        ysrc__replace_editing   (uchar a_major, uchar a_minor);
+char        ysrc_replace_umode      (uchar a_major, uchar a_minor);
 
 #endif
 

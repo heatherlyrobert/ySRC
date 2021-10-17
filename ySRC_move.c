@@ -21,30 +21,45 @@ ysrc_move_simple        (uchar a_major, uchar a_minor)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    char        rc          =    0;
+   char        x_allow     =  '-';
    /*---(header)-------------------------*/
    DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT  yLOG_char    ("a_major"   , a_major);
    DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
-   --rce;  if (a_major != G_KEY_SPACE) {
-      DEBUG_EDIT   yLOG_note    ("a_major was not empty");
+   --rce;  if (a_major == 0 || a_minor == 0) {
+      DEBUG_EDIT   yLOG_note    ("either a_major or a_minor were null");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
-   --rce;  if (!yKEYS_is_horz_simple (a_minor)) {
-      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
+   if (a_major == G_KEY_SPACE && yKEYS_is_horz_simple (a_minor))  x_allow = 'y';
+   if (a_major == 'c' && strchr ("HhlL", a_minor) != NULL)        x_allow = 'y';
+   --rce;  if (x_allow != 'y') {
+      DEBUG_EDIT   yLOG_note    ("a_major/a_minor combination not allowed");
       DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
    UPDATE_BEFORE_CHANGES;
-   /*---(horizontal moves)---------------*/
-   switch (a_minor) {
-   case '0' : s_cur->cpos  =  0;                   break;
-   case 'H' : s_cur->cpos -=  5;                   break;
-   case 'h' : --s_cur->cpos;                       break;
-   case 'l' : ++s_cur->cpos;                       break;
-   case 'L' : s_cur->cpos +=  5;                   break;
-   case '$' : s_cur->cpos  = s_cur->npos - 1;      break;
+   /*---(normal horizontal)--------------*/
+   if (a_major == G_KEY_SPACE) {
+      switch (a_minor) {
+      case '0' : s_cur->cpos  =  0;                   break;
+      case 'H' : s_cur->cpos -=  5;                   break;
+      case 'h' : --s_cur->cpos;                       break;
+      case 'l' : ++s_cur->cpos;                       break;
+      case 'L' : s_cur->cpos +=  5;                   break;
+      case '$' : s_cur->cpos  = s_cur->npos - 1;      break;
+      }
+   }
+   /*---(big horizonal)------------------*/
+   else if (a_major == 'c') {
+      switch (a_minor) {
+      case 'H' : s_cur->cpos -= 125;                  break;
+      case 'h' : s_cur->cpos -=  25;                  break;
+      case 'l' : s_cur->cpos +=  25;                  break;
+      case 'L' : s_cur->cpos += 125;                  break;
+      }
    }
    /*---(wrapup)-------------------------*/
    rc = UPDATE_AFTER_CHANGES;

@@ -13,7 +13,7 @@ int   ysrc_npos        (void) { return s_cur->npos; }
 char *ysrc_contents    (void) { return s_cur->contents; }
 
 char
-ysrc__source_universal  (uchar a_major, uchar a_minor)
+ysrc__source_biggies    (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =   -1;
@@ -51,6 +51,8 @@ ysrc__source_universal  (uchar a_major, uchar a_minor)
          DEBUG_USER   yLOG_exitr   (__FUNCTION__, rc);
          return rc;
       }
+      break;
+   case  '\0'     :
       break;
    default        :
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
@@ -211,13 +213,15 @@ ysrc__source_editing    (uchar a_major, uchar a_minor)
    DEBUG_USER   yLOG_enter   (__FUNCTION__);
    /*---(delete/clear)----------------*/
    switch (a_minor) {
-   case  G_KEY_DEL : case  'D' :
+   case  G_KEY_DEL : case  G_CHAR_DEL : case  'D' :
       rc = ysrc_multi_pure ('d', 'l');
+      if (rc >= 0)  rc = 0;
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
-   case  G_KEY_BS  : case  'X' :
+   case  G_KEY_BS  : case  G_CHAR_BS  : case  'X' :
       rc = ysrc_multi_pure ('d', 'h');
+      if (rc >= 0)  rc = 0;
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
@@ -326,8 +330,8 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
       return rce;
    }
    /*---(universal)----------------------*/
-   rc = ysrc__source_universal (a_major, a_minor);
-   DEBUG_USER   yLOG_value   ("universal" , rc);
+   rc = ysrc__source_biggies (a_major, a_minor);
+   DEBUG_USER   yLOG_value   ("biggies"   , rc);
    if (rc > 0) {
       DEBUG_USER   yLOG_exit    (__FUNCTION__);
       return 0;
@@ -389,7 +393,7 @@ ysrc_source_mode        (uchar a_major, uchar a_minor)
          return rc;
       }
       /*---(macro use)-------------------*/
-      if (strchr ("DX|uU", a_minor) != NULL || a_minor == G_KEY_BS || a_minor == G_KEY_DEL) {
+      if (strchr ("DX¾¿|uU", a_minor) != NULL || a_minor == G_KEY_BS || a_minor == G_KEY_DEL) {
          rc = ysrc__source_editing (a_major, a_minor);
          DEBUG_USER   yLOG_exit    (__FUNCTION__);
          return rc;

@@ -18,7 +18,9 @@ static  uchar  s_quoting   = G_CHAR_SPACE;  /* inside quotes                  */
  *
  *  \a  alt
  *  \c  control
+ *  \m
  *  \t  tab
+ *  \u  undo micro mode
  *  \w  wander (also `)
  *  \;
  *  \=
@@ -44,20 +46,6 @@ ysrc_input_init         (void)
    s_last      = '-';
    s_escaping  = G_CHAR_SPACE;
    s_quoting   = G_CHAR_SPACE;
-   return 0;
-}
-
-
-
-/*====================------------------------------------====================*/
-/*===----                      helpful reporting                       ----===*/
-/*====================------------------------------------====================*/
-static void  o___REPORT__________o () { return; }
-
-char
-ysrc_input__status      (char *a_text)
-{
-   snprintf (a_text, LEN_FULL, "%c %c   %c %c %c   %c %c", s_dir, s_prev, s_major, s_minor, s_last, s_escaping, s_quoting);
    return 0;
 }
 
@@ -270,3 +258,19 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
    DEBUG_USER   yLOG_exit    (__FUNCTION__);
    return rc;
 }
+
+
+
+/*====================------------------------------------====================*/
+/*===----                      unit testing                            ----===*/
+/*====================------------------------------------====================*/
+static void  o___UNITTEST________o () { return; }
+
+char
+ysrc__input_unit        (char *a_text)
+{
+   snprintf (a_text, LEN_FULL, "%c %c   %c %c %c   %c %c", s_dir, s_prev, s_major, s_minor, s_last, s_escaping, s_quoting);
+   return 0;
+}
+
+

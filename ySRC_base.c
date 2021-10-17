@@ -69,14 +69,16 @@ ySRC_init               (void)
    /*---(update status)------------------*/
    yMODE_init_set   (MODE_SOURCE , NULL, ysrc_source_mode);
    DEBUG_PROG   yLOG_info    ("source"    , yMODE_actual (MODE_SOURCE));
-   yMODE_init_set   (UMOD_REPLACE, NULL, ysrc_replace_umode);
+   yMODE_init_set   (UMOD_REPLACE, ysrc_replace_prepper, ysrc_replace_umode);
    DEBUG_PROG   yLOG_info    ("replace"   , yMODE_actual (UMOD_REPLACE));
    yMODE_init_set   (UMOD_INPUT  , NULL, ysrc_input_umode);
    DEBUG_PROG   yLOG_info    ("input"     , yMODE_actual (UMOD_INPUT));
    yMODE_init_set   (UMOD_SUNDO  , NULL, yMODE_handler_stub);
    DEBUG_PROG   yLOG_info    ("sundo"     , yMODE_actual (UMOD_SUNDO));
    /*---(sreg)---------------------------*/
-   ysrc_sreg_init ();
+   ysrc_sreg_init    ();
+   ysrc_replace_init ();
+   ysrc_input_init   ();
    /*---(complete)-----------------------*/
    DEBUG_PROG   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -450,8 +452,8 @@ ySRC__unit              (char *a_question, int n)
    }
    else if (strcmp (a_question, "details"        )   == 0) {
       sprintf (s, "å%-.10sæ", s_cur->label);
-      sprintf (t, "%2då%-.40sæ", s_cur->npos, s_cur->contents);
-      snprintf (unit_answer, LEN_FULL, "SRC details      : %2dw %2da %2db %2dc %2de %-12.12s %s", s_cur->wide, s_cur->apos, s_cur->bpos, s_cur->cpos, s_cur->epos, s, t);
+      sprintf (t, "%3då%-.40sæ", s_cur->npos, s_cur->contents);
+      snprintf (unit_answer, LEN_FULL, "SRC details      : %3dw %3da %3db %3dc %3de %-12.12s %s", s_cur->wide, s_cur->apos, s_cur->bpos, s_cur->cpos, s_cur->epos, s, t);
       return unit_answer;
    }
    else if (strcmp (a_question, "display"        )   == 0) {
@@ -466,8 +468,13 @@ ySRC__unit              (char *a_question, int n)
       return unit_answer;
    }
    else if (strcmp (a_question, "input"          )   == 0) {
-      ysrc_input__status (t);
+      ysrc__input_unit (t);
       snprintf (unit_answer, LEN_FULL, "SRC input        : %s", t);
+      return unit_answer;
+   }
+   else if (strcmp (a_question, "replace"        )   == 0) {
+      ysrc__replace_unit (t);
+      snprintf (unit_answer, LEN_FULL, "SRC replace      : %s", t);
       return unit_answer;
    }
    /*---(complex)------------------------*/
