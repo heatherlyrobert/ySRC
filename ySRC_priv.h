@@ -12,20 +12,20 @@
 #define     P_FOCUS     "RS (run-time support)"
 #define     P_NICHE     "us (user control)"
 #define     P_SUBJECT   "efficent ascii-text content creation"
-#define     P_PURPOSE   ""
+#define     P_PURPOSE   "provides efficient, flexible ascii-text content creation services"
 
-#define     P_NAMESAKE  "angelia-minyma (the message)"
+#define     P_NAMESAKE  "angelia-minyma (message)"
 #define     P_TERSE     "embodiment of the gods communications"
-#define     P_HERITAGE  ""
-#define     P_IMAGERY   ""
-#define     P_REASON    ""
+#define     P_HERITAGE  "daimona, message personified, daughter of the god hermes"
+#define     P_IMAGERY   "beautiful young woman with graceful wings and feathers in her hair"
+#define     P_REASON    "this library is about editing source/messages"
 
 #define     P_ONELINE   P_NAMESAKE " " P_SUBJECT
 
 #define     P_BASENAME  "ySRC"
 #define     P_FULLNAME  "/usr/local/lib64/libySRC"
-#define     P_SUFFIX    ""
-#define     P_CONTENT   ""
+#define     P_SUFFIX    "n/a"
+#define     P_CONTENT   "n/a"
 
 #define     P_SYSTEM    "gnu/linux   (powerful, ubiquitous, technical, and hackable)"
 #define     P_LANGUAGE  "ansi-c      (wicked, limitless, universal, and everlasting)"
@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0p"
-#define     P_VERTXT    "input biggies and escapes unit tested, interface defined"
+#define     P_VERNUM    "2.0q"
+#define     P_VERTXT    "updated with gyges testing and changes to other libraries"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -50,14 +50,17 @@
 #include    <stdio.h>             /* clibc  standard input/output             */
 #include    <stdlib.h>            /* clibc  standard general purpose          */
 #include    <string.h>            /* clibc  standard string handling          */
-/*---(custom)----------------------------*/
+/*---(custom core)-----------------------*/
 #include    <yURG.h>              /* heatherly urgent processing              */
 #include    <yLOG.h>              /* heatherly program logging                */
 #include    <ySTR.h>              /* heatherly string processing              */
-#include    <yVIKEYS_solo.h>      /* heatherly vi/vim keys processing         */
-#include    <yMODE.h>             /* heatherly yVIKEYS mode tracking          */
-#include    <yKEYS.h>             /* heatherly yVIKEYS key handling           */
-#include    <yMACRO.h>            /* heatherly yVIKEYS macro processing       */
+/*---(custom vi-keys)--------------------*/
+#include    <yMODE.h>             /* heatherly vi-keys mode tracking          */
+#include    <yKEYS.h>             /* heatherly vi-keys key handling           */
+#include    <yMACRO.h>            /* heatherly vi-keys macro processing       */
+#include    <yCMD.h>              /* heatherly vi-keys command processing     */
+#include    <yMAP.h>              /* heatherly vi-keys location management    */
+/*---(done)------------------------------*/
 
 
 
@@ -74,8 +77,9 @@ extern uchar     g_goto;
 
 typedef  struct cEDIT   tEDIT;
 struct cEDIT {
-   char        type;                      /* type of input                    */
-   char        label       [LEN_LABEL];   /* source label                     */
+   uchar       type;                      /* type of input                    */
+   uchar       label       [LEN_LABEL];   /* source label                     */
+   uchar       format      [LEN_LABEL];   /* formatting information           */
    uchar       original    [LEN_RECD];    /* pre-edit content                 */
    uchar       contents    [LEN_RECD];    /* working content                  */
    short       wide;                      /* full display space width         */
@@ -157,7 +161,7 @@ char        ySRC_init               (void);
 char        ySRC_wrap               (void);
 /*---(ends)-----------------*/
 char        ysrc_reset              (void);
-char        ySRC_update             (char *a_label, char *a_contents);
+char        ySRC_update             (char *a_label, char *a_format, char *a_contents);
 char        ySRC_start              (char *a_prefix);
 char        ysrc_before             (void);
 char        ysrc_after              (void);
@@ -212,11 +216,11 @@ char        ysrc_sundo_end          (void);
 char        ysrc_sundo_add          (char a_major, char a_minor, short a_pos, char a_before, char a_after);
 char        ysrc_sundo_single       (char a_minor, short a_pos, char a_before, char a_after);
 /*---(undo)-----------------*/
-char        ysrc_sundo__undo        (short *a_pos);
-char        ysrc_sundo_undo         (short *a_pos);
+char        ysrc_sundo__undo        (void);
+char        ysrc_sundo_undo         (void);
 /*---(redo)-----------------*/
-char        ysrc_sundo__redo        (short *a_pos);
-char        ysrc_sundo_redo         (short *a_pos);
+char        ysrc_sundo__redo        (void);
+char        ysrc_sundo_redo         (void);
 /*---(reporting)------------*/
 char        ysrc_sundo_status       (char *a_list);
 /*---(done)-----------------*/
@@ -320,7 +324,7 @@ char        ysrc__source_subs       (uchar a_major, uchar a_minor);
 char        ysrc__source_findchar   (uchar a_major, uchar a_minor);
 char        ysrc__source_editing    (uchar a_major, uchar a_minor);
 char        ysrc__source_multikey   (uchar a_major, uchar a_minor);
-char        ysrc_source_mode        (uchar a_major, uchar a_minor);
+char        ySRC_mode               (uchar a_major, uchar a_minor);
 
 
 

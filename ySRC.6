@@ -29,3 +29,71 @@ ySRC (7)           decision rationale, scope, and objectives
 ySRC (9)           user interface behavior guarantees
 
 .SH FILE PURPOSE
+provide details on interactive system use, mainly related to mode changes
+and navigation.  ySRC·(6) expands on thie section for mode changes and
+non-navigation cursor positioning.
+
+.SH TABLE OF CONTENTS
+.nf  
+a) source          main source mode
+b) replace         replace micro-mode
+c) insert          insert/append micro-mode
+d) select          selection helper pseudo-mode
+e) registers       source register sub-mode
+f) wander          wander editing micro-mode
+
+
+
+
+
+.SH REPLACE micro-mode
+.SS ---basics---------------------------------------------------------
+ ra      replace the current character with an 'a'
+ Rtext¥  replace four characters with "text" then exit
+.SS ---overview-------------------------------------------------------
+.B purpose.  
+to speed text editing, replace provides a very rapid type-over of existing
+characters to fix small typing mistakes.
+
+.B complication.  
+many applications require two steps, first delete or highlight the mistake,
+then type the new text.
+
+.B answer.  
+standardize on a simplified vim-modal interface that includes this rapid
+short-hand for type-over.
+
+.B NOTE.  
+all text includes uses this replace micro-mode, it is universal.
+.SS ---full capabilities----------------------------------------------
+
+.B invoking replace micro-mode
+   -- can only be invoked from source mode, nowhere else
+   r          replace at current position (exits automatically)
+   R          replace a string of characters until exiting
+
+.B exiting mode
+   ¥          save changes and return to source mode
+   ¦          accept changes and exit source mode also
+
+.B placeholder display
+   this character is temporary and will not be saved
+
+.B entering characters
+   ¤          placeholder shows what position will be replaced
+   ´          replaces current, and placeholder moves to right
+   µ´         allows entry of special characters
+   µ_´        allows entry of extended special characters
+   ¿  <BS>    moves left without making any changes
+   ¾  <DEL>   moves right without making any changes
+
+.B special notes
+   -- replace does not change the length of the string
+   -- BUT, you can type past the end, which will add length
+
+.B undo/redo
+   -- groups all changes during a single replace session
+   -- can only undo/redo once back in source mode
+
+
+

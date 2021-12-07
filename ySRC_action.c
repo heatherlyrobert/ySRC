@@ -63,7 +63,7 @@ ysrc_insert_one         (uchar a_key)
    char        rc          =    0;
    int         i           =   0;
    if (s_cur->cpos <  0)            return -1;
-   if (s_cur->npos > 0 && s_cur->cpos >= s_cur->npos)  return -2;
+   if (s_cur->npos > 0 && s_cur->cpos > s_cur->npos)  return -2;
    for (i = s_cur->npos; i >= s_cur->cpos; --i) {
       s_cur->contents [i + 1] = s_cur->contents [i];
    }

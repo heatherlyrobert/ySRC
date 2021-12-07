@@ -30,14 +30,16 @@ ySRC·(7)           decision rationale, scope, and objectives
 
 .SH FILE PURPOSE
 efficient usage and reliable automation both require very predictable user
-interface behaviors -- the tighter the better.  most of this information is
-defined in ySRC·(6), this file typically only expands on mode changes and
-non-navigation cursor positioning.
+interface behaviors.  this file typically only expands on ySRC·(6) for mode
+changes and non-navigation cursor positioning.
 
 .SH TABLE OF CONTENTS
 .nf  
 a) replace         replace micro-mode
 b) insert          insert/append micro-mode
+c) select          selection helper pseudo-mode
+d) registers       source register sub-mode
+e) wander          wander editing micro-mode
 
 .SH A) REPLACE (micro-mode)
 
@@ -54,20 +56,20 @@ b) insert          insert/append micro-mode
    ´ 'r' mode exits after a single character, e.g., a, µG, or µ_t
    ´ '¥' returns to source mode
    ´ '¦' exits source mode also, to the calling mode (quick path)
-   ´ both save any changes
+   ´ both 'r' and 'R' save any changes
    ´ cursor remains on last updated character
 
 .B movement
    ´ 'r' mode never leaves the current character, ever
-   ´ entering a character moves one character right
+   ´ in 'R', entering a new character moves one character right
    ´ escapes are accepted and handled like normal characters
    ´ <BS>  or '¿' (macros) moves one character left (no changes)
    ´ <DEL> or '¾' (macros) moves one character right (no changes)
 
 .B sundo/change history in source
    ´ 'r' undo/redo positions cursor on the changed character
-   ´ undo positions cursor on first update in 'R' session
-   ´ redo positions cursor on last update in 'R' session
+   ´ undo positions cursor on first update in session
+   ´ redo positions cursor on last update in session
 
 .SH B) INPUT (micro-mode)
 
@@ -88,9 +90,9 @@ b) insert          insert/append micro-mode
 .B exiting
    ´ '¥' returns to source mode
    ´ '¦' exits source mode also, to the calling mode (quick path)
-   ´ both save any changes
+   ´ both 'i' and 'a' save any changes
    ´ 'i' cursor is on the same char as when it started
-   ´ 'a' cursor is on last char added (just before where it started)
+   ´ 'a' cursor is on the last char added
 
 .B editing movement
    ´ each character typed replaces the placeholder '¤'
@@ -98,10 +100,10 @@ b) insert          insert/append micro-mode
    ´ the source is lengthened by each new character
    ´ escapes are accepted and handled like normal characters
    ´ <BS>  or '¿' (macros) removes char to left (cursor goes left)
-   ´ <DEL> or '¾' (macros) removes char to right (cursor stays)
+   ´ <DEL> or '¾' (macros) removes current char (cursor stays)
 
 .B sundo/change history in source
-   ´ undo positions cursor on first update in session
+   ´ undo positions cursor on original insert/append start
    ´ redo positions cursor on last update in session
 
 .SH AUTHOR

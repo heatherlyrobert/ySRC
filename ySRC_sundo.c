@@ -42,7 +42,7 @@ char
 ysrc_sundo_init         (void)
 {
    char        rc          =    0;
-   rc = ysrc_sundo_trim (0);
+   rc = ysrc_sundo_reset ();
    /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "sundo", ysrc_sundo_status, "source editing undo stack");   <*/
    return 0;
 }
@@ -120,7 +120,7 @@ char ysrc_sundo_single       (char a_minor, short a_pos, char a_before, char a_a
 static void  o___UNDO____________o () { return; }
 
 char
-ysrc_sundo__undo        (short *a_pos)
+ysrc_sundo__undo        (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -142,11 +142,6 @@ ysrc_sundo__undo        (short *a_pos)
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (a_pos == NULL) {
-      DEBUG_EDIT   yLOG_snote   ("no position provided");
-      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(master data)--------------------*/
    DEBUG_EDIT   yLOG_snote   ("master");
    x_major = g_sundos [g_csundo].major;
@@ -154,11 +149,10 @@ ysrc_sundo__undo        (short *a_pos)
    x_pos   = g_sundos [g_csundo].cpos;
    DEBUG_EDIT   yLOG_schar   (x_major);
    DEBUG_EDIT   yLOG_schar   (x_minor);
-   *a_pos = x_pos;
-   DEBUG_EDIT   yLOG_sint    (*a_pos);
-   DEBUG_EDIT   yLOG_sint    (s_cur->cpos);
    /*---(position)-----------------------*/
    DEBUG_EDIT   yLOG_snote   ("before");
+   s_cur->cpos = x_pos;
+   DEBUG_EDIT   yLOG_sint    (s_cur->cpos);
    DEBUG_EDIT   yLOG_schar   (s_cur->contents [s_cur->cpos]);
    DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].after);
    /*---(single char)--------------------*/
@@ -171,6 +165,7 @@ ysrc_sundo__undo        (short *a_pos)
       case 'i' : case 'a' :
          DEBUG_EDIT   yLOG_snote   ("insert/append");
          ysrc_delete_one  ();
+         if (x_minor == 'a')  --s_cur->cpos;
          break;
       }
    }
@@ -201,7 +196,7 @@ ysrc_sundo__undo        (short *a_pos)
 }
 
 char
-ysrc_sundo_undo         (short *a_pos)
+ysrc_sundo_undo         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -214,7 +209,7 @@ ysrc_sundo_undo         (short *a_pos)
    DEBUG_EDIT   yLOG_value   ("x_seq"     , x_seq);
    for (i = g_csundo; i >= 0; --i) {
       if (g_sundos [g_csundo].seq != x_seq)  break;
-      rc = ysrc_sundo__undo (a_pos);
+      rc = ysrc_sundo__undo ();
       if (rc < 0) break;
       ++c;
    }
@@ -233,7 +228,7 @@ ysrc_sundo_undo         (short *a_pos)
 static void  o___REDO____________o () { return; }
 
 char
-ysrc_sundo__redo        (short *a_pos)
+ysrc_sundo__redo        (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -255,11 +250,6 @@ ysrc_sundo__redo        (short *a_pos)
       DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
       return rce;
    }
-   --rce;  if (a_pos == NULL) {
-      DEBUG_EDIT   yLOG_snote   ("no position provided");
-      DEBUG_EDIT   yLOG_sexitr  (__FUNCTION__, rce);
-      return rce;
-   }
    /*---(update)-------------------------*/
    ++g_csundo;
    DEBUG_EDIT   yLOG_sint    (g_csundo);
@@ -270,16 +260,12 @@ ysrc_sundo__redo        (short *a_pos)
    x_pos   = g_sundos [g_csundo].cpos;
    DEBUG_EDIT   yLOG_schar   (x_major);
    DEBUG_EDIT   yLOG_schar   (x_minor);
-   *a_pos = x_pos;
-   DEBUG_EDIT   yLOG_sint    (*a_pos);
-   DEBUG_EDIT   yLOG_sint    (s_cur->cpos);
    /*---(position)-----------------------*/
    DEBUG_EDIT   yLOG_snote   ("before");
+   s_cur->cpos = x_pos;
+   DEBUG_EDIT   yLOG_sint    (s_cur->cpos);
    DEBUG_EDIT   yLOG_schar   (s_cur->contents [s_cur->cpos]);
    DEBUG_EDIT   yLOG_schar   (g_sundos [g_csundo].before);
-   /*---(position)-----------------------*/
-   *a_pos = g_sundos [g_csundo].cpos;
-   DEBUG_EDIT   yLOG_value   ("cpos"      , *a_pos);
    /*---(single char)--------------------*/
    --rce;  if (strchr (" ·", x_major) != NULL) {
       switch (x_minor) {
@@ -295,7 +281,7 @@ ysrc_sundo__redo        (short *a_pos)
    }
    /*---(multi char)---------------------*/
    else if (x_major == 'd') {
-      DEBUG_EDIT   yLOG_snote   ("delete");
+      DEBUG_EDIT   yLOG_snote   ("delete right");
       ysrc_delete_one  ();
    }
    else if (x_major == 'x') {
@@ -318,7 +304,7 @@ ysrc_sundo__redo        (short *a_pos)
 }
 
 char
-ysrc_sundo_redo         (short *a_pos)
+ysrc_sundo_redo         (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    int         x_seq       =   -1;
@@ -331,7 +317,7 @@ ysrc_sundo_redo         (short *a_pos)
    DEBUG_EDIT   yLOG_value   ("x_seq"     , x_seq);
    for (i = g_csundo; i < g_nsundo; ++i) {
       if (g_sundos [g_csundo + 1].seq != x_seq)  break;
-      rc = ysrc_sundo__redo (a_pos);
+      rc = ysrc_sundo__redo ();
       if (rc < 0) break;
       ++c;
    }

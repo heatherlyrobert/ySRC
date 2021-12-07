@@ -32,13 +32,12 @@ static  uchar  s_save      = '\0';          /* character being replaced       */
 static  uchar  s_escaping  = G_CHAR_SPACE;  /* in backslash/escape handling   */
 static  int    s_repeats   =   0;
 
-char
-ysrc_replace_init       (void)
-{
-   ysrc__replace_wipe ();
-   return 0;
-}
 
+
+/*====================------------------------------------====================*/
+/*===----                       program level                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___PROGRAM_________o () { return; }
 
 char
 ysrc__replace_wipe      (void)
@@ -54,8 +53,23 @@ ysrc__replace_wipe      (void)
 }
 
 char
+ysrc_replace_init       (void)
+{
+   ysrc__replace_wipe ();
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        mode support                          ----===*/
+/*====================------------------------------------====================*/
+static void  o___SUPPORT_________o () { return; }
+
+char
 ysrc__replace_place     (void)
 {
+   /*---(locals)-----------+-----+-----+-*/
    char        rc          =    0;
    if (s_cur->cpos < 0)                { rc = -1;  s_cur->cpos = 0; }
    /*> if (s_cur->cpos >  s_cur->npos)     { rc = -2;  s_cur->cpos = s_cur->npos; }   <*/
@@ -71,28 +85,6 @@ ysrc__replace_place     (void)
 }
 
 char
-ysrc_replace_prepper    (void)
-{
-   /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_note    ("mark replacement position and save existing");
-   /*---(wipe)---------------------------*/
-   ysrc__replace_wipe ();
-   /*---(save key information)-----------*/
-   s_mode   = yKEYS_current ();
-   if (s_mode == 'r')  s_repeats = yKEYS_repeats ();
-   yKEYS_repeat_reset ();
-   /*---(show placeholder)---------------*/
-   ysrc__replace_place ();
-   /*---(ready for use)------------------*/
-   ysrc_after     ();
-   ysrc_sundo_beg ();
-   /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
-   return 0;
-}
-
-char
 ysrc__replace_biggies   (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -101,42 +93,42 @@ ysrc__replace_biggies   (uchar a_major, uchar a_minor)
    int         i           =    0;
    uchar       x_ch        = '\0';
    /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    switch (a_minor) {
    case G_KEY_ESCAPE : case G_KEY_RETURN :
       /*---(get rid of placeholder)------*/
-      DEBUG_USER   yLOG_note    ("escape/return, return to source mode");
+      DEBUG_EDIT   yLOG_note    ("escape/return, return to source mode");
       if (s_cur->contents [s_cur->cpos] == G_CHAR_PLACE)  ysrc_replace_one (s_save);
       /*---(handle repeats)--------------*/
       c = yKEYS_repeats ();
-      DEBUG_USER   yLOG_value   ("repeats"   , s_repeats);
+      DEBUG_EDIT   yLOG_value   ("repeats"   , s_repeats);
       if (s_mode == 'r') {
          x_ch    = s_cur->contents [s_cur->cpos];
-         DEBUG_USER   yLOG_char    ("x_ch"      , x_ch);
+         DEBUG_EDIT   yLOG_char    ("x_ch"      , x_ch);
          for (i = 0; i < s_repeats; ++i) {
             ++s_cur->cpos;
-            DEBUG_USER   yLOG_complex ("replace"   , "%2d, %2d, %c, %c", i, s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
+            DEBUG_EDIT   yLOG_complex ("replace"   , "%2d, %2d, %c, %c", i, s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
             ysrc_sundo_single ('r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
             ysrc_replace_one  (x_ch);
          }
       }
       yMODE_exit     ();
       ysrc_sundo_end ();
-      DEBUG_USER   yLOG_value   ("mode"     , yMODE_curr ());
+      DEBUG_EDIT   yLOG_value   ("mode"     , yMODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, yMODE_curr ()) != NULL) {
-         DEBUG_USER   yLOG_note    ("fast path back to map mode");
-         ysrc_source_mode (G_KEY_SPACE, G_KEY_RETURN);
+         DEBUG_EDIT   yLOG_note    ("fast path back to map mode");
+         ySRC_mode (G_KEY_SPACE, G_KEY_RETURN);
       }
       ysrc__replace_wipe ();
       ysrc_after  ();
       break;
    default        :
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return 1;
 }
 
@@ -150,7 +142,7 @@ ysrc__replace_escaped       (uchar a_major, uchar a_minor)
    /*---(normal)-------------------------*/
    if (s_escaping == G_CHAR_SPACE) {
       if (a_minor == '\\') {
-         DEBUG_USER   yLOG_note    ("found a leading backslash");
+         DEBUG_EDIT   yLOG_note    ("found a leading backslash");
          s_escaping = G_CHAR_UP;
          rc = 1;
       }
@@ -158,11 +150,11 @@ ysrc__replace_escaped       (uchar a_major, uchar a_minor)
    /*---(backslashed)--------------------*/
    else if (s_escaping == G_CHAR_UP) {
       if (a_minor == '_') {
-         DEBUG_USER   yLOG_note    ("found a leading backslash/underscore");
+         DEBUG_EDIT   yLOG_note    ("found a leading backslash/underscore");
          s_escaping = G_CHAR_RIGHT;
          rc = 2;
       } else {
-         DEBUG_USER   yLOG_note    ("converting backslash character");
+         DEBUG_EDIT   yLOG_note    ("converting backslash character");
          ysrc_sundo_single ('r', s_cur->cpos, s_save, chrslashed (a_minor));
          ysrc_replace_one (chrslashed (a_minor));
          s_escaping = G_CHAR_SPACE;
@@ -171,7 +163,7 @@ ysrc__replace_escaped       (uchar a_major, uchar a_minor)
    }
    /*---(backslash/more)-----------------*/
    else if (s_escaping == G_CHAR_RIGHT) {
-      DEBUG_USER   yLOG_note    ("converting backslash/underscore");
+      DEBUG_EDIT   yLOG_note    ("converting backslash/underscore");
       ysrc_sundo_single ('r', s_cur->cpos, s_save, chrslashed_more (a_minor));
       ysrc_replace_one (chrslashed_more (a_minor));
       s_escaping = G_CHAR_SPACE;
@@ -179,25 +171,25 @@ ysrc__replace_escaped       (uchar a_major, uchar a_minor)
    }
    /*---(preparation)--------------------*/
    if (rc >= 3) {
-      DEBUG_USER   yLOG_note    ("escape sequence completed");
-      DEBUG_USER   yLOG_value   ("old cpos"  , s_cur->cpos);
-      DEBUG_USER   yLOG_value   ("repeats"   , yKEYS_repeats ());
+      DEBUG_EDIT   yLOG_note    ("escape sequence completed");
+      DEBUG_EDIT   yLOG_value   ("old cpos"  , s_cur->cpos);
+      DEBUG_EDIT   yLOG_value   ("repeats"   , yKEYS_repeats ());
       if (s_mode == 'r') {
-         DEBUG_USER   yLOG_note    ("character replace mode");
-         /*> DEBUG_USER   yLOG_value   ("repeats"   , yKEYS_repeats ());              <*/
+         DEBUG_EDIT   yLOG_note    ("character replace mode");
+         /*> DEBUG_EDIT   yLOG_value   ("repeats"   , yKEYS_repeats ());              <*/
          /*> if (yKEYS_repeats () > 0) {                                              <* 
-          *>    DEBUG_USER   yLOG_note    ("advance for next char replace");          <* 
+          *>    DEBUG_EDIT   yLOG_note    ("advance for next char replace");          <* 
           *>    ++s_cur->cpos;                                                        <* 
           *>    if (s_cur->cpos > s_cur->npos - 1)  rc = -2;                          <* 
           *>    ysrc__replace_place ();                                               <* 
           *> }                                                                        <*/
          ysrc__replace_biggies (G_KEY_SPACE, G_KEY_ESCAPE);
       } else {
-         DEBUG_USER   yLOG_note    ("string replace mode");
+         DEBUG_EDIT   yLOG_note    ("string replace mode");
          ++s_cur->cpos;
          ysrc__replace_place ();
       }
-      DEBUG_USER   yLOG_value   ("new cpos"  , s_cur->cpos);
+      DEBUG_EDIT   yLOG_value   ("new cpos"  , s_cur->cpos);
    }
    /*---(complete)-----------------------*/
    return rc;
@@ -213,7 +205,7 @@ ysrc__replace_editing   (uchar a_major, uchar a_minor)
    /*> if (a_major != G_KEY_SPACE)  return 0;                                         <*/
    if (s_mode  != 'R')          return 0;
    /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
    /*---(delete/clear)----------------*/
    switch (a_minor) {
    case  G_KEY_DEL : case  G_CHAR_DEL :
@@ -235,8 +227,45 @@ ysrc__replace_editing   (uchar a_major, uchar a_minor)
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return rc;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                        mode handling                         ----===*/
+/*====================------------------------------------====================*/
+static void  o___HANDLER_________o () { return; }
+
+char
+ysrc_replace_prepper    (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   /*---(header)-------------------------*/
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_note    ("mark replacement position and save existing");
+   /*---(wipe)---------------------------*/
+   ysrc__replace_wipe ();
+   /*---(save key information)-----------*/
+   s_mode    = yKEYS_current ();
+   s_repeats = yKEYS_repeats ();
+   yKEYS_repeat_reset ();
+   --rce;  if (s_mode == 'R' && s_repeats > 0) {
+      ysrc__replace_wipe ();
+      yKEYS_set_lock ();
+      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      return rce;
+   }
+   /*---(show placeholder)---------------*/
+   ysrc__replace_place ();
+   /*---(ready for use)------------------*/
+   ysrc_after     ();
+   ysrc_sundo_beg ();
+   /*---(complete)-----------------------*/
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   return 0;
 }
 
 char         /*-> replace sub-mode -------------------[ ------ [ge.RG6.25#.E5]*/ /*-[02.0000.112.E]-*/ /*-[--.---.---.--]-*/
@@ -255,14 +284,14 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
    static char x_mode      =  '-';
    uchar       x_ch        =  '·';
    /*---(header)-------------------------*/
-   DEBUG_USER   yLOG_enter   (__FUNCTION__);
-   DEBUG_USER   yLOG_char    ("a_major"   , a_major);
-   DEBUG_USER   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_EDIT   yLOG_char    ("a_major"   , a_major);
+   DEBUG_EDIT   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
-   DEBUG_USER   yLOG_char    ("mode"      , yMODE_curr ());
+   DEBUG_EDIT   yLOG_char    ("mode"      , yMODE_curr ());
    --rce;  if (yMODE_not (UMOD_REPLACE)) {
-      DEBUG_USER   yLOG_note    ("not the correct mode");
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_note    ("not the correct mode");
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -272,22 +301,22 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
    UPDATE_BEFORE_CHANGES;
    /*---(universal)----------------------*/
    rc = ysrc__replace_biggies (a_major, a_minor);
-   DEBUG_USER   yLOG_value   ("biggies"   , rc);
+   DEBUG_EDIT   yLOG_value   ("biggies"   , rc);
    if (rc > 0) {
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(escaped chars)------------------*/
    rc = ysrc__replace_escaped (a_major, a_minor);
    if (rc > 0) {
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(editing)------------------------*/
    rc = ysrc__replace_editing (a_major, a_minor);
    if (rc != 0) {
       if (rc > 0)  rc = 0;
-      DEBUG_USER   yLOG_exit    (__FUNCTION__);
+      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(normal text)--------------------*/
@@ -297,6 +326,7 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
       ysrc_replace_one  (a_minor);
    } else {
       ysrc_replace_one  (s_save);
+      yKEYS_set_error ();
    }
    /*---(finish)-------------------------*/
    if (s_mode == 'r') {
@@ -310,7 +340,7 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
    /*---(wrap up)------------------------*/
    UPDATE_AFTER_CHANGES;
    /*---(complete)-----------------------*/
-   DEBUG_USER   yLOG_exit    (__FUNCTION__);
+   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -325,6 +355,13 @@ char
 ysrc__replace_unit      (char *a_text)
 {
    snprintf (a_text, LEN_FULL, "%c   %c %c %c   %c %c", s_mode, s_major, s_minor, chrvisible (s_last), chrvisible (s_save), s_escaping);
+   return 0;
+}
+
+char
+ysrc_replace_status     (char *a_text)
+{
+   snprintf (a_text, LEN_FULL, "replace   %c   %c %c %c   %c %c", s_mode, s_major, s_minor, chrvisible (s_last), chrvisible (s_save), s_escaping);
    return 0;
 }
 
