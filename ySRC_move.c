@@ -23,20 +23,20 @@ ysrc_move_simple        (uchar a_major, uchar a_minor)
    char        rc          =    0;
    char        x_allow     =  '-';
    /*---(header)-------------------------*/
-   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT  yLOG_char    ("a_major"   , a_major);
-   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_YSRC  yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC  yLOG_char    ("a_major"   , a_major);
+   DEBUG_YSRC  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (a_major == 0 || a_minor == 0) {
-      DEBUG_EDIT   yLOG_note    ("either a_major or a_minor were null");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("either a_major or a_minor were null");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    if (a_major == G_KEY_SPACE && yKEYS_is_horz_simple (a_minor))  x_allow = 'y';
    if (a_major == 'c' && strchr ("HhlL", a_minor) != NULL)        x_allow = 'y';
    --rce;  if (x_allow != 'y') {
-      DEBUG_EDIT   yLOG_note    ("a_major/a_minor combination not allowed");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("a_major/a_minor combination not allowed");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -64,7 +64,7 @@ ysrc_move_simple        (uchar a_major, uchar a_minor)
    /*---(wrapup)-------------------------*/
    rc = UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
-   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC  yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -129,17 +129,17 @@ ysrc_move_goto          (uchar a_major, uchar a_minor)
    int         x_haf       =    0;
    int         x_ful       =    0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_YSRC  yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (a_major != 'g') {
-      DEBUG_EDIT   yLOG_note    ("a_major was not g (goto)");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("a_major was not g (goto)");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    --rce;  if (a_minor == 0 || !yKEYS_is_horz_goto (a_minor)) {
-      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -174,7 +174,7 @@ ysrc_move_goto          (uchar a_major, uchar a_minor)
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
-   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -193,17 +193,17 @@ ysrc_move_scroll        (uchar a_major, uchar a_minor)
    int         x_qtr       =    0;
    int         x_haf       =    0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_YSRC  yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (a_major != 'z') {
-      DEBUG_EDIT   yLOG_note    ("a_major was not z (scroll)");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("a_major was not z (scroll)");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    --rce;  if (a_minor == 0 || !yKEYS_is_horz_scroll (a_minor)) {
-      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -222,7 +222,7 @@ ysrc_move_scroll        (uchar a_major, uchar a_minor)
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
-   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC  yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

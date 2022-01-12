@@ -100,14 +100,14 @@ ysrc_word_update        (void)
    char        x_type      =  '-';
    char        x_update    =  ' ';
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_value   ("s_npos"    , s_cur->npos);
-   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->contents);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_value   ("s_npos"    , s_cur->npos);
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->contents);
    /*---(mark tail)----------------------*/
    s_cur->words [s_cur->npos] = '\0';
    if (s_cur->npos <= 0) {
       s_cur->words [0] = '\0';
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    if (strchr ("=#", s_cur->contents [0]) != NULL)   x_type = 'f';
@@ -117,30 +117,30 @@ ysrc_word_update        (void)
       s_cur->words [i] = '²';
       /*---(check)-----------------------*/
       x_mode = ysrc_word__type   (x_type, s_cur->contents [i]);
-      DEBUG_EDIT   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, chrvisible (x_save), x_mode, chrvisible (x_mode));
+      DEBUG_YSRC   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, chrvisible (x_save), x_mode, chrvisible (x_mode));
       if (x_mode == x_save)  continue;
       /*---(update current)--------------*/
       x_update = ysrc_word__curr (x_type, x_save, x_mode);
       if (x_update != ' ') ysrc_word__update   (i    , x_update);
-      DEBUG_EDIT   yLOG_char    ("curr"      , x_update);
+      DEBUG_YSRC   yLOG_char    ("curr"      , x_update);
       /*---(update previous)-------------*/
       x_update = ysrc_word__prev (x_type, x_save, x_mode);
       if (x_update != ' ') ysrc_word__update   (i - 1, x_update);
-      DEBUG_EDIT   yLOG_char    ("prev"      , x_update);
+      DEBUG_YSRC   yLOG_char    ("prev"      , x_update);
       /*---(save)------------------------*/
       x_save = x_mode;
       /*---(done)------------------------*/
    }
    /*---(mark end)-----------------------*/
    x_mode = '\0';
-   DEBUG_EDIT   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, chrvisible (x_save), x_mode, chrvisible (x_mode));
+   DEBUG_YSRC   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, chrvisible (x_save), x_mode, chrvisible (x_mode));
    x_update = ysrc_word__prev (x_type, x_save, '\0');
    if (x_update != ' ') ysrc_word__update   (i - 1, x_update);
-   DEBUG_EDIT   yLOG_char    ("prev"      , x_update);
+   DEBUG_YSRC   yLOG_char    ("prev"      , x_update);
    /*> if (x_type != 'f' && x_mode != '²')  ysrc_word__update   (s_cur->npos - 1, '>');   <*/
-   DEBUG_EDIT   yLOG_info    ("words"     , s_cur->words);
+   DEBUG_YSRC   yLOG_info    ("words"     , s_cur->words);
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -253,12 +253,12 @@ ysrc_word_hmode        (uchar a_major, uchar a_minor)
    char        rce         =  -10;
    char        rc          =    0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT  yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_YSRC  yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC  yLOG_char    ("a_minor"   , a_minor);
    /*---(defense)------------------------*/
    --rce;  if (!yKEYS_is_horz_word (a_minor)) {
-      DEBUG_EDIT   yLOG_note    ("a_minor was not a valid option");
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_note    ("a_minor was not a valid option");
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -278,7 +278,7 @@ ysrc_word_hmode        (uchar a_major, uchar a_minor)
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
    /*---(complete)--------------------*/
-   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC  yLOG_exit    (__FUNCTION__);
    return rc;
 }
 

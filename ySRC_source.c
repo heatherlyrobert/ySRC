@@ -32,47 +32,46 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
    /*---(quick out)----------------------*/
    if (a_major != G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(major keys)---------------------*/
    switch (a_minor) {
    case G_KEY_SPACE  :
-      DEBUG_EDIT   yLOG_note    ("space, nothing to do");
+      DEBUG_YSRC   yLOG_note    ("space, nothing to do");
       break;
    case G_KEY_ESCAPE :
       if (ysrc_select_islive ()) {
-         DEBUG_EDIT   yLOG_note    ("escape, means get out of selection");
+         DEBUG_YSRC   yLOG_note    ("escape, means get out of selection");
          ysrc_select_reset (s_cur->cpos);
       } else {
-         DEBUG_EDIT   yLOG_note    ("escape, means forget and return to previous mode");
+         DEBUG_YSRC   yLOG_note    ("escape, means forget and return to previous mode");
          ysrc_reset  ();
          ysrc_after  ();
          yMODE_exit  ();
       }
       break;
    case G_KEY_RETURN :
-      DEBUG_EDIT   yLOG_note    ("enter, means save and return to previous mode");
+      DEBUG_YSRC   yLOG_note    ("enter, means save and return to previous mode");
       ysrc_accept ();
       ysrc_after  ();
       yMODE_exit  ();
       break;
    case G_KEY_BTICK :
-      DEBUG_EDIT   yLOG_note    ("backtick, means re-wander or move label");
-      /*> yvikeys_map_wander_prep ();                                                 <*/
+      DEBUG_YSRC   yLOG_note    ("backtick, means re-wander or move label");
       rc = yMODE_enter (UMOD_WANDER);
       if (rc < 0) {
-         DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rc);
+         DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rc);
          return rc;
       }
       break;
    case  '\0'     :
       break;
    default        :
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return 0;
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 1;
 }
 
@@ -84,36 +83,36 @@ ysrc__source_macro      (uchar a_major, uchar a_minor)
    /*---(quick out)----------------------*/
    if (a_major != G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(macros modes)-------------------*/
    switch (a_minor) {
    case '@'      :
-      DEBUG_EDIT   yLOG_note    ("macro execution");
+      DEBUG_YSRC   yLOG_note    ("macro execution");
       yMODE_enter  (SMOD_MACRO   );
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return a_minor;
       break;
    case 'q'      :
       IF_MACRO_RECORDING {
-         DEBUG_EDIT   yLOG_note    ("end macro recording");
+         DEBUG_YSRC   yLOG_note    ("end macro recording");
          rc = yMACRO_rec_end ();
       } else {
-         DEBUG_EDIT   yLOG_note    ("begin macro recording");
+         DEBUG_YSRC   yLOG_note    ("begin macro recording");
          yMODE_enter  (SMOD_MACRO   );
          rc = a_minor;
       }
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    case 'Q'      :
-      DEBUG_EDIT   yLOG_note    ("reset macro recording");
+      DEBUG_YSRC   yLOG_note    ("reset macro recording");
       rc = yMACRO_reset_all ();
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -125,7 +124,7 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
    /*---(quick out)----------------------*/
    if (a_major != G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(sub modes)----------------------*/
    switch (a_minor) {
    case  'v' :
@@ -134,29 +133,29 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
       rc = 0;
       break;
    case  '"' :
-      DEBUG_EDIT   yLOG_note    ("switch to a text register mode (¶)");
+      DEBUG_YSRC   yLOG_note    ("switch to a text register mode (¶)");
       rc = yMODE_enter (SMOD_SREG);
       if (rc >= 0)  rc = 0;
       else          rc = YKEYS_LOCK;
       break;
    case  'r' :
-      DEBUG_EDIT   yLOG_note    ("enter replace mode");
+      DEBUG_YSRC   yLOG_note    ("enter replace mode");
       rc = yMODE_enter (UMOD_REPLACE);
       if (rc >= 0)  rc = a_minor;
       break;
    case  'R' :
-      DEBUG_EDIT   yLOG_note    ("enter replace mode");
+      DEBUG_YSRC   yLOG_note    ("enter replace mode");
       rc = yMODE_enter (UMOD_REPLACE);
       if (rc >= 0)  rc = a_minor;
       break;
    case  'i' : case  'a' : case  'I' : case  'A' :
-      DEBUG_EDIT   yLOG_note    ("enter input mode");
+      DEBUG_YSRC   yLOG_note    ("enter input mode");
       rc = yMODE_enter (UMOD_INPUT);
       if (rc >= 0)  rc = tolower (a_minor);
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -166,7 +165,7 @@ ysrc__source_findchar   (uchar a_major, uchar a_minor)
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =   -1;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(multi-keys)---------------------*/
    if (strchr ("fF", a_major) != NULL) {
       switch (a_major) {
@@ -177,30 +176,30 @@ ysrc__source_findchar   (uchar a_major, uchar a_minor)
          rc = ysrc_move_char_prev (a_minor);
          break;
       }
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(single keys)--------------------*/
    if (a_major != G_KEY_SPACE) {
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    switch (a_minor) {
    case  '#' :
-      DEBUG_EDIT   yLOG_note    ("current char find");
+      DEBUG_YSRC   yLOG_note    ("current char find");
       rc = ysrc_move_char_next (1);
       break;
    case  'n' :
-      DEBUG_EDIT   yLOG_note    ("char find next");
+      DEBUG_YSRC   yLOG_note    ("char find next");
       rc = ysrc_move_char_next (0);
       break;
    case  'N' :
-      DEBUG_EDIT   yLOG_note    ("char find reverse");
+      DEBUG_YSRC   yLOG_note    ("char find reverse");
       rc = ysrc_move_char_prev (0);
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -212,50 +211,50 @@ ysrc__source_editing    (uchar a_major, uchar a_minor)
    /*---(quick out)----------------------*/
    if (a_major != G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(delete/clear)----------------*/
    switch (a_minor) {
    case  G_KEY_DEL : case  G_CHAR_DEL : case  'D' :
       rc = ysrc_multi_pure ('d', 'l');
       if (rc >= 0)  rc = 0;
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    case  G_KEY_BS  : case  G_CHAR_BS  : case  'X' :
       rc = ysrc_multi_pure ('d', 'h');
       if (rc >= 0)  rc = 0;
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    }
    /*---(other stuff)-----------------*/
    switch (a_minor) {
    case '|' :
-      DEBUG_EDIT   yLOG_value   ("repeats"   , yKEYS_repeats);
+      DEBUG_YSRC   yLOG_value   ("repeats"   , yKEYS_repeats);
       s_cur->cpos = yKEYS_repeat_useall ();
-      DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
+      DEBUG_YSRC   yLOG_value   ("cpos"      , s_cur->cpos);
       rc     = 0;
       ysrc_after ();
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    case 'u' :
       ysrc_select_reset (s_cur->cpos);
       rc = ysrc_sundo_undo ();
       ysrc_after ();
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    case 'U' :
       ysrc_select_reset (s_cur->cpos);
       rc = ysrc_sundo_redo ();
       ysrc_after ();
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -267,7 +266,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
    /*---(quick out)----------------------*/
    if (a_major == G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(multi-key)----------------------*/
    switch (a_major) {
    case 'd' : case 'x' :
@@ -290,7 +289,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
        *> yMODE_enter (UMOD_INPUT);                                                <* 
        *> SRC_INPT_umode ('m', tolower (a_minor));                                 <* 
        *> rc = tolower (a_minor);                                                  <* 
-       *> DEBUG_EDIT   yLOG_exit    (__FUNCTION__);                                <* 
+       *> DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
        *> return rc;                                                               <* 
        *> break;                                                                   <*/
    default  :
@@ -298,7 +297,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       break;
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -319,108 +318,108 @@ ySRC_mode               (uchar a_major, uchar a_minor)
    int         n           =    0;
    static char x_char      =    0;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_char    ("a_major"   , a_major);
-   DEBUG_EDIT   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    /*---(defenses)-----------------------*/
-   DEBUG_EDIT   yLOG_char    ("mode"      , yMODE_curr ());
-   DEBUG_EDIT   yLOG_info    ("valid"     , MODES_ONELINE);
+   DEBUG_YSRC   yLOG_char    ("mode"      , yMODE_curr ());
+   DEBUG_YSRC   yLOG_info    ("valid"     , MODES_ONELINE);
    --rce;  if (strchr (MODES_ONELINE, yMODE_curr ()) == NULL ) {
-      DEBUG_EDIT   yLOG_note    ("not an acceptable mode");
+      DEBUG_YSRC   yLOG_note    ("not an acceptable mode");
       yMODE_exit  ();
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(universal)----------------------*/
    rc = ysrc__source_biggies (a_major, a_minor);
-   DEBUG_EDIT   yLOG_value   ("biggies"   , rc);
+   DEBUG_YSRC   yLOG_value   ("biggies"   , rc);
    if (rc > 0) {
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return 0;
    }
    /*---(single letter)------------------*/
    if (a_major == G_KEY_SPACE) {
       /*---(repeats)---------------------*/
       if (yKEYS_is_repeater (a_minor)) {
-         DEBUG_EDIT   yLOG_note    ("repeat character 1-9");
+         DEBUG_YSRC   yLOG_note    ("repeat character 1-9");
          yMODE_enter  (PMOD_REPEAT);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
       /*---(select related)--------------*/
       /*> if (strchr ("yYpP", a_minor) != 0) {                                        <* 
-       *>    DEBUG_EDIT   yLOG_note    ("switch to a text register mode (yYpP)");     <* 
+       *>    DEBUG_YSRC   yLOG_note    ("switch to a text register mode (yYpP)");     <* 
        *>    yvikeys_sreg_setreg ('"');                                               <* 
        *>    yMODE_enter (SMOD_SREG);                                                 <* 
        *>    rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);                          <* 
-       *>    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);                                <* 
+       *>    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
        *>    return rc;                                                               <* 
        *> }                                                                           <*/
       /*> if (yvikeys_sreg_islive () && strchr ("xXdD", a_minor) != 0) {              <* 
-       *>    DEBUG_EDIT   yLOG_note    ("switch to a text register mode (xXdD)");     <* 
+       *>    DEBUG_YSRC   yLOG_note    ("switch to a text register mode (xXdD)");     <* 
        *>    yvikeys_sreg_setreg ('"');                                               <* 
        *>    yMODE_enter (SMOD_SREG);                                                 <* 
        *>    rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);                          <* 
-       *>    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);                                <* 
+       *>    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
        *>    return rc;                                                               <* 
        *> }                                                                           <*/
       /*---(multikey prefixes)-----------*/
       if (yKEYS_is_multi_src (a_minor)) {
-         DEBUG_EDIT   yLOG_note    ("beginning of multi-key command");
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_note    ("beginning of multi-key command");
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
       /*---(sub-modes)-------------------*/
       if (strchr ("v\"rRiIaA", a_minor) != NULL) {
          rc = ysrc__source_subs (a_major, a_minor);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(basic movement)--------------*/
       if (yKEYS_is_horz_simple (a_minor)) {
          rc = ysrc_move_simple (a_major, a_minor);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(word movement)---------------*/
       if (yKEYS_is_horz_word   (a_minor)) {
          rc = ysrc_word_hmode (a_major, a_minor);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(findchar)--------------------*/
       if (yKEYS_is_horz_char (a_minor)) {
          rc = ysrc__source_findchar (a_major, a_minor);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(macro use)-------------------*/
       if (strchr ("DX¾¿|uU", a_minor) != NULL || a_minor == G_KEY_BS || a_minor == G_KEY_DEL) {
          rc = ysrc__source_editing (a_major, a_minor);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
       /*---(macro use)-------------------*/
       if (yKEYS_is_macro    (a_minor)) {
          rc = ysrc__source_macro (a_major, a_minor);
-         DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
    }
    /*---(multi-key)----------------------*/
    else {
-      DEBUG_EDIT   yLOG_note    ("multikey handling");
+      DEBUG_YSRC   yLOG_note    ("multikey handling");
       rc = ysrc__source_multikey (a_major, a_minor);
-      DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+      DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
    }
    /*---(complete)-----------------------*/
    if (rc < 0) {
-      DEBUG_EDIT   yLOG_note    ("return code is negative");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rc);
+      DEBUG_YSRC   yLOG_note    ("return code is negative");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rc);
       return rc;
    }
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

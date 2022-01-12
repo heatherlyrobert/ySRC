@@ -36,9 +36,9 @@
 #define     P_CREATED   ""
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
-#define     P_VERMINOR  "2.0-, separated into independent library"
-#define     P_VERNUM    "2.0q"
-#define     P_VERTXT    "updated with gyges testing and changes to other libraries"
+#define     P_VERMINOR  "2.1-, back onto github and moving forward"
+#define     P_VERNUM    "2.1a"
+#define     P_VERTXT    "first load for SSH github access"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -131,6 +131,33 @@ extern tSREG  g_save;                       /* last selection                 */
 #define   G_SREG_END     'e'
 #define   G_SREG_ROOT    'r'
 
+
+
+typedef    struct    cMY    tMY;
+struct cMY {
+   /*---(wander origin)-----*/
+   uchar       w_contents  [LEN_RECD];
+   ushort      w_uorig;
+   ushort      w_xorig;
+   ushort      w_yorig;
+   ushort      w_zorig;
+   /*---(wander screen beg)-*/
+   ushort      w_xbeg;
+   ushort      w_ybeg;
+   ushort      w_zbeg;
+   /*---(wander current)----*/
+   ushort      w_univ;
+   ushort      w_xpos;
+   ushort      w_ypos;
+   ushort      w_zpos;
+   /*---(wander working)----*/
+   uchar       w_pre       [LEN_RECD];
+   uchar       w_suf       [LEN_RECD];
+   uchar       w_new       [LEN_RECD];
+   char        w_abs;
+   /*---(done)--------------*/
+};
+extern tMY         mySRC;
 
 
 
@@ -337,6 +364,20 @@ char        ysrc__replace_biggies   (uchar a_major, uchar a_minor);
 char        ysrc__replace_escaped   (uchar a_major, uchar a_minor);
 char        ysrc__replace_editing   (uchar a_major, uchar a_minor);
 char        ysrc_replace_umode      (uchar a_major, uchar a_minor);
+
+
+
+/*===[[ ySRC_wander.c ]]======================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc__wander_loc        (char *a_label, char *a_len);
+char        ysrc_wander_prepper     (void);
+char        ysrc__wander_return     (void);
+char        ysrc__wander_done       (uchar a_key);
+char        ysrc__wander_and        (uchar a_math);
+char        ysrc__wander_biggies    (uchar a_major, uchar a_minor);
+char        ysrc_wander_umode       (uchar a_major, uchar a_minor);
+
+
 
 #endif
 

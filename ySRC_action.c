@@ -180,43 +180,43 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    char        x_last      =  '-';
    char        x_left      =  '-';
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(prepare)------------------------*/
    UPDATE_BEFORE_CHANGES;
    /*---(defense)------------------------*/
-   DEBUG_EDIT   yLOG_value   ("s_live"    , ysrc_select_islive ());
+   DEBUG_YSRC   yLOG_value   ("s_live"    , ysrc_select_islive ());
    --rce;  if (ysrc_select_islive ()) {
-      DEBUG_EDIT   yLOG_note    ("function only handles non-selected text");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("function only handles non-selected text");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_EDIT   yLOG_char    ("a_major"   , chrvisible (a_major));
+   DEBUG_YSRC   yLOG_char    ("a_major"   , chrvisible (a_major));
    --rce;  if (a_major == 0 || strchr ("dx", a_major) == NULL) {
-      DEBUG_EDIT   yLOG_note    ("source only allows right and left");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("source only allows right and left");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_EDIT   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
    --rce;  if (a_minor == 0 || strchr ("HhLlWwBbEe0$", a_minor) == NULL) {
-      DEBUG_EDIT   yLOG_note    ("source only allows right and left");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("source only allows right and left");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_EDIT   yLOG_value   ("npos"      , s_cur->npos);
+   DEBUG_YSRC   yLOG_value   ("npos"      , s_cur->npos);
    --rce;  if (s_cur->npos <= 0) {
-      DEBUG_EDIT   yLOG_note    ("nothing text to delete");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("nothing text to delete");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_EDIT   yLOG_value   ("cpos"      , s_cur->cpos);
+   DEBUG_YSRC   yLOG_value   ("cpos"      , s_cur->cpos);
    --rce;  if (a_minor == 'h' && s_cur->cpos <= 0) {
-      DEBUG_EDIT   yLOG_note    ("nothing left to delete");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("nothing left to delete");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    --rce;  if (a_minor == 'l' && s_cur->cpos >= s_cur->npos - 1) {
-      DEBUG_EDIT   yLOG_note    ("nothing right to delete");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("nothing right to delete");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(prepare)------------------------*/
@@ -231,11 +231,11 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    case '0' : x_len = s_cur->cpos + 1; s_cur->cpos = 0;           break;
    case '$' : x_len = s_cur->npos - s_cur->cpos;                  break;
    }
-   DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
+   DEBUG_YSRC   yLOG_value   ("x_len"     , x_len);
    if (strchr ("HhBb0" , a_minor) != NULL)  x_left = 'y';
    if (strchr ("HhBb0$", a_minor) != NULL)  x_pos  = s_cur->cpos;
    else                                     x_pos  = s_cur->cpos + x_len;
-   DEBUG_EDIT   yLOG_value   ("x_pos"     , x_pos);
+   DEBUG_YSRC   yLOG_value   ("x_pos"     , x_pos);
    /*---(end)----------------------------*/
    rc = ysrc_sundo_beg ();
    --rce;  for (i = 0; i <  x_len; ++i) {
@@ -267,7 +267,7 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    if (a_minor == '0')  s_cur->cpos = x_pos;
    if (strchr ("0$"  , a_minor) != NULL)  yKEYS_repeat_reset ();
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -362,13 +362,13 @@ ysrc_replace            (void)
    char        x_ch        = G_CHAR_STORAGE;
    char        x_append    = '-';
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(get register data)--------------*/
    ysrc_sreg_fetch  (&x_dlen, x_data);
-   DEBUG_EDIT   yLOG_value   ("x_dlen"    , x_dlen);
-   DEBUG_EDIT   yLOG_info    ("x_data"    , x_data);
+   DEBUG_YSRC   yLOG_value   ("x_dlen"    , x_dlen);
+   DEBUG_YSRC   yLOG_info    ("x_data"    , x_data);
    /*---(handle if selected)-------------*/
-   DEBUG_EDIT   yLOG_value   ("islive"    , ysrc_select_islive ());
+   DEBUG_YSRC   yLOG_value   ("islive"    , ysrc_select_islive ());
    if (ysrc_select_islive ()) {
       ysrc_select_curr (&x_beg, &x_end, NULL);
       x_len = x_end - x_beg + 1;
@@ -377,9 +377,9 @@ ysrc_replace            (void)
       x_len = x_dlen;
       x_end = x_beg + x_len - 1;
    }
-   DEBUG_EDIT   yLOG_value   ("x_beg"     , x_beg);
-   DEBUG_EDIT   yLOG_value   ("x_end"     , x_end);
-   DEBUG_EDIT   yLOG_value   ("x_len"     , x_len);
+   DEBUG_YSRC   yLOG_value   ("x_beg"     , x_beg);
+   DEBUG_YSRC   yLOG_value   ("x_end"     , x_end);
+   DEBUG_YSRC   yLOG_value   ("x_len"     , x_len);
    /*---(set the start)------------------*/
    ysrc_sundo_beg ();
    /*---(walk the data)------------------*/
@@ -387,29 +387,29 @@ ysrc_replace            (void)
       /*---(get char)--------------------*/
       if (i < x_dlen)    x_ch = x_data [i];
       else               x_ch = G_CHAR_STORAGE;
-      DEBUG_EDIT   yLOG_complex ("PASS"      , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
+      DEBUG_YSRC   yLOG_complex ("PASS"      , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
       /*---(add to source)---------------*/
       if (x_append == '-' && s_cur->cpos < s_cur->npos) {
-         DEBUG_EDIT   yLOG_note    ("replace mode");
+         DEBUG_YSRC   yLOG_note    ("replace mode");
          ysrc_sundo_add   (G_KEY_SPACE, 'r', s_cur->cpos, s_cur->contents [s_cur->cpos], x_ch);
          rc = ysrc_replace_one (x_ch);
          ++s_cur->cpos;
       } else {
-         DEBUG_EDIT   yLOG_note    ("append mode");
+         DEBUG_YSRC   yLOG_note    ("append mode");
          x_append = 'y';
          s_cur->cpos = s_cur->npos - 1;
-         DEBUG_EDIT   yLOG_complex ("new pass"  , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
+         DEBUG_YSRC   yLOG_complex ("new pass"  , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
          ysrc_sundo_add   (G_KEY_SPACE, 'a', s_cur->cpos, G_CHAR_NULL, x_ch);
          rc = ysrc_append_one  (x_ch);
       }
-      DEBUG_EDIT   yLOG_complex ("after"     , "%3d, %2d, %2d", rc, s_cur->cpos, s_cur->npos);
+      DEBUG_YSRC   yLOG_complex ("after"     , "%3d, %2d, %2d", rc, s_cur->cpos, s_cur->npos);
       /*---(done)------------------------*/
    }
    /*---(set the end)--------------------*/
    ysrc_sundo_end ();
    ysrc_select_reset  (G_SREG_CURR);
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 

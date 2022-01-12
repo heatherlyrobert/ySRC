@@ -4,6 +4,7 @@
 #include    "ySRC_priv.h"
 
 
+tMY         mySRC;
 
 uchar     *g_stub   = "";
 char    (*s_saver) (char *a_contents);
@@ -41,25 +42,25 @@ ySRC_init               (void)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!yMODE_check_prep  (MODE_SOURCE)) {
-      DEBUG_EDIT   yLOG_note    ("status is not ready for init");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("status is not ready for init");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(pointer)------------------------*/
-   DEBUG_EDIT   yLOG_note    ("clear s_saver pointer");
+   DEBUG_YSRC   yLOG_note    ("clear s_saver pointer");
    s_saver  = NULL;
    /*---(command/search)-----------------*/
-   DEBUG_EDIT   yLOG_note    ("clear command/search values");
+   DEBUG_YSRC   yLOG_note    ("clear command/search values");
    s_cur = &s_cmd;
    s_cur->type  = EDIT_CMDS;
    strlcpy (s_cur->original, "" , LEN_RECD );
    strlcpy (s_cur->label   , "-", LEN_LABEL);
    ysrc_reset ();
    /*---(source)-------------------------*/
-   DEBUG_EDIT   yLOG_note    ("clear source values");
+   DEBUG_YSRC   yLOG_note    ("clear source values");
    s_cur = &s_src;
    s_cur->type  = EDIT_NORM;
    strlcpy (s_cur->original, "" , LEN_RECD );
@@ -69,19 +70,21 @@ ySRC_init               (void)
    ysrc_sundo_reset ();
    /*---(update status)------------------*/
    yMODE_init_set   (MODE_SOURCE , NULL                , ySRC_mode);
-   DEBUG_EDIT   yLOG_info    ("source"    , yMODE_actual (MODE_SOURCE));
+   DEBUG_YSRC   yLOG_info    ("source"    , yMODE_actual (MODE_SOURCE));
    yMODE_init_set   (UMOD_REPLACE, ysrc_replace_prepper, ysrc_replace_umode);
-   DEBUG_EDIT   yLOG_info    ("replace"   , yMODE_actual (UMOD_REPLACE));
+   DEBUG_YSRC   yLOG_info    ("replace"   , yMODE_actual (UMOD_REPLACE));
    yMODE_init_set   (UMOD_INPUT  , ysrc_input_prepper  , ysrc_input_umode);
-   DEBUG_EDIT   yLOG_info    ("input"     , yMODE_actual (UMOD_INPUT));
+   DEBUG_YSRC   yLOG_info    ("input"     , yMODE_actual (UMOD_INPUT));
    yMODE_init_set   (UMOD_SUNDO  , NULL                , yMODE_handler_stub);
-   DEBUG_EDIT   yLOG_info    ("sundo"     , yMODE_actual (UMOD_SUNDO));
+   DEBUG_YSRC   yLOG_info    ("sundo"     , yMODE_actual (UMOD_SUNDO));
+   yMODE_init_set   (UMOD_WANDER , ysrc_wander_prepper , ysrc_wander_umode);
+   DEBUG_YSRC   yLOG_info    ("wander"    , yMODE_actual (UMOD_WANDER));
    /*---(sreg)---------------------------*/
    ysrc_sreg_init    ();
    ysrc_replace_init ();
    ysrc_input_init   ();
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -91,11 +94,11 @@ ySRC_config             (void *a_saver)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
    --rce;  if (!yMODE_check_needs  (MODE_SOURCE)) {
-      DEBUG_EDIT   yLOG_note    ("init must complete before config");
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_note    ("init must complete before config");
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
    /*---(save pointer)-------------------*/
@@ -103,7 +106,7 @@ ySRC_config             (void *a_saver)
    /*---(update status)------------------*/
    yMODE_conf_set   (MODE_SOURCE, '1');
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -111,6 +114,42 @@ char
 ySRC_wrap               (void)
 {
    ysrc_sundo_reset ();
+   return 0;
+}
+
+
+
+/*====================------------------------------------====================*/
+/*===----                     navigation updates                       ----===*/
+/*====================------------------------------------====================*/
+static void      o___UPDATES_________________o (void) {;}
+
+char         /*-> update contents for display --------[ ------ [-------------]*/
+ySRC_source             (char *a_label, char *a_format, char *a_contents)
+{
+   /*---(header)-------------------------*/
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   /*---(check inputs)-------------------*/
+   DEBUG_YSRC   yLOG_point   ("a_label"   , a_label);
+   DEBUG_YSRC   yLOG_info    ("a_label"   , a_label);
+   if (a_label    == NULL)  strlcpy (s_src.label   , "-"       , LEN_LABEL);
+   else                     strlcpy (s_src.label   , a_label   , LEN_LABEL);
+   DEBUG_YSRC   yLOG_info    ("label"     , s_src.label);
+   DEBUG_YSRC   yLOG_point   ("a_format"  , a_format);
+   DEBUG_YSRC   yLOG_info    ("a_format"  , a_format);
+   if (a_format   == NULL)  strlcpy (s_src.format  , "·····"   , LEN_LABEL);
+   else                     strlcpy (s_src.format  , a_format  , LEN_LABEL);
+   DEBUG_YSRC   yLOG_info    ("format"    , s_src.format);
+   DEBUG_YSRC   yLOG_point   ("a_contents", a_contents);
+   DEBUG_YSRC   yLOG_info    ("a_contents", a_contents);
+   if (a_contents == NULL)  strlcpy (s_src.original, ""        , LEN_RECD);
+   else                     strlcpy (s_src.original, a_contents, LEN_RECD);
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_src.original);
+   strldchg (s_src.original, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   strlcpy  (s_src.contents, s_cur->original, LEN_RECD);
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->original);
+   /*---(complete)-----------------------*/
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -125,29 +164,29 @@ char         /*-> update contents for display --------[ ------ [-------------]*/
 ySRC_update             (char *a_label, char *a_format, char *a_contents)
 {
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(fix pointer)--------------------*/
    s_cur = &s_src;
    s_cur->type  = EDIT_NORM;
    /*---(check inputs)-------------------*/
-   DEBUG_EDIT   yLOG_point   ("a_label"   , a_label);
-   DEBUG_EDIT   yLOG_info    ("a_label"   , a_label);
+   DEBUG_YSRC   yLOG_point   ("a_label"   , a_label);
+   DEBUG_YSRC   yLOG_info    ("a_label"   , a_label);
    if (a_label    == NULL)  strlcpy (s_cur->label   , "-"       , LEN_LABEL);
    else                     strlcpy (s_cur->label   , a_label   , LEN_LABEL);
-   DEBUG_EDIT   yLOG_info    ("label"     , s_cur->label);
-   DEBUG_EDIT   yLOG_point   ("a_format"  , a_format);
-   DEBUG_EDIT   yLOG_info    ("a_format"  , a_format);
+   DEBUG_YSRC   yLOG_info    ("label"     , s_cur->label);
+   DEBUG_YSRC   yLOG_point   ("a_format"  , a_format);
+   DEBUG_YSRC   yLOG_info    ("a_format"  , a_format);
    if (a_format   == NULL)  strlcpy (s_cur->format  , "·····"   , LEN_LABEL);
    else                     strlcpy (s_cur->format  , a_format  , LEN_LABEL);
-   DEBUG_EDIT   yLOG_info    ("format"    , s_cur->format);
-   DEBUG_EDIT   yLOG_point   ("a_contents", a_contents);
-   DEBUG_EDIT   yLOG_info    ("a_contents", a_contents);
+   DEBUG_YSRC   yLOG_info    ("format"    , s_cur->format);
+   DEBUG_YSRC   yLOG_point   ("a_contents", a_contents);
+   DEBUG_YSRC   yLOG_info    ("a_contents", a_contents);
    if (a_contents == NULL)  strlcpy (s_cur->original, ""        , LEN_RECD);
    else                     strlcpy (s_cur->original, a_contents, LEN_RECD);
-   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->original);
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->original);
    strldchg (s_cur->original, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
    strlcpy  (s_cur->contents, s_cur->original, LEN_RECD);
-   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->original);
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->original);
    /*---(reset content)------------------*/
    s_cur->npos = strllen (s_cur->contents, LEN_RECD);
    s_cur->bpos = s_cur->cpos = 0;
@@ -155,7 +194,7 @@ ySRC_update             (char *a_label, char *a_format, char *a_contents)
    /*---(process)------------------------*/
    UPDATE_AFTER_CHANGES;
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -165,33 +204,38 @@ ySRC_start         (char *a_prefix)
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
    /*---(header)-------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(defense)------------------------*/
-   DEBUG_EDIT   yLOG_point   ("a_prefix"  , a_prefix);
+   DEBUG_YSRC   yLOG_point   ("a_prefix"  , a_prefix);
    --rce;  if (a_prefix == NULL) {
-      DEBUG_EDIT   yLOG_exitr   (__FUNCTION__, rce);
+      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_EDIT   yLOG_info    ("a_prefix"  , a_prefix);
+   DEBUG_YSRC   yLOG_info    ("a_prefix"  , a_prefix);
    /*---(select mode)--------------------*/
    switch (a_prefix [0]) {
    case ':' :
-      DEBUG_EDIT   yLOG_note    ("command setting");
+      DEBUG_YSRC   yLOG_note    ("command setting");
       s_cur = &s_cmd;
       yMODE_enter  (MODE_COMMAND);
       break;
    case ';' :
-      DEBUG_EDIT   yLOG_note    ("hints setting");
+      DEBUG_YSRC   yLOG_note    ("hints setting");
       s_cur = &s_cmd;
       yMODE_enter  (SMOD_HINT);
       break;
    case '/' :
-      DEBUG_EDIT   yLOG_note    ("search setting");
+      DEBUG_YSRC   yLOG_note    ("search setting");
       s_cur = &s_cmd;
       yMODE_enter  (MODE_SEARCH );
       break;
+   case 'µ' :
+      DEBUG_YSRC   yLOG_note    ("menu setting");
+      s_cur = &s_cmd;
+      yMODE_enter  (MODE_COMMAND);
+      break;
    default  :
-      DEBUG_EDIT   yLOG_note    ("source setting");
+      DEBUG_YSRC   yLOG_note    ("source setting");
       s_cur = &s_src;
       yMODE_enter  (MODE_SOURCE );
       break;
@@ -200,21 +244,51 @@ ySRC_start         (char *a_prefix)
    ysrc_sundo_reset ();
    /*---(populate globals)---------------*/
    /*> SOURCE_menu_prep ();                                                           <*/
-   if (a_prefix [0] != '¦')  strlcpy (s_cur->contents, a_prefix , LEN_RECD);
+   if (a_prefix [0] != '¦') {
+      strlcpy (s_cur->contents, a_prefix , LEN_RECD);
+   }
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->contents);
    s_cur->npos = strllen (s_cur->contents, LEN_RECD);
    s_cur->bpos = s_cur->cpos = 0;
    s_cur->epos = s_cur->npos;
    UPDATE_AFTER_CHANGES;
    /*---(go info input)------------------*/
    if (a_prefix [0] != '¦') {
-      DEBUG_EDIT   yLOG_note    ("go straight to append");
+      DEBUG_YSRC   yLOG_note    ("go straight to append");
       ySRC_mode (' ', 'A');
    }
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
+/*> char                                                                                          <* 
+ *> SOURCE_menu_prep        (void)                                                                <* 
+ *> {                                                                                             <* 
+ *>    /+---(locals)-----------+-----+-----+-+/                                                   <* 
+ *>    char        x_on        =  '-';                                                            <* 
+ *>    int         x_wide      =    0;                                                            <* 
+ *>    tEDIT      *x_cur       = NULL;                                                            <* 
+ *>    /+---(header)----------------------+/                                                      <* 
+ *>    DEBUG_EDIT   yLOG_enter   (__FUNCTION__);                                                  <* 
+ *>    /+---(get wide)--------------------+/                                                      <* 
+ *>    x_on = yVIKEYS_view_size     (YVIKEYS_COMMAND, NULL, &x_wide, NULL, NULL, NULL);           <* 
+ *>    DEBUG_EDIT   yLOG_char    ("on"        , x_on);                                            <* 
+ *>    if (x_on != 'y') yVIKEYS_view_size     (YVIKEYS_FLOAT, NULL, &x_wide, NULL, NULL, NULL);   <* 
+ *>    DEBUG_EDIT   yLOG_char    ("x_wide"    , x_wide);                                          <* 
+ *>    /+---(set current)-----------------+/                                                      <* 
+ *>    x_cur  = &s_cmd;                                                                           <* 
+ *>    /+---(set wide)--------------------+/                                                      <* 
+ *>    DEBUG_EDIT   yLOG_char    ("env"       , myVIKEYS.env);                                    <* 
+ *>    if (myVIKEYS.env == YVIKEYS_CURSES)  x_cur->wide = x_wide;                                 <* 
+ *>    else                                 x_cur->wide = x_wide / myVIKEYS.font_scale;           <* 
+ *>    /+---(set apos)--------------------+/                                                      <* 
+ *>    x_cur->apos = x_cur->wide - 6;                                                             <* 
+ *>    DEBUG_EDIT   yLOG_char    ("apos"      , x_cur->apos);                                     <* 
+ *>    /+---(complete)--------------------+/                                                      <* 
+ *>    DEBUG_EDIT   yLOG_exit    (__FUNCTION__);                                                  <* 
+ *>    return 0;                                                                                  <* 
+ *> }                                                                                             <*/
 
 
 /*====================------------------------------------====================*/
@@ -226,17 +300,17 @@ char         /*-> prepare for source mode move -------[ leaf   [gz.412.001.00]*/
 ysrc_before             (void)
 {
    /*---(prepare)------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_info    ("contents"  , s_cur->contents);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->contents);
    s_cur->npos     = strlen (s_cur->contents);
    /*---(display debugging)--------------*/
-   DEBUG_EDIT   yLOG_value   ("npos"     , s_cur->npos);
-   DEBUG_EDIT   yLOG_value   ("apos"     , s_cur->apos);
-   DEBUG_EDIT   yLOG_value   ("bpos"     , s_cur->bpos);
-   DEBUG_EDIT   yLOG_value   ("cpos"     , s_cur->cpos);
-   DEBUG_EDIT   yLOG_value   ("epos"     , s_cur->epos);
+   DEBUG_YSRC   yLOG_value   ("npos"     , s_cur->npos);
+   DEBUG_YSRC   yLOG_value   ("apos"     , s_cur->apos);
+   DEBUG_YSRC   yLOG_value   ("bpos"     , s_cur->bpos);
+   DEBUG_YSRC   yLOG_value   ("cpos"     , s_cur->cpos);
+   DEBUG_YSRC   yLOG_value   ("epos"     , s_cur->epos);
    /*---(complete)-----------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
 
@@ -269,17 +343,17 @@ ysrc_after              (void)
    char        rce         =    0;
    char        rc          =    0;
    /*---(prepare)------------------------*/
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
-   DEBUG_EDIT   yLOG_info    ("s_contents", s_cur->contents);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_info    ("s_contents", s_cur->contents);
    s_cur->npos     = strlen (s_cur->contents);
    /*---(display debugging)--------------*/
-   DEBUG_EDIT   yLOG_value   ("s_npos"   , s_cur->npos);
-   DEBUG_EDIT   yLOG_value   ("s_apos"   , s_cur->apos);
-   DEBUG_EDIT   yLOG_value   ("s_bpos"   , s_cur->bpos);
-   DEBUG_EDIT   yLOG_value   ("s_cpos"   , s_cur->cpos);
-   DEBUG_EDIT   yLOG_value   ("s_epos"   , s_cur->epos);
+   DEBUG_YSRC   yLOG_value   ("s_npos"   , s_cur->npos);
+   DEBUG_YSRC   yLOG_value   ("s_apos"   , s_cur->apos);
+   DEBUG_YSRC   yLOG_value   ("s_bpos"   , s_cur->bpos);
+   DEBUG_YSRC   yLOG_value   ("s_cpos"   , s_cur->cpos);
+   DEBUG_YSRC   yLOG_value   ("s_epos"   , s_cur->epos);
    /*---(check over/underrun)---------*/
-   DEBUG_EDIT   yLOG_note    ("correct s_npos over/underruns");
+   DEBUG_YSRC   yLOG_note    ("correct s_npos over/underruns");
    --rce;  if (s_cur->npos  >= LEN_RECD) {
       s_cur->npos = LEN_RECD - 1;
       s_cur->contents [s_cur->npos] = '\0';
@@ -290,60 +364,60 @@ ysrc_after              (void)
       rc = rce;
    }
    /*---(check min/max)---------------*/
-   DEBUG_EDIT   yLOG_note    ("correct min/max limits");
+   DEBUG_YSRC   yLOG_note    ("correct min/max limits");
    --rce;  if (s_cur->cpos >=  s_cur->npos)  {  s_cur->cpos = s_cur->npos - 1;  rc = rce; }
    --rce;  if (s_cur->cpos <   0          )  {  s_cur->cpos = 0;                rc = rce; }
    --rce;  if (s_cur->bpos <   0          )     s_cur->bpos = 0;
-   DEBUG_EDIT   yLOG_complex ("limits"    , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
+   DEBUG_YSRC   yLOG_complex ("limits"    , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(small strings)---------------*/
    if (s_cur->npos == 0) {
-      DEBUG_EDIT   yLOG_note    ("check and handle small string");
+      DEBUG_YSRC   yLOG_note    ("check and handle small string");
       s_cur->cpos = s_cur->bpos = s_cur->epos = 0;
    }
    /*---(small strings)---------------*/
    else if (s_cur->npos <= s_cur->apos) {
-      DEBUG_EDIT   yLOG_note    ("check and handle small string");
+      DEBUG_YSRC   yLOG_note    ("check and handle small string");
       s_cur->bpos = 0;
       s_cur->epos = s_cur->npos - 1;
    }
    /*---(long strings)----------------*/
    else {
-      DEBUG_EDIT   yLOG_note    ("check and handle long string");
+      DEBUG_YSRC   yLOG_note    ("check and handle long string");
       s_cur->epos = s_cur->bpos + s_cur->apos - 1;
       /*---(check off left side)------*/
-      DEBUG_EDIT   yLOG_note    ("check off left side of screen");
+      DEBUG_YSRC   yLOG_note    ("check off left side of screen");
       if (s_cur->cpos <   s_cur->bpos)  {
          s_cur->bpos = s_cur->cpos;
          s_cur->epos = s_cur->bpos + s_cur->apos - 1;
       }
       /*---(check off right side)-----*/
-      DEBUG_EDIT   yLOG_note    ("check off right side of screen");
+      DEBUG_YSRC   yLOG_note    ("check off right side of screen");
       if (s_cur->cpos >   s_cur->epos)  {
          s_cur->epos = s_cur->cpos;
          s_cur->bpos = s_cur->epos - s_cur->apos + 1;
       }
       /*---(check scrolling-----------*/
-      DEBUG_EDIT   yLOG_note    ("make sure right is locked to end");
+      DEBUG_YSRC   yLOG_note    ("make sure right is locked to end");
       if (s_cur->epos >=  s_cur->npos)  {
          s_cur->epos = s_cur->npos - 1;
          s_cur->bpos = s_cur->epos - s_cur->apos + 1;
       }
    }
-   DEBUG_EDIT   yLOG_complex ("post-limit", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
+   DEBUG_YSRC   yLOG_complex ("post-limit", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(selection update)---------------*/
    ysrc_select_update (s_cur->cpos);
-   DEBUG_EDIT   yLOG_complex ("post-sreg" , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
+   DEBUG_YSRC   yLOG_complex ("post-sreg" , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(update word breaks)-------------*/
    ysrc_word_update ();
-   DEBUG_EDIT   yLOG_complex ("post-words", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
+   DEBUG_YSRC   yLOG_complex ("post-words", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    /*---(display debugging)--------------*/
-   DEBUG_EDIT   yLOG_value   ("s_npos"   , s_cur->npos);
-   DEBUG_EDIT   yLOG_value   ("s_apos"   , s_cur->apos);
-   DEBUG_EDIT   yLOG_value   ("s_bpos"   , s_cur->bpos);
-   DEBUG_EDIT   yLOG_value   ("s_cpos"   , s_cur->cpos);
-   DEBUG_EDIT   yLOG_value   ("s_epos"   , s_cur->epos);
+   DEBUG_YSRC   yLOG_value   ("s_npos"   , s_cur->npos);
+   DEBUG_YSRC   yLOG_value   ("s_apos"   , s_cur->apos);
+   DEBUG_YSRC   yLOG_value   ("s_bpos"   , s_cur->bpos);
+   DEBUG_YSRC   yLOG_value   ("s_cpos"   , s_cur->cpos);
+   DEBUG_YSRC   yLOG_value   ("s_epos"   , s_cur->epos);
    /*---(complete)--------------------*/
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -359,10 +433,10 @@ ysrc_accept             (void)
 {
    char        rc          =    0;
    char        t           [LEN_RECD] = "";
-   DEBUG_EDIT   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    switch (yMODE_curr ()) {
    case MODE_SOURCE  :
-      DEBUG_EDIT   yLOG_note    ("save source back");
+      DEBUG_YSRC   yLOG_note    ("save source back");
       if (s_saver != NULL && s_cur->npos > 0) {
          strlcpy (t, s_cur->contents, LEN_RECD);
          strldchg (t, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
@@ -370,22 +444,22 @@ ysrc_accept             (void)
       }
       break;
    case MODE_COMMAND :
-      DEBUG_EDIT   yLOG_note    ("execute command");
+      DEBUG_YSRC   yLOG_note    ("execute command");
       rc = yCMD_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
       /*> case SMOD_HINT    :                                                            <* 
-       *>    DEBUG_EDIT   yLOG_note    ("execute hint");                                 <* 
+       *>    DEBUG_YSRC   yLOG_note    ("execute hint");                                 <* 
        *>    rc = yvikeys_hint_direct (s_cur->contents);                                 <* 
        *>    strlcpy (s_cur->contents, "", LEN_RECD);                                    <* 
        *>    break;                                                                      <*/
       /*> case MODE_SEARCH  :                                                            <* 
-       *>    DEBUG_EDIT   yLOG_note    ("execute search");                               <* 
+       *>    DEBUG_YSRC   yLOG_note    ("execute search");                               <* 
        *>    rc = yvikeys_srch_direct (s_cur->contents);                                 <* 
        *>    strlcpy (s_cur->contents, "", LEN_RECD);                                    <* 
        *>    break;                                                                      <*/
    }
-   DEBUG_EDIT   yLOG_value   ("rc"        , rc);
+   DEBUG_YSRC   yLOG_value   ("rc"        , rc);
    strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    ysrc_select_reset (G_SREG_ZERO);
@@ -393,8 +467,8 @@ ysrc_accept             (void)
    ySRC_update (s_src.label, s_src.format, s_src.original);
    yMAP_refresh ();
    /*> yvikeys_map_reposition  ();                                                    <*/
-   DEBUG_EDIT   yLOG_value   ("rc"        , rc);
-   DEBUG_EDIT   yLOG_exit    (__FUNCTION__);
+   DEBUG_YSRC   yLOG_value   ("rc"        , rc);
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
 }
 
@@ -410,12 +484,12 @@ ysrc_reset              (void)
    }
    strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
-   DEBUG_EDIT   yLOG_complex ("reset"     , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
+   DEBUG_YSRC   yLOG_complex ("reset"     , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    ysrc_select_reset (G_SREG_ZERO);
    ysrc_sundo_reset ();
    ySRC_update (s_src.label, s_src.format, s_src.original);
    /*> yvikeys_map_reposition  ();                                                    <*/
-   DEBUG_EDIT   yLOG_complex ("post-reset", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
+   DEBUG_YSRC   yLOG_complex ("post-reset", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    return 0;
 }
 
@@ -428,141 +502,5 @@ static void  o___ACCESSORS_______o () { return; }
 
 char*   SOURCE_label            (void) { return s_src.label; }
 
-
-
-/*====================------------------------------------====================*/
-/*===----                         unit testing                         ----===*/
-/*====================------------------------------------====================*/
-static void  o___UNIT_TEST_______o () { return; }
-
-char           unit_answer [LEN_FULL];
-
-char       /*----: set up program urgents/debugging --------------------------*/
-ysrc__unit_quiet        (void)
-{
-   int         x_narg       = 1;
-   char       *x_args [20]  = {"ySRC_unit" };
-   /*> yURG_logger   (x_narg, x_args);                                                <*/
-   /*> yURG_urgs     (x_narg, x_args);                                                <*/
-   yMODE_init (MODE_MAP);
-   yMODE_handler_setup ();
-   yMACRO_global_init ();
-   ySRC_init ();
-   return 0;
-}
-
-char       /*----: set up program urgents/debugging --------------------------*/
-ysrc__unit_loud         (void)
-{
-   int         x_narg       = 1;
-   char       *x_args [20]  = {"ySRC_unit" };
-   yURG_logger   (x_narg, x_args);
-   yURG_urgs     (x_narg, x_args);
-   yURG_name  ("kitchen"      , YURG_ON);
-   yURG_name  ("edit"         , YURG_ON);
-   yURG_name  ("keys"         , YURG_ON);
-   yURG_name  ("ystr"         , YURG_ON);
-   yURG_name  ("ymode"        , YURG_ON);
-   yURG_name  ("mode"         , YURG_ON);
-   DEBUG_EDIT  yLOG_info     ("ySRC"      , ySRC_version   ());
-   yMODE_init (MODE_MAP);
-   yMODE_handler_setup ();
-   yMACRO_global_init ();
-   ySRC_init ();
-   return 0;
-}
-
-char       /*----: stop logging ----------------------------------------------*/
-ysrc__unit_end          (void)
-{
-   DEBUG_EDIT  yLOG_enter   (__FUNCTION__);
-   ySRC_wrap    ();
-   DEBUG_EDIT  yLOG_exit    (__FUNCTION__);
-   yLOGS_end    ();
-   return 0;
-}
-
-char*        /*-> unit test accessor -----------------[ light  [us.420.111.11]*/ /*-[01.0000.00#.Z]-*/ /*-[--.---.---.--]-*/
-ySRC__unit              (char *a_question, int n)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        r           [LEN_FULL]  = "";
-   char        s           [LEN_FULL]  = "";
-   char        t           [LEN_FULL]  = "";
-   int         x_len       =    0;
-   uchar       x_abbr      =  '-';
-   uchar       x_char      =  '-';
-   /*---(preprare)-----------------------*/
-   strcpy  (unit_answer, "SRC unit         : question not understood");
-   /*---(selection)----------------------*/
-   if      (strcmp (a_question, "undo"           )   == 0) {
-      ysrc_sundo_status (t);
-      snprintf (unit_answer, LEN_FULL, "SRC undo (%2d/%2d) : å%sæ", g_nsundo, g_csundo, t);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "selection"      )   == 0) {
-      strlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
-      /*> t [g_sreg.root - g_sreg.beg] = 'Ï';                                         <*/
-      snprintf (unit_answer, LEN_FULL, "SRC selection    : %c %2db %2de %2d# %2dr å%sæ", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root, t);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "inventory"      )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SRC reg inven    : %c  %c  å%sæ", g_csreg, g_wsreg, G_SREG_LIST);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "contents"       )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SRC contents     : å%-.80sæ", s_cur->contents);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "words"          )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SRC words        : å%-.80sæ", s_cur->words);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "details"        )   == 0) {
-      sprintf (s, "å%-.10sæ", s_cur->label);
-      sprintf (t, "%3då%-.40sæ", s_cur->npos, s_cur->contents);
-      snprintf (unit_answer, LEN_FULL, "SRC details      : %3dw %3da %3db %3dc %3de %-12.12s %s", s_cur->wide, s_cur->apos, s_cur->bpos, s_cur->cpos, s_cur->epos, s, t);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "display"        )   == 0) {
-      if (strlen (s_cur->contents) > 0) {
-         strlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
-         x_char = chrvisible (t [s_cur->cpos - s_cur->bpos]);
-         t [s_cur->cpos - s_cur->bpos] = 'Ï';
-      } else {
-         x_char = G_CHAR_NULL;
-      }
-      snprintf (unit_answer, LEN_FULL, "SRC display (%2d) : %c å%sæ", s_cur->apos, x_char, t);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "input"          )   == 0) {
-      ysrc__input_unit (t);
-      snprintf (unit_answer, LEN_FULL, "SRC input        : %s", t);
-      return unit_answer;
-   }
-   else if (strcmp (a_question, "replace"        )   == 0) {
-      ysrc__replace_unit (t);
-      snprintf (unit_answer, LEN_FULL, "SRC replace      : %s", t);
-      return unit_answer;
-   }
-   /*---(complex)------------------------*/
-   x_abbr = n;
-   n = ysrc_sreg_index  (x_abbr);
-   if (n < 0) {
-      strlcpy  (unit_answer, "SRC sreg         : not a valid register name", LEN_FULL);
-      return unit_answer;
-   }
-   if      (strcmp (a_question, "saved"          )   == 0) {
-      snprintf (unit_answer, LEN_FULL, "SRC reg save (%c) : %c %3d[%.40s]", n, g_sregs [n].active, g_sregs [n].len, g_sregs [n].data);
-   }
-   if      (strcmp (a_question, "register"       )   == 0) {
-      sprintf (r, "å%.10sæ", g_sregs [n].label);
-      sprintf (t, "%2då%.40sæ", g_sregs [n].len, g_sregs [n].data);
-      snprintf (unit_answer, LEN_FULL, "SRC reg   (%c/%2d) : %c %c %-12.12s %2d %2d %2d %s", x_abbr, n, g_sregs [n].active, g_sregs [n].source, r, g_sregs [n].beg, g_sregs [n].end, g_sregs [n].root, t);
-   }
-
-   /*---(complete)-----------------------*/
-   return unit_answer;
-}
 
 

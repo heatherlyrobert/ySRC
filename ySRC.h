@@ -13,6 +13,7 @@ char        ySRC_init               (void);
 char        ySRC_config             (void *a_saver);
 char        ySRC_wrap               (void);
 
+char        ySRC_source             (char *a_label, char *a_format, char *a_contents);
 char        ySRC_update             (char *a_label, char *a_format, char *a_contents);
 char        ySRC_start              (char *a_prefix);
 
