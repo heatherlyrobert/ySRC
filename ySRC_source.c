@@ -136,7 +136,6 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_note    ("switch to a text register mode (¶)");
       rc = yMODE_enter (SMOD_SREG);
       if (rc >= 0)  rc = 0;
-      else          rc = YKEYS_LOCK;
       break;
    case  'r' :
       DEBUG_YSRC   yLOG_note    ("enter replace mode");
@@ -263,38 +262,47 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =   -1;
+   int         i, r;
    /*---(quick out)----------------------*/
    if (a_major == G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   /*---(repeats)------------------------*/
+   r = yKEYS_repeat_use_multi ();
+   DEBUG_YSRC   yLOG_value   ("repeats"   , r);
    /*---(multi-key)----------------------*/
-   switch (a_major) {
-   case 'd' : case 'x' :
-      rc = ysrc_multi_pure (a_major, a_minor);
-      break;
-   case 'g' :
-      rc = ysrc_move_goto    (a_major, a_minor);
-      break;
-   case 'z' :
-      rc = ysrc_move_scroll  (a_major, a_minor);
-      break;
-   case 'f' : case 'F' :
-      rc = ysrc__source_findchar (a_major, a_minor);
-      break;
-   case 'c' :
-      /*> n = yKEYS_repeat_useall ();                                              <* 
-       *> for (i = 0; i <= n; ++i) {                                               <* 
-       *>    ysrc_multi_pure  ('d', a_minor);                                      <* 
-       *> }                                                                        <* 
-       *> yMODE_enter (UMOD_INPUT);                                                <* 
-       *> SRC_INPT_umode ('m', tolower (a_minor));                                 <* 
-       *> rc = tolower (a_minor);                                                  <* 
-       *> DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
-       *> return rc;                                                               <* 
-       *> break;                                                                   <*/
-   default  :
-      rc = 0;
-      break;
+   for (i = 0; i <= r; ++i) {
+      switch (a_major) {
+      case 'd' : case 'x' :
+         DEBUG_YSRC   yLOG_note    ("multi-key delete (d) or clear (x)");
+         rc = ysrc_multi_pure (a_major, a_minor);
+         break;
+      case 'g' :
+         DEBUG_YSRC   yLOG_note    ("multi-key goto (g)");
+         rc = ysrc_move_goto (a_major, a_minor);
+         break;
+      case 'z' :
+         DEBUG_YSRC   yLOG_note    ("multi-key scroll (z)");
+         rc = ysrc_move_scroll (a_major, a_minor);
+         break;
+      case 'f' : case 'F' :
+         DEBUG_YSRC   yLOG_note    ("multi-key find char (F or f)");
+         rc = ysrc__source_findchar (a_major, a_minor);
+         break;
+      case 'c' :
+         DEBUG_YSRC   yLOG_note    ("multi-key control (c)");
+         /*> n = yKEYS_repeat_useall ();                                              <* 
+          *> for (i = 0; i <= n; ++i) {                                               <* 
+          *>    ysrc_multi_pure  ('d', a_minor);                                      <* 
+          *> }                                                                        <* 
+          *> yMODE_enter (UMOD_INPUT);                                                <* 
+          *> SRC_INPT_umode ('m', tolower (a_minor));                                 <* 
+          *> rc = tolower (a_minor);                                                  <* 
+          *> DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
+          *> return rc;                                                               <* 
+          *> break;                                                                   <*/
+         break;
+      }
    }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -366,6 +374,7 @@ ySRC_mode               (uchar a_major, uchar a_minor)
       /*---(multikey prefixes)-----------*/
       if (yKEYS_is_multi_src (a_minor)) {
          DEBUG_YSRC   yLOG_note    ("beginning of multi-key command");
+         yKEYS_repeat_set_multi ();
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }
