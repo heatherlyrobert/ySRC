@@ -39,7 +39,7 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_note    ("space, nothing to do");
       break;
    case G_KEY_ESCAPE :
-      if (ysrc_select_islive ()) {
+      if (ySRC_select_islive ()) {
          DEBUG_YSRC   yLOG_note    ("escape, means get out of selection");
          ysrc_select_reset (s_cur->cpos);
       } else {
@@ -128,7 +128,7 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
    /*---(sub modes)----------------------*/
    switch (a_minor) {
    case  'v' :
-      if (ysrc_select_islive ()) s_cur->cpos = ysrc_select_reverse  ();
+      if (ySRC_select_islive ()) s_cur->cpos = ysrc_select_reverse  ();
       else                       ysrc_select_makelive ();
       rc = 0;
       break;
@@ -140,17 +140,17 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
    case  'r' :
       DEBUG_YSRC   yLOG_note    ("enter replace mode");
       rc = yMODE_enter (UMOD_REPLACE);
-      if (rc >= 0)  rc = a_minor;
+      /*> if (rc >= 0)  rc = a_minor;                                                 <*/
       break;
    case  'R' :
       DEBUG_YSRC   yLOG_note    ("enter replace mode");
       rc = yMODE_enter (UMOD_REPLACE);
-      if (rc >= 0)  rc = a_minor;
+      /*> if (rc >= 0)  rc = a_minor;                                                 <*/
       break;
    case  'i' : case  'a' : case  'I' : case  'A' :
       DEBUG_YSRC   yLOG_note    ("enter input mode");
       rc = yMODE_enter (UMOD_INPUT);
-      if (rc >= 0)  rc = tolower (a_minor);
+      /*> if (rc >= 0)  rc = tolower (a_minor);                                       <*/
       break;
    }
    /*---(complete)-----------------------*/
@@ -262,47 +262,41 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =   -1;
-   int         i, r;
    /*---(quick out)----------------------*/
    if (a_major == G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
-   /*---(repeats)------------------------*/
-   r = yKEYS_repeat_use_multi ();
-   DEBUG_YSRC   yLOG_value   ("repeats"   , r);
    /*---(multi-key)----------------------*/
-   for (i = 0; i <= r; ++i) {
-      switch (a_major) {
-      case 'd' : case 'x' :
-         DEBUG_YSRC   yLOG_note    ("multi-key delete (d) or clear (x)");
-         rc = ysrc_multi_pure (a_major, a_minor);
-         break;
-      case 'g' :
-         DEBUG_YSRC   yLOG_note    ("multi-key goto (g)");
-         rc = ysrc_move_goto (a_major, a_minor);
-         break;
-      case 'z' :
-         DEBUG_YSRC   yLOG_note    ("multi-key scroll (z)");
-         rc = ysrc_move_scroll (a_major, a_minor);
-         break;
-      case 'f' : case 'F' :
-         DEBUG_YSRC   yLOG_note    ("multi-key find char (F or f)");
-         rc = ysrc__source_findchar (a_major, a_minor);
-         break;
-      case 'c' :
-         DEBUG_YSRC   yLOG_note    ("multi-key control (c)");
-         /*> n = yKEYS_repeat_useall ();                                              <* 
-          *> for (i = 0; i <= n; ++i) {                                               <* 
-          *>    ysrc_multi_pure  ('d', a_minor);                                      <* 
-          *> }                                                                        <* 
-          *> yMODE_enter (UMOD_INPUT);                                                <* 
-          *> SRC_INPT_umode ('m', tolower (a_minor));                                 <* 
-          *> rc = tolower (a_minor);                                                  <* 
-          *> DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
-          *> return rc;                                                               <* 
-          *> break;                                                                   <*/
-         break;
-      }
+   switch (a_major) {
+   case 'd' : case 'x' :
+      DEBUG_YSRC   yLOG_note    ("multi-key delete (d) or clear (x)");
+      rc = ysrc_multi_pure (a_major, a_minor);
+      break;
+   case 'g' :
+      DEBUG_YSRC   yLOG_note    ("multi-key goto (g)");
+      rc = ysrc_move_goto (a_major, a_minor);
+      break;
+   case 'z' :
+      DEBUG_YSRC   yLOG_note    ("multi-key scroll (z)");
+      rc = ysrc_move_scroll (a_major, a_minor);
+      break;
+   case 'f' : case 'F' :
+      DEBUG_YSRC   yLOG_note    ("multi-key find char (F or f)");
+      rc = ysrc__source_findchar (a_major, a_minor);
+      break;
+   case 'c' :
+      DEBUG_YSRC   yLOG_note    ("multi-key control (c)");
+      /*> n = yKEYS_repeat_useall ();                                              <* 
+       *> for (i = 0; i <= n; ++i) {                                               <* 
+       *>    ysrc_multi_pure  ('d', a_minor);                                      <* 
+       *> }                                                                        <* 
+       *> yMODE_enter (UMOD_INPUT);                                                <* 
+       *> SRC_INPT_umode ('m', tolower (a_minor));                                 <* 
+       *> rc = tolower (a_minor);                                                  <* 
+       *> DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
+       *> return rc;                                                               <* 
+       *> break;                                                                   <*/
+      break;
    }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -374,7 +368,6 @@ ySRC_mode               (uchar a_major, uchar a_minor)
       /*---(multikey prefixes)-----------*/
       if (yKEYS_is_multi_src (a_minor)) {
          DEBUG_YSRC   yLOG_note    ("beginning of multi-key command");
-         yKEYS_repeat_set_multi ();
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return a_minor;
       }

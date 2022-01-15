@@ -57,15 +57,22 @@ static void  o___GROUPING________o () { return; }
 char
 ysrc_sundo_beg          (void)
 {
+   char n = yKEYS_normal ();
+   char u = yKEYS_unique ();
+   char b = yKEYS_repeat_beg ();
    DEBUG_YSRC   yLOG_senter  (__FUNCTION__);
-   DEBUG_YSRC   yLOG_schar   (yKEYS_repeating   ());
+   DEBUG_YSRC   yLOG_sint    (yKEYS_repeating   ());
    DEBUG_YSRC   yLOG_sint    (yKEYS_repeat_orig ());
    DEBUG_YSRC   yLOG_sint    (yKEYS_repeats     ());
+   if (g_csundo == -1)  g_nseq = -1;
    DEBUG_YSRC   yLOG_sint    (g_nseq);
-   DEBUG_YSRC   yLOG_sint    (yKEYS_normal      ());
-   DEBUG_YSRC   yLOG_sint    (yKEYS_unique ());
-   if      (g_nseq < 0)                          ++g_nseq;
-   else if (yKEYS_normal () && yKEYS_unique ())  ++g_nseq;
+   DEBUG_YSRC   yLOG_svalue  ("n", n);
+   DEBUG_YSRC   yLOG_svalue  ("u", u);
+   DEBUG_YSRC   yLOG_svalue  ("b", b);
+   if (b) {
+      if      (g_nseq < 0)  ++g_nseq;
+      else if (n && u)      ++g_nseq;
+   }
    DEBUG_YSRC   yLOG_sint    (g_nseq);
    DEBUG_YSRC   yLOG_sexit   (__FUNCTION__);
    return 0;
@@ -103,8 +110,10 @@ ysrc_sundo_add          (char a_major, char a_minor, short a_pos, char a_before,
    g_sundos [g_csundo].major  = a_major;
    g_sundos [g_csundo].minor  = a_minor;
    g_sundos [g_csundo].cpos   = a_pos;
-   g_sundos [g_csundo].before = chrvisible (a_before);
-   g_sundos [g_csundo].after  = chrvisible (a_after);
+   if (a_before != G_KEY_SPACE)  a_before = chrvisible (a_before);
+   g_sundos [g_csundo].before = a_before;
+   if (a_after  != G_KEY_SPACE)  a_after  = chrvisible (a_after);
+   g_sundos [g_csundo].after  = a_after;
    g_nsundo = g_csundo + 1;
    DEBUG_YSRC   yLOG_sexit   (__FUNCTION__);
    return 0;
@@ -283,6 +292,7 @@ ysrc_sundo__redo        (void)
    else if (x_major == 'd') {
       DEBUG_YSRC   yLOG_snote   ("delete right");
       ysrc_delete_one  ();
+      if (x_minor == 'h' && s_cur->cpos != s_cur->npos - 1)  --s_cur->cpos;
    }
    else if (x_major == 'x') {
       DEBUG_YSRC   yLOG_snote   ("delete");
@@ -315,7 +325,7 @@ ysrc_sundo_redo         (void)
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    x_seq = g_sundos [g_csundo + 1].seq;
    DEBUG_YSRC   yLOG_value   ("x_seq"     , x_seq);
-   for (i = g_csundo; i < g_nsundo; ++i) {
+   for (i = g_csundo; i < g_nsundo - 1; ++i) {
       if (g_sundos [g_csundo + 1].seq != x_seq)  break;
       rc = ysrc_sundo__redo ();
       if (rc < 0) break;

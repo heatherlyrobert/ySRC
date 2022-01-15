@@ -152,7 +152,7 @@ ysrc_word_update        (void)
 static void  o___FINDING_________o () { return; }
 
 char
-ysrc_word_next          (char a_minor, short *a_cur, short *a_len)
+ysrc_word_next          (uchar a_major, uchar a_minor, short *a_cur, short *a_len)
 {
    /*---(design notes)-------------------*/
    /*
@@ -166,8 +166,16 @@ ysrc_word_next          (char a_minor, short *a_cur, short *a_len)
    if (a_cur != NULL)  *a_cur = s_cur->cpos;
    /*---(word forward)-------------------*/
    for (i = s_cur->cpos + 1; i < s_cur->npos; ++i) {
+      /*---(specialty for end)-----------*/
+      if (i == s_cur->npos - 1 && strchr ("]»", s_cur->words [i]) != NULL) {
+         n = i;
+         if (strchr ("dx", a_major) != NULL)   ++n;
+         break;
+      }
+      /*---(normal rules)----------------*/
       if (a_minor == 'W' && strchr ("[ºB"  , s_cur->words [i]) == NULL)  continue;
       if (a_minor == 'w' && strchr ("[º<Bb", s_cur->words [i]) == NULL)  continue;
+      /*---(found)-----------------------*/
       n = i;
       break;
    }
@@ -181,7 +189,7 @@ ysrc_word_next          (char a_minor, short *a_cur, short *a_len)
 }
 
 char
-ysrc_word_end           (char a_minor, short *a_cur, short *a_len)
+ysrc_word_end           (uchar a_major, uchar a_minor, short *a_cur, short *a_len)
 {
    /*---(design notes)-------------------*/
    /*
@@ -210,7 +218,7 @@ ysrc_word_end           (char a_minor, short *a_cur, short *a_len)
 }
 
 char
-ysrc_word_prev          (char a_minor, short *a_cur, short *a_len)
+ysrc_word_prev          (uchar a_major, uchar a_minor, short *a_cur, short *a_len)
 {
    /*---(design notes)-------------------*/
    /*
@@ -265,15 +273,15 @@ ysrc_word_hmode        (uchar a_major, uchar a_minor)
    UPDATE_BEFORE_CHANGES;
    /*---(words)--------------------------*/
    if (strchr ("wW", a_minor) != 0) {
-      rc = ysrc_word_next (a_minor, &(s_cur->cpos), NULL);
+      rc = ysrc_word_next (a_major, a_minor, &(s_cur->cpos), NULL);
    }
    /*---(ends)---------------------------*/
    else if (strchr ("eE", a_minor) != 0) {
-      rc = ysrc_word_end  (a_minor, &(s_cur->cpos), NULL);
+      rc = ysrc_word_end  (a_major, a_minor, &(s_cur->cpos), NULL);
    }
    /*---(beginnings)---------------------*/
    else if (strchr ("bB", a_minor) != 0) {
-      rc = ysrc_word_prev (a_minor, &(s_cur->cpos), NULL);
+      rc = ysrc_word_prev (a_major, a_minor, &(s_cur->cpos), NULL);
    }
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;

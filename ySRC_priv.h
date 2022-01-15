@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1b"
-#define     P_VERTXT    "clean fix for repeating multi-keys in source mode"
+#define     P_VERNUM    "2.1c"
+#define     P_VERTXT    "on-going unit testing of word-based edits"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -312,7 +312,7 @@ char        ysrc_select_curr        (short *a_beg, short *a_end, short *a_root);
 char        ysrc_select_get         (short *a_beg, short *a_end, short *a_root, short *a_len, char *a_data);
 char        ysrc_select_all         (void);
 char        ysrc_select_getlive     (void);
-char        ysrc_select_islive      (void);
+char        ySRC_select_islive      (void);
 char        ysrc_select_makelive    (void);
 
 
@@ -324,9 +324,9 @@ char        ysrc_word__curr         (char a_type, char a_save, char a_mode);
 char        ysrc_word__prev         (char a_type, char a_save, char a_mode);
 char        ysrc_word__update       (short a_pos, char a_curr);
 char        ysrc_word_update        (void);
-char        ysrc_word_next          (char a_minor, short *a_cur, short *a_len);
-char        ysrc_word_end           (char a_minor, short *a_cur, short *a_len);
-char        ysrc_word_prev          (char a_minor, short *a_cur, short *a_len);
+char        ysrc_word_next          (uchar a_major, uchar a_minor, short *a_cur, short *a_len);
+char        ysrc_word_end           (uchar a_major, uchar a_minor, short *a_cur, short *a_len);
+char        ysrc_word_prev          (uchar a_major, uchar a_minor, short *a_cur, short *a_len);
 char        ysrc_word_hmode         (uchar a_major, uchar a_minor);
 
 

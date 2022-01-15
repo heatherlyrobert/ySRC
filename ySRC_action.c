@@ -184,8 +184,8 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    /*---(prepare)------------------------*/
    UPDATE_BEFORE_CHANGES;
    /*---(defense)------------------------*/
-   DEBUG_YSRC   yLOG_value   ("s_live"    , ysrc_select_islive ());
-   --rce;  if (ysrc_select_islive ()) {
+   DEBUG_YSRC   yLOG_value   ("s_live"    , ySRC_select_islive ());
+   --rce;  if (ySRC_select_islive ()) {
       DEBUG_YSRC   yLOG_note    ("function only handles non-selected text");
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -209,63 +209,81 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
       return rce;
    }
    DEBUG_YSRC   yLOG_value   ("cpos"      , s_cur->cpos);
-   --rce;  if (a_minor == 'h' && s_cur->cpos <= 0) {
-      DEBUG_YSRC   yLOG_note    ("nothing left to delete");
-      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
-   --rce;  if (a_minor == 'l' && s_cur->cpos >= s_cur->npos - 1) {
-      DEBUG_YSRC   yLOG_note    ("nothing right to delete");
-      DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
-      return rce;
-   }
+   /*> --rce;  if (a_minor == 'h' && s_cur->cpos <= 0) {                              <* 
+    *>    DEBUG_YSRC   yLOG_note    ("nothing left to delete");                       <* 
+    *>    DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
+   /*> --rce;  if (a_minor == 'l' && s_cur->cpos >= s_cur->npos - 1) {                <* 
+    *>    DEBUG_YSRC   yLOG_note    ("nothing right to delete");                      <* 
+    *>    DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);                              <* 
+    *>    return rce;                                                                 <* 
+    *> }                                                                              <*/
+   /*---(set direction)------------------*/
+   if (strchr ("HhBb0" , a_minor) != NULL)  x_left = 'y';
+   else                                     x_left = '-';
+   DEBUG_YSRC   yLOG_char    ("x_left"    , x_left);
    /*---(prepare)------------------------*/
    switch (a_minor) {
    case 'H' : case 'L' : x_len = 5;                               break;
    case 'h' : case 'l' : x_len = 1;                               break;
-   case 'w' : case 'W' : ysrc_word_next (a_minor, NULL, &x_len);
+   case 'w' : case 'W' : ysrc_word_next (a_major, a_minor, NULL, &x_len);
                          if (x_len > 0)  --x_len;
                          break;
-   case 'b' : case 'B' : ysrc_word_prev (a_minor, NULL, &x_len);  break;
-   case 'e' : case 'E' : ysrc_word_end  (a_minor, NULL, &x_len);  break;
-   case '0' : x_len = s_cur->cpos + 1; s_cur->cpos = 0;           break;
+   case 'b' : case 'B' : ysrc_word_prev (a_major, a_minor, NULL, &x_len);  break;
+   case 'e' : case 'E' : ysrc_word_end  (a_major, a_minor, NULL, &x_len);  break;
+   case '0' : x_len = s_cur->cpos + 1;                            break;
    case '$' : x_len = s_cur->npos - s_cur->cpos;                  break;
    }
    DEBUG_YSRC   yLOG_value   ("x_len"     , x_len);
-   if (strchr ("HhBb0" , a_minor) != NULL)  x_left = 'y';
-   if (strchr ("HhBb0$", a_minor) != NULL)  x_pos  = s_cur->cpos;
-   else                                     x_pos  = s_cur->cpos + x_len;
-   DEBUG_YSRC   yLOG_value   ("x_pos"     , x_pos);
+   /*---(adjustments)--------------------*/
+   if (x_left == 'y') {
+      DEBUG_YSRC   yLOG_complex ("l_check"   , "if %4d > %4d", x_len, s_cur->cpos);
+      if (x_len > s_cur->cpos) {
+         x_len = s_cur->cpos + 1;
+         DEBUG_YSRC   yLOG_value   ("x_len*"    , x_len);
+      }
+   } else {
+      DEBUG_YSRC   yLOG_complex ("r_check"   , "if %4d > %4d", s_cur->cpos + x_len, s_cur->npos);
+      if (s_cur->cpos + x_len >  s_cur->npos) {
+         x_len = s_cur->npos - s_cur->cpos;
+         DEBUG_YSRC   yLOG_value   ("x_len*"    , x_len);
+      }
+   }
    /*---(end)----------------------------*/
    rc = ysrc_sundo_beg ();
    --rce;  for (i = 0; i <  x_len; ++i) {
       if (a_major == 'd') {
-         if (strchr ("<" , a_minor) != NULL)  --s_cur->cpos;
-         if (s_cur->cpos < 0)                 { rc = rce; break; }
+         if (s_cur->cpos < 0) { rc = rce; break; }
          if (s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
-         rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         if (x_left == 'y')  rc = ysrc_sundo_add (a_major, 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         else                rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          if (rc < 0)  break;
          rc = ysrc_delete_one ();
          if (rc < 0)  break;
          if (x_left != 'y' && x_last == 'y')  { rc = rce;  break; }
-         if (strchr ("HhBb", a_minor) != NULL && x_last != 'y')  --s_cur->cpos;
+         if (strchr ("0HhBb", a_minor) != NULL && x_last != 'y')  --s_cur->cpos;
+         if (s_cur->cpos < 0)             rc = rce;
+         if (s_cur->cpos >= s_cur->npos)  rc = rce;
       } else {
          if (x_left == 'y' && s_cur->cpos < 0)                 { rc = rce; break; }
          if (x_left != 'y' && s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
-         rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
+         if (x_left == 'y')  rc = ysrc_sundo_add (a_major, 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
+         else                rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
          if (rc < 0)  break;
          rc = ysrc_replace_one (G_CHAR_STORAGE);
          if (rc < 0)  break;
          if (x_last == 'y')  { rc = rce;  break; }
-         if (strchr ("HhBb", a_minor) != NULL)  --s_cur->cpos;
-         else                                   ++s_cur->cpos;
+         if (strchr ("0HhBb", a_minor) != NULL)  --s_cur->cpos;
+         else                                    ++s_cur->cpos;
+         if (s_cur->cpos < 0)             rc = rce;
+         if (s_cur->cpos >= s_cur->npos)  rc = rce;
       }
    }
    ysrc_sundo_end ();
+   if (strchr ("0$", a_minor) != NULL)  rc = 0; /* no error required */
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
-   if (a_minor == '0')  s_cur->cpos = x_pos;
-   if (strchr ("0$"  , a_minor) != NULL)  yKEYS_repeat_reset ();
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
@@ -321,7 +339,7 @@ ysrc_paste              (char a_dir)
    /*---(get register data)--------------*/
    ysrc_sreg_fetch  (&x_dlen, x_data);
    /*---(handle if selected)-------------*/
-   if (ysrc_select_islive ()) {
+   if (ySRC_select_islive ()) {
       ysrc_select_curr (&x_beg, &x_end, NULL);
       if (a_dir == 'a') {
          s_cur->cpos = x_end;
@@ -368,8 +386,8 @@ ysrc_replace            (void)
    DEBUG_YSRC   yLOG_value   ("x_dlen"    , x_dlen);
    DEBUG_YSRC   yLOG_info    ("x_data"    , x_data);
    /*---(handle if selected)-------------*/
-   DEBUG_YSRC   yLOG_value   ("islive"    , ysrc_select_islive ());
-   if (ysrc_select_islive ()) {
+   DEBUG_YSRC   yLOG_value   ("islive"    , ySRC_select_islive ());
+   if (ySRC_select_islive ()) {
       ysrc_select_curr (&x_beg, &x_end, NULL);
       x_len = x_end - x_beg + 1;
    } else {

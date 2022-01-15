@@ -149,7 +149,7 @@ ysrc_select_all         (void)
    return 0;
 }
 
-char ysrc_select_islive     (void) { if (g_sreg.active == S_SREG_YES)  return 1; return 0; }
+char ySRC_select_islive     (void) { if (g_sreg.active == S_SREG_YES)  return 1; return 0; }
 char ysrc_select_makelive   (void) { g_sreg.active = S_SREG_YES; return 0; }
 
 

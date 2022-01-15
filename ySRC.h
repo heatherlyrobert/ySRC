@@ -24,6 +24,8 @@ char        ySRC_contents           (char a_part, char *m, char *l, short *n, sh
 
 
 
+char        ySRC_select_islive      (void);
+
 
 #endif
 /*============================----end-of-source---============================*/

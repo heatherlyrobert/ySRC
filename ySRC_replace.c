@@ -321,11 +321,13 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
    }
    /*---(normal text)--------------------*/
    if (a_minor >= 32 && a_minor != 127) {
+      DEBUG_YSRC   yLOG_note    ("replacing with valid character");
       if (a_minor == G_KEY_SPACE)  a_minor = G_CHAR_STORAGE;
       ysrc_sundo_single ('r', s_cur->cpos, s_save, a_minor);
       ysrc_replace_one  (a_minor);
    } else {
-      ysrc_replace_one  (s_save);
+      DEBUG_YSRC   yLOG_note    ("ignoring illegal character");
+      /*> ysrc_replace_one  (s_save);                                                 <*/
       yKEYS_set_error ();
    }
    /*---(finish)-------------------------*/
