@@ -29,6 +29,7 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =   -1;
+   char        x_pos       =    0;
    /*---(quick out)----------------------*/
    if (a_major != G_KEY_SPACE)  return 0;
    /*---(header)-------------------------*/
@@ -41,7 +42,9 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
    case G_KEY_ESCAPE :
       if (ySRC_select_islive ()) {
          DEBUG_YSRC   yLOG_note    ("escape, means get out of selection");
-         ysrc_select_reset (s_cur->cpos);
+         x_pos = g_sreg.root;
+         ysrc_select_reset (G_SREG_ROOT);
+         s_cur->cpos = x_pos;
       } else {
          DEBUG_YSRC   yLOG_note    ("escape, means forget and return to previous mode");
          ysrc_reset  ();
@@ -135,7 +138,7 @@ ysrc__source_subs       (uchar a_major, uchar a_minor)
    case  '"' :
       DEBUG_YSRC   yLOG_note    ("switch to a text register mode (¶)");
       rc = yMODE_enter (SMOD_SREG);
-      if (rc >= 0)  rc = 0;
+      if (rc >= 0)  rc = a_minor;
       break;
    case  'r' :
       DEBUG_YSRC   yLOG_note    ("enter replace mode");
@@ -349,22 +352,22 @@ ySRC_mode               (uchar a_major, uchar a_minor)
          return a_minor;
       }
       /*---(select related)--------------*/
-      /*> if (strchr ("yYpP", a_minor) != 0) {                                        <* 
-       *>    DEBUG_YSRC   yLOG_note    ("switch to a text register mode (yYpP)");     <* 
-       *>    yvikeys_sreg_setreg ('"');                                               <* 
-       *>    yMODE_enter (SMOD_SREG);                                                 <* 
-       *>    rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);                          <* 
-       *>    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
-       *>    return rc;                                                               <* 
-       *> }                                                                           <*/
-      /*> if (yvikeys_sreg_islive () && strchr ("xXdD", a_minor) != 0) {              <* 
-       *>    DEBUG_YSRC   yLOG_note    ("switch to a text register mode (xXdD)");     <* 
-       *>    yvikeys_sreg_setreg ('"');                                               <* 
-       *>    yMODE_enter (SMOD_SREG);                                                 <* 
-       *>    rc = yvikeys_sreg_smode (G_KEY_SPACE, a_minor);                          <* 
-       *>    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
-       *>    return rc;                                                               <* 
-       *> }                                                                           <*/
+      if (strchr ("yYpP", a_minor) != 0) {
+         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (yYpP)");
+         ysrc_sreg_setreg ('"');
+         yMODE_enter (SMOD_SREG);
+         rc = ysrc_sreg_smode (G_KEY_SPACE, a_minor);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
+      if (ySRC_select_islive () && strchr ("xXdDrs", a_minor) != 0) {
+         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (xXdD)");
+         ysrc_sreg_setreg ('"');
+         yMODE_enter (SMOD_SREG);
+         rc = ysrc_sreg_smode (G_KEY_SPACE, a_minor);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return rc;
+      }
       /*---(multikey prefixes)-----------*/
       if (yKEYS_is_multi_src (a_minor)) {
          DEBUG_YSRC   yLOG_note    ("beginning of multi-key command");

@@ -37,34 +37,35 @@ non-navigation cursor positioning.
 .nf  
 a) source          main source mode
 b) replace         replace micro-mode
-c) insert          insert/append micro-mode
-d) select          selection helper pseudo-mode
+c) input           insert/append micro-mode
+d) select          content selection pseudo-mode
 e) registers       source register sub-mode
 f) wander          wander editing micro-mode
+g) sundo           source undo/redo pseudo-mode
 
 
 
 
 
-.SH REPLACE micro-mode
+.SH B) REPLACE micro-mode
 .SS ---basics---------------------------------------------------------
- ra      replace the current character with an 'a'
  Rtext¥  replace four characters with "text" then exit
 .SS ---overview-------------------------------------------------------
-.B purpose.  
-to speed text editing, replace provides a very rapid type-over of existing
-characters to fix small typing mistakes.
+.B definition.
+very rapid, direct type-over of existing characters.
 
-.B complication.  
-many applications require two steps, first delete or highlight the mistake,
-then type the new text.
+.B situation.
+does not exist in almost any applications.  modern software usually requires
+deleting current text and then inserting new.
 
-.B answer.  
-standardize on a simplified vim-modal interface that includes this rapid
-short-hand for type-over.
+.B value.
+quite a common efficiency gain, quite frequently useful in automation, and,
+even more valuable editing spacially organized data.
 
-.B NOTE.  
-all text includes uses this replace micro-mode, it is universal.
+.B answer.
+provide easy access to rapid single-character and longer multi-character
+replacement capabilities.
+
 .SS ---full capabilities----------------------------------------------
 
 .B invoking replace micro-mode
@@ -72,28 +73,101 @@ all text includes uses this replace micro-mode, it is universal.
    r          replace at current position (exits automatically)
    R          replace a string of characters until exiting
 
-.B exiting mode
+.B single-character mode (r)
+   r¢         replaces the current character with the new one
+   ¤          current character will temporaryly show as placeholder
+
+.B multi-character mode (R)
+   R´´´¥      types-over until and ¥ or ¦
    ¥          save changes and return to source mode
    ¦          accept changes and exit source mode also
+   ¤          current character will temporaryly show as placeholder
 
-.B placeholder display
-   this character is temporary and will not be saved
+.B escaped characters
+   µ¢         allows entry of special characters
+   µ_¢        allows entry of extended special characters
 
-.B entering characters
-   ¤          placeholder shows what position will be replaced
-   ´          replaces current, and placeholder moves to right
-   µ´         allows entry of special characters
-   µ_´        allows entry of extended special characters
+.B extra movement
    ¿  <BS>    moves left without making any changes
    ¾  <DEL>   moves right without making any changes
 
 .B special notes
-   -- replace does not change the length of the string
-   -- BUT, you can type past the end, which will add length
+   -- can type past the end, which will add length
 
-.B undo/redo
+.B sundo (undo/redo)
    -- groups all changes during a single replace session
-   -- can only undo/redo once back in source mode
+   -- undo/redo available once back in source mode
 
 
+
+.SH E) REGISTERS sub-mode (text)
+.SS ---overview-------------------------------------------------------
+.B definition.
+temporary text storage to aid content manipulation.
+
+.B situation.
+nearly all applications provide a single rudimentary cut/paste area, but
+almost no additional or advanced capabilities.
+
+.B value.
+serious content creation requires diverse tools to make editors brave enough
+to make changes, otherwise content goes untended.
+
+.B automation.
+content modification automation is virtually impossible, or at least
+rudimentary, without serious register capabilities.
+
+.B answer.
+provide 61 flexible registers [¶a-z0-9è-ÿ] with copy, cut, clear, append,
+paste, replace, and substitute capabilities.
+
+.SS ---full capabilities----------------------------------------------
+
+.B invoking replace micro-mode
+   -- can only be invoked from source mode, nowhere else
+   r          replace at current position (exits automatically)
+   R          replace a string of characters until exiting
+
+.B actions from unnamed, default register
+   y          copy the current selection into register ¶
+   p          paste register ¶ content after current position
+   P          paste register ¶ content before current position
+
+.B selecting a register
+   ¶¢         selects register ¢ for the next action
+   a-z        registers are for general users and automation
+   0-9        registers are typically system related
+   è-ÿ        registers are reserved for macros (to avoid collisions)
+   ¶¶         reuse the last register requested (except ¶)
+
+.B actions going from text to a register
+   ¶ay        copy current selection into register 'a'
+   ¶Ay        append current selection onto end of register 'a'
+   ¶ad        copy selection to register 'a' and delete from text
+   ¶ax        copy selection to register 'a' and replace with blanks
+   ¶a#        wipes content of register 'a'
+
+.B actions bringing register content back into text
+   ¶ai        insert register 'a' content before current position
+   ¶aa        append register 'a' content after current position
+   ¶ar        replace selection with register 'a' contents
+   ¶as        delete selection and replace with register 'a' contents
+
+.B actions between registers
+   ¶a>b       copy register text to a second register
+   ¶a]b       move register text to a second register (clearing first)
+   ¶a)b       swap the contents of two registers
+
+.B actions to import and export content
+   ¶a-        export register contents to clipboard (1 line)
+   ¶a+        import register contents from clipboard (1 line)
+
+.B special notes
+   -- if replace text is smaller than selection, uses '²' to fill
+   -- if replace text is larger than selection, content is truncated
+   -- no register actions accept repitition counts (repeats)
+
+.B debugging help
+   ¶?         show inventory of registers in info window
+   ¶¢_        show a particular register in the status line
 

@@ -24,6 +24,7 @@ tSREG       g_sregs  [S_SREG_MAX];
 uchar       g_nsreg  =   0;
 uchar       g_csreg   = '"';
 uchar       g_wsreg   = '"';
+uchar       g_psreg   = '"';
 tSREG       g_save;
 
 
@@ -775,6 +776,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    char       *x_start     = NULL;
    char        x_label     [10]        = "";
    int         x_diff      =   0;
+   char        x_prev      = '"';
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
@@ -787,6 +789,8 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
+   /*---(always cancel repeats)----------*/
+   yKEYS_repeat_reset ();
    /*---(escape)-------------------------*/
    if (a_minor == G_KEY_ESCAPE)  {
       DEBUG_YSRC   yLOG_note    ("escape and return to previous mode");
@@ -797,9 +801,17 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    }
    /*---(select register name)-----------*/
    --rce;  if (a_major == '"') {
+      DEBUG_YSRC   yLOG_char    ("g_csreg"   , g_csreg);
+      DEBUG_YSRC   yLOG_char    ("g_psreg"   , g_psreg);
       n = ysrc_sreg_index (tolower (a_minor));
-      if (n >= 0) {
+      if (a_minor == '"' || a_minor == '¶') {
+         DEBUG_YSRC   yLOG_note    ("reuse the last register again");
+         g_csreg = g_psreg;
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return 0;
+      } else if (n >= 0) {
          DEBUG_YSRC   yLOG_note    ("select a source register");
+         if (n > 0)  g_psreg = a_minor;
          g_csreg = a_minor;
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return 0;
@@ -838,7 +850,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          DEBUG_YSRC   yLOG_note    ("clear selection source");
          ysrc_copy          ();
          ysrc_clear_select  ();
-         ysrc_select_reset (G_SREG_END);
+         ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
@@ -846,14 +858,14 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          DEBUG_YSRC   yLOG_note    ("delete selection source");
          ysrc_copy          ();
          ysrc_delete_select ();
-         ysrc_select_reset (G_SREG_BEG);
+         ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'r' :
          DEBUG_YSRC   yLOG_note    ("replace source from register");
          ysrc_replace        ();
-         ysrc_select_reset (G_SREG_END);
+         ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
@@ -862,25 +874,73 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          ysrc_delete_select ();
          ysrc_sundo_chain   ();
          ysrc_paste         ('i');
-         ysrc_select_reset (G_SREG_END);
+         ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'p' : case  'a' :
          DEBUG_YSRC   yLOG_note    ("paste after selection source");
          ysrc_paste        ('a');
-         ysrc_select_reset (G_SREG_END);
+         ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'P' : case  'i' :
          DEBUG_YSRC   yLOG_note    ("paste before selection source");
          ysrc_paste        ('i');
-         ysrc_select_reset (G_SREG_END);
+         ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
+      case  '-' :
+         DEBUG_YSRC   yLOG_note    ("export content to clipboard");
+         ysrc_sreg__export (g_csreg);
+         yMODE_exit   ();
+         UPDATE_AFTER_CHANGES;
+         break;
+      case  '+' :
+         DEBUG_YSRC   yLOG_note    ("import content from clipboard");
+         ysrc_sreg__import (g_csreg);
+         yMODE_exit   ();
+         UPDATE_AFTER_CHANGES;
+         break;
+      case  '>' :
+         DEBUG_YSRC   yLOG_note    ("begin copy multi-key");
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      case  ']' :
+         DEBUG_YSRC   yLOG_note    ("begin copy multi-key");
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      case  ')' :
+         DEBUG_YSRC   yLOG_note    ("begin copy multi-key");
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return a_minor;
+      default :
+         DEBUG_YSRC   yLOG_note    ("minor key not understood");
+         yMODE_exit   ();
+         break;
       }
+   }
+   else if (a_major == '>') {
+      DEBUG_YSRC   yLOG_note    ("copy one register to another");
+      rc = ysrc_sreg__copy (g_csreg, a_minor);
+      yMODE_exit   ();
+   }
+   else if (a_major == ']') {
+      DEBUG_YSRC   yLOG_note    ("move one register to another");
+      rc = 0;
+      rc = ysrc_sreg__copy (g_csreg, a_minor);
+      if (rc >= 0)  rc = ysrc_sreg_clear  (g_csreg);
+      yMODE_exit   ();
+   }
+   else if (a_major == ')') {
+      DEBUG_YSRC   yLOG_note    ("swap content of two registers");
+      rc = ysrc_sreg__copy (g_csreg, '¶');
+      if (rc >= 0)  rc = ysrc_sreg__copy (a_minor, g_csreg);
+      if (rc >= 0)  rc = ysrc_sreg__copy ('¶', a_minor);
+      if (rc >= 0)  rc = ysrc_sreg_clear ('¶');
+      yMODE_exit   ();
    }
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;

@@ -50,6 +50,7 @@ ysrc_select_reset       (char a_type)
    g_sreg.root  = g_sreg.end   = g_sreg.beg   = x_pos;
    g_csreg = '"';
    g_sreg.active = S_SREG_NOT;
+   s_cur->cpos = x_pos;
    /*---(complete)-----------------------*/
    return 0;
 }

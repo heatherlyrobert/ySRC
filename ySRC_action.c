@@ -301,7 +301,6 @@ ysrc_copy              (void)
 {
    yKEYS_repeat_reset ();
    ysrc_sreg_save     ();
-   ysrc_select_reset  (G_SREG_BEG);
    return 0;
 }
 
@@ -390,6 +389,7 @@ ysrc_replace            (void)
    if (ySRC_select_islive ()) {
       ysrc_select_curr (&x_beg, &x_end, NULL);
       x_len = x_end - x_beg + 1;
+      s_cur->cpos = x_beg;
    } else {
       x_beg = s_cur->cpos;
       x_len = x_dlen;
