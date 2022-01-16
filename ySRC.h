@@ -25,6 +25,8 @@ char        ySRC_contents           (char a_part, char *m, char *l, short *n, sh
 
 
 char        ySRC_select_islive      (void);
+char        ySRC_select_status      (char a_size, short a_wide, char *a_list);
+char        ySRC_sreg_status        (char a_size, short a_wide, char *a_list);
 
 
 #endif

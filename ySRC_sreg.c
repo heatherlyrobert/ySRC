@@ -171,7 +171,7 @@ ysrc_sreg_init          (void)
    g_wsreg = '"';
    /*---(commands)-----------------------*/
    DEBUG_YSRC   yLOG_note    ("add commands/status");
-   /*> yVIKEYS_view_optionX (YVIKEYS_STATUS  , "sreg", ysrc_sreg_status   , "details of current source register");   <*/
+   /*> yVIKEYS_view_optionX (YVIEW_STATUS  , "sreg", ysrc_sreg_status   , "details of current source register");   <*/
    /*> yVIKEYS_cmds_addX    (YVIKEYS_M_CONFIG, "sreg", "", "a", ysrc_sreg_direct, "direct definition of source registers");   <*/
    /*---(update status)------------------*/
    yMODE_init_set   (SMOD_SREG, NULL, ysrc_sreg_smode);
@@ -461,51 +461,6 @@ ysrc_sreg_fetch         (short *a_len, char *a_data)
 static void  o___STATUS__________o () { return; }
 
 char
-ysrc_sreg__line         (uchar a_abbr, char *a_entry)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   int         n           =    0;
-   tSREG      *x_sreg      = NULL;
-   char       *x_data      [LEN_RECD ];
-   /*---(defense)------------------------*/
-   --rce; if (a_entry == NULL)   return rce;
-   strlcpy (a_entry, "", LEN_RECD);
-   n = ysrc_sreg_index (a_abbr);
-   if (n  < 0)   return rce;
-   x_sreg = &g_sregs [n];
-   /*---(fill)---------------------------*/
-   if (x_sreg->len > 40)  sprintf (x_data , "[%-.40s>", x_sreg->data);
-   else                   sprintf (x_data , "[%s]", x_sreg->data);
-   sprintf (a_entry, "%c %c %3d %-42.42s %-10.10s %3d %3d %3d %3d %c",
-         a_abbr, x_sreg->active, x_sreg->len, x_data,
-         x_sreg->label, x_sreg->beg, x_sreg->end, x_sreg->end - x_sreg->beg + 1, x_sreg->root,
-         x_sreg->source);
-   /*---(complete)-----------------------*/
-   if (x_sreg->active == S_SREG_NOT)  return 0;
-   return 1;
-}
-
-char
-ysrc_sreg_status        (char *a_entry)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rce         =  -10;
-   char        rc          =    0;
-   char        t           [LEN_FULL]   = "";
-   /*---(defense)------------------------*/
-   --rce;  if (a_entry == NULL)   return rce;
-   /*---(get info)-----------------------*/
-   rc = ysrc_sreg__line   (g_wsreg, t);
-   --rce;  if (rc < 0)            return rce;
-   /*---(generate stats)--------------*/
-   sprintf (a_entry, "[ sreg %s ]", t);
-   /*---(complete)--------------------*/
-   return 0;
-}
-
-char
 ysrc_sreg_info          (int a_index, char *a_entry)
 {
    /*---(locals)-----------+-----+-----+-*/
@@ -518,7 +473,7 @@ ysrc_sreg_info          (int a_index, char *a_entry)
    --rce;  if (a_index >= g_nsreg) return rce;
    /*---(get info)-----------------------*/
    x_abbr = G_SREG_LIST [a_index];
-   rc = ysrc_sreg__line   (x_abbr, a_entry);
+   rc = ysrc_sreg_line   (x_abbr, a_entry);
    --rce;  if (rc < 0)             return rce;
    /*---(complete)--------------------*/
    return rc;
@@ -830,7 +785,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       switch (a_minor) {
       case '_' :
          g_wsreg = g_csreg;
-         /*> yVIKEYS_cmds_direct (":status sreg");                                    <*/
+         yCMD_direct (":status sreg");
          yMODE_exit ();
          break;
       case  '#' :

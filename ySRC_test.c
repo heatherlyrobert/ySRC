@@ -79,9 +79,11 @@ ySRC__unit              (char *a_question, int n)
       return unit_answer;
    }
    else if (strcmp (a_question, "selection"      )   == 0) {
-      strlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
+      /*> strlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);     <*/
       /*> t [g_sreg.root - g_sreg.beg] = 'Ï';                                         <*/
-      snprintf (unit_answer, LEN_FULL, "SRC selection    : %c %2db %2de %2d# %2dr å%sæ", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root, t);
+      /*> snprintf (unit_answer, LEN_FULL, "SRC selection    : %c %2db %2de %2d# %2dr å%sæ", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root, t);   <*/
+      ysrc_select_line (t);
+      snprintf (unit_answer, LEN_FULL, "SRC selection    : %s", t);
       return unit_answer;
    }
    else if (strcmp (a_question, "inventory"      )   == 0) {
@@ -134,9 +136,11 @@ ySRC__unit              (char *a_question, int n)
       snprintf (unit_answer, LEN_FULL, "SRC reg save (%c) : %c %3d[%.40s]", n, g_sregs [n].active, g_sregs [n].len, g_sregs [n].data);
    }
    if      (strcmp (a_question, "register"       )   == 0) {
-      sprintf (r, "å%.10sæ", g_sregs [n].label);
-      sprintf (t, "%2då%.40sæ", g_sregs [n].len, g_sregs [n].data);
-      snprintf (unit_answer, LEN_FULL, "SRC reg   (%c/%2d) : %c %c %-12.12s %2d %2d %2d %s", x_abbr, n, g_sregs [n].active, g_sregs [n].source, r, g_sregs [n].beg, g_sregs [n].end, g_sregs [n].root, t);
+      /*> sprintf (r, "å%.10sæ", g_sregs [n].label);                                  <*/
+      /*> sprintf (t, "%2då%.40sæ", g_sregs [n].len, g_sregs [n].data);               <*/
+      /*> snprintf (unit_answer, LEN_FULL, "SRC reg   (%c/%2d) : %c %c %-12.12s %2d %2d %2d %s", x_abbr, n, g_sregs [n].active, g_sregs [n].source, r, g_sregs [n].beg, g_sregs [n].end, g_sregs [n].root, t);   <*/
+      ysrc_sreg_line (x_abbr, t);
+      snprintf (unit_answer, LEN_FULL, "SRC reg      (%c) : %s", t [0], t + 2);
    }
 
    /*---(complete)-----------------------*/

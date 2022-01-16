@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1d"
-#define     P_VERTXT    "reconnected, updated, and expanded source register capability"
+#define     P_VERNUM    "2.1e"
+#define     P_VERTXT    "built sreg and select status lines, integrated into unit testing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -123,6 +123,7 @@ extern tSREG  g_sregs  [S_SREG_MAX];
 extern uchar  g_nsreg;
 extern uchar  g_csreg;
 extern uchar  g_wsreg;
+extern uchar  g_psreg;
 extern tSREG  g_save;                       /* last selection                 */
 
 #define   G_SREG_ZERO    'z'
@@ -287,8 +288,6 @@ char        ysrc_sreg_pop           (uchar a_abbr, char *a_data);
 char        ysrc_sreg_fetch         (short *a_len, char *a_data);
 char        ysrc_sreg_save          (void);
 /*---(status)---------------*/
-char        ysrc_sreg__line         (uchar a_abbr, char *a_entry);
-char        ysrc_sreg_status        (char *a_entry);
 char        ysrc_sreg_info          (int a_index, char *a_entry);
 /*---(mode)-----------------*/
 char        ysrc_sreg__export       (char a_abbr);
@@ -377,6 +376,13 @@ char        ysrc__wander_and        (uchar a_math);
 char        ysrc__wander_biggies    (uchar a_major, uchar a_minor);
 char        ysrc_wander_umode       (uchar a_major, uchar a_minor);
 
+
+
+/*===[[ ySRC_rptg.c ]]========================================================*/
+/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_select_line        (char *a_entry);
+char        ysrc_sreg_line          (uchar a_abbr, char *a_entry);
+char        ysrc_sreg_status        (char a_size, short a_wide, char *a_list);
 
 
 #endif
