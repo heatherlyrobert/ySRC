@@ -191,7 +191,7 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
       return rce;
    }
    DEBUG_YSRC   yLOG_char    ("a_major"   , chrvisible (a_major));
-   --rce;  if (a_major == 0 || strchr ("dx", a_major) == NULL) {
+   --rce;  if (a_major == 0 || strchr ("cdx", a_major) == NULL) {
       DEBUG_YSRC   yLOG_note    ("source only allows right and left");
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
@@ -209,16 +209,6 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
       return rce;
    }
    DEBUG_YSRC   yLOG_value   ("cpos"      , s_cur->cpos);
-   /*> --rce;  if (a_minor == 'h' && s_cur->cpos <= 0) {                              <* 
-    *>    DEBUG_YSRC   yLOG_note    ("nothing left to delete");                       <* 
-    *>    DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <*/
-   /*> --rce;  if (a_minor == 'l' && s_cur->cpos >= s_cur->npos - 1) {                <* 
-    *>    DEBUG_YSRC   yLOG_note    ("nothing right to delete");                      <* 
-    *>    DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);                              <* 
-    *>    return rce;                                                                 <* 
-    *> }                                                                              <*/
    /*---(set direction)------------------*/
    if (strchr ("HhBb0" , a_minor) != NULL)  x_left = 'y';
    else                                     x_left = '-';
@@ -253,11 +243,11 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
    /*---(end)----------------------------*/
    rc = ysrc_sundo_beg ();
    --rce;  for (i = 0; i <  x_len; ++i) {
-      if (a_major == 'd') {
+      if (a_major == 'd' || a_major == 'c') {
          if (s_cur->cpos < 0) { rc = rce; break; }
          if (s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
-         if (x_left == 'y')  rc = ysrc_sundo_add (a_major, 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
-         else                rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         if (x_left == 'y')  rc = ysrc_sundo_add ('d', 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
+         else                rc = ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          if (rc < 0)  break;
          rc = ysrc_delete_one ();
          if (rc < 0)  break;
@@ -268,8 +258,8 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
       } else {
          if (x_left == 'y' && s_cur->cpos < 0)                 { rc = rce; break; }
          if (x_left != 'y' && s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
-         if (x_left == 'y')  rc = ysrc_sundo_add (a_major, 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
-         else                rc = ysrc_sundo_add (a_major, 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
+         if (x_left == 'y')  rc = ysrc_sundo_add ('x', 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
+         else                rc = ysrc_sundo_add ('x', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
          if (rc < 0)  break;
          rc = ysrc_replace_one (G_CHAR_STORAGE);
          if (rc < 0)  break;

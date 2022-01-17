@@ -553,7 +553,7 @@ ysrc_sreg__import       (char a_abbr)
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   if (g_sregs [n].source == 'd')  g_sregs [n].source = S_SREG_IMPORT;
+   g_sregs [n].source = S_SREG_IMPORT;
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
@@ -732,6 +732,8 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    char        x_label     [10]        = "";
    int         x_diff      =   0;
    char        x_prev      = '"';
+   static char x_data      [LEN_RECD]  = "";
+   static int  x_dlen      =   0;
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
@@ -770,6 +772,13 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          g_csreg = a_minor;
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return 0;
+      } else if (a_minor == '_') {
+         DEBUG_YSRC   yLOG_note    ("show register status line");
+         g_wsreg = g_csreg;
+         yCMD_direct (":status sreg");
+         yMODE_exit ();
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return  0;
       } else if (a_minor == '?') {
          DEBUG_YSRC   yLOG_note    ("show source register inventory");
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -783,10 +792,12 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    /*---(select register action)---------*/
    --rce;  if (a_major == G_KEY_SPACE) {
       switch (a_minor) {
-      case '_' :
-         g_wsreg = g_csreg;
-         yCMD_direct (":status sreg");
-         yMODE_exit ();
+      case  '=' :
+         DEBUG_YSRC   yLOG_note    ("switch to direct save mode");
+         x_data [0] = '\0';
+         x_dlen     = 0;
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return  a_minor;
          break;
       case  '#' :
          DEBUG_YSRC   yLOG_note    ("wipe source register");
@@ -896,6 +907,27 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       if (rc >= 0)  rc = ysrc_sreg__copy ('¶', a_minor);
       if (rc >= 0)  rc = ysrc_sreg_clear ('¶');
       yMODE_exit   ();
+   }
+   else if (a_major == '=') {
+      DEBUG_YSRC   yLOG_note    ("creating a new sreg entry");
+      if (a_minor == G_KEY_RETURN) {
+         DEBUG_YSRC   yLOG_note    ("save new sreg");
+         ysrc_sreg_push (g_csreg, x_data);
+         yMODE_exit   ();
+      }
+      else if (x_dlen >= LEN_RECD - 1) {
+         DEBUG_YSRC   yLOG_note    ("entry too long, char rejected");
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return  rce;
+      }
+      else {
+         DEBUG_YSRC   yLOG_note    ("add another character");
+         x_data [x_dlen]   = a_minor;
+         x_data [++x_dlen] = '\0';
+         DEBUG_YSRC   yLOG_complex ("x_data"    "%3då%sæ", x_dlen, x_data);
+         DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+         return a_major;
+      }
    }
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;

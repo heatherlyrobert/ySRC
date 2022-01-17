@@ -271,8 +271,8 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(multi-key)----------------------*/
    switch (a_major) {
-   case 'd' : case 'x' :
-      DEBUG_YSRC   yLOG_note    ("multi-key delete (d) or clear (x)");
+   case 'd' : case 'x' : case 'c' :
+      DEBUG_YSRC   yLOG_note    ("multi-key delete (d), clear (x), or change (c)");
       rc = ysrc_multi_pure (a_major, a_minor);
       break;
    case 'g' :
@@ -286,19 +286,6 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
    case 'f' : case 'F' :
       DEBUG_YSRC   yLOG_note    ("multi-key find char (F or f)");
       rc = ysrc__source_findchar (a_major, a_minor);
-      break;
-   case 'c' :
-      DEBUG_YSRC   yLOG_note    ("multi-key control (c)");
-      /*> n = yKEYS_repeat_useall ();                                              <* 
-       *> for (i = 0; i <= n; ++i) {                                               <* 
-       *>    ysrc_multi_pure  ('d', a_minor);                                      <* 
-       *> }                                                                        <* 
-       *> yMODE_enter (UMOD_INPUT);                                                <* 
-       *> SRC_INPT_umode ('m', tolower (a_minor));                                 <* 
-       *> rc = tolower (a_minor);                                                  <* 
-       *> DEBUG_YSRC   yLOG_exit    (__FUNCTION__);                                <* 
-       *> return rc;                                                               <* 
-       *> break;                                                                   <*/
       break;
    }
    /*---(complete)-----------------------*/
@@ -361,7 +348,7 @@ ySRC_mode               (uchar a_major, uchar a_minor)
          return rc;
       }
       if (ySRC_select_islive () && strchr ("xXdDrs", a_minor) != 0) {
-         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (xXdD)");
+         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (xXdDrs)");
          ysrc_sreg_setreg ('"');
          yMODE_enter (SMOD_SREG);
          rc = ysrc_sreg_smode (G_KEY_SPACE, a_minor);
@@ -415,6 +402,11 @@ ySRC_mode               (uchar a_major, uchar a_minor)
    else {
       DEBUG_YSRC   yLOG_note    ("multikey handling");
       rc = ysrc__source_multikey (a_major, a_minor);
+      if (a_major == 'c' && yKEYS_repeat_end ()) {
+         DEBUG_YSRC   yLOG_note    ("enter input mode");
+         rc = yMODE_enter (UMOD_INPUT);
+         ysrc_sundo_chain ();
+      }
       DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
    }

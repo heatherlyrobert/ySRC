@@ -74,6 +74,8 @@ ysrc_input_prepper      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   uchar       x_latest    =    0;
+   uchar       x_multi     =    0;
    int         x_repeats   =    0;
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
@@ -83,9 +85,12 @@ ysrc_input_prepper      (void)
    /*---(save key information)-----------*/
    DEBUG_YSRC   yLOG_value   ("h_curr"    , yKEYS_position ());
    DEBUG_YSRC   yLOG_value   ("h_total"   , yKEYS_count    ());
-   s_mode     = yKEYS_current ();
+   s_mode     = x_latest  = yKEYS_current ();
    DEBUG_YSRC   yLOG_value   ("is_menu"   , yKEYS_is_menu  ());
    if (yKEYS_is_menu ())  s_mode = '\\';
+   x_multi    = yKEYS_multi   ();
+   DEBUG_YSRC   yLOG_value   ("x_multi"   , x_multi);
+   if (x_multi == 'c')  s_mode = 'c';
    DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
    s_curr     = yMODE_curr ();
    DEBUG_YSRC   yLOG_char    ("s_curr"    , s_curr);
@@ -103,6 +108,12 @@ ysrc_input_prepper      (void)
       s_cur->cpos = 0;
    case  'i' :
       s_dir = 'i';
+      break;
+   case  'c' :
+      if       (s_cur->cpos >= s_cur->npos - 1)        s_dir = 'a';
+      else if  (s_cur->cpos == 0)                      s_dir = 'i';
+      else if (strchr ("$lLwWeE", x_latest) != NULL)   s_dir = 'i';
+      else                                             s_dir = 'a';
       break;
    }
    DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
