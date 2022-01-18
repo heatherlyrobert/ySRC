@@ -81,3 +81,30 @@ ySRC_sreg_status        (char a_size, short a_wide, char *a_list)
    /*---(complete)--------------------*/
    return 0;
 }
+
+char
+ysrc_sreg_dump          (void *f)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   int         i           =    0;
+   int         c           =    0;
+   char        x_len       [LEN_TERSE] = "";
+   /*---(header)-------------------------*/
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   /*---(helpers)------------------------*/
+   fprintf (f, "#! parsing åÏ·Ï--·Ï-----------------------------------------------¦æ\n");
+   fprintf (f, "#! titles  åa·len·data·············································æ\n");
+   /*---(walk list)----------------------*/
+   for (i = 0; i <= g_nsreg; ++i) {
+      if (g_sregs [i].len <= 0)  continue;
+      if (c %  5 == 0)  fprintf (f, "\n# len data--------------------------------------------- ´\n");
+      strlpadn (g_sregs [i].len, x_len, '.', '>', 3);
+      fprintf (f, "%c %-3.3s %s\n", G_SREG_LIST [i], x_len, g_sregs [i].data);
+      ++c;
+   }
+   /*---(complete)-----------------------*/
+   DEBUG_YSRC  yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+

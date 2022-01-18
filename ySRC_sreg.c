@@ -173,6 +173,8 @@ ysrc_sreg_init          (void)
    DEBUG_YSRC   yLOG_note    ("add commands/status");
    /*> yVIKEYS_view_optionX (YVIEW_STATUS  , "sreg", ysrc_sreg_status   , "details of current source register");   <*/
    /*> yVIKEYS_cmds_addX    (YVIKEYS_M_CONFIG, "sreg", "", "a", ysrc_sreg_direct, "direct definition of source registers");   <*/
+   /*---(other updates)------------------*/
+   yFILE_dump_add ("sreg"      , "", "inventory of source registers", ysrc_sreg_dump);
    /*---(update status)------------------*/
    yMODE_init_set   (SMOD_SREG, NULL, ysrc_sreg_smode);
    DEBUG_YSRC   yLOG_info    ("sreg"      , yMODE_actual (SMOD_SREG));
@@ -806,37 +808,47 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          ysrc_sreg__wipeall ('-', &g_sregs [n]);
          yMODE_exit ();
          break;
-      case  'y' :
-         DEBUG_YSRC   yLOG_note    ("yank selection source to register");
+      case  'y' : case  'Y' :
+         DEBUG_YSRC   yLOG_note    ("yank (y) selection source to register");
          ysrc_copy          ();
          ysrc_select_reset (G_SREG_ROOT);
          yMODE_exit   ();
          break;
-      case  'x' : case  'X' :
-         DEBUG_YSRC   yLOG_note    ("clear selection source");
+      case  'x' :
+         DEBUG_YSRC   yLOG_note    ("clear (x) selection source");
          ysrc_copy          ();
          ysrc_clear_select  ();
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
-      case  'd' : case  'D' :
-         DEBUG_YSRC   yLOG_note    ("delete selection source");
+      case  'd' :
+         DEBUG_YSRC   yLOG_note    ("delete (d) selection source");
          ysrc_copy          ();
          ysrc_delete_select ();
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
+      case  'c' :
+         DEBUG_YSRC   yLOG_note    ("change (c) selection source");
+         ysrc_copy          ();
+         ysrc_delete_select ();
+         ysrc_select_reset  (G_SREG_CURR);
+         yMODE_exit         ();
+         yMODE_enter        (UMOD_INPUT);
+         ysrc_sundo_chain   ();
+         UPDATE_AFTER_CHANGES;
+         break;
       case  'r' :
-         DEBUG_YSRC   yLOG_note    ("replace source from register");
+         DEBUG_YSRC   yLOG_note    ("replace (r) source from register");
          ysrc_replace        ();
          ysrc_select_reset (G_SREG_CURR);
-         yMODE_exit   ();
+         yMODE_exit         ();
          UPDATE_AFTER_CHANGES;
          break;
       case  's' :
-         DEBUG_YSRC   yLOG_note    ("substitute selection source");
+         DEBUG_YSRC   yLOG_note    ("substitute (s) selection source");
          ysrc_delete_select ();
          ysrc_sundo_chain   ();
          ysrc_paste         ('i');
@@ -845,27 +857,27 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          UPDATE_AFTER_CHANGES;
          break;
       case  'p' : case  'a' :
-         DEBUG_YSRC   yLOG_note    ("paste after selection source");
+         DEBUG_YSRC   yLOG_note    ("paste after (a) selection source");
          ysrc_paste        ('a');
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  'P' : case  'i' :
-         DEBUG_YSRC   yLOG_note    ("paste before selection source");
+         DEBUG_YSRC   yLOG_note    ("paste before (i) selection source");
          ysrc_paste        ('i');
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  '-' :
-         DEBUG_YSRC   yLOG_note    ("export content to clipboard");
+         DEBUG_YSRC   yLOG_note    ("export (-) content to clipboard");
          ysrc_sreg__export (g_csreg);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
       case  '+' :
-         DEBUG_YSRC   yLOG_note    ("import content from clipboard");
+         DEBUG_YSRC   yLOG_note    ("import (+) content from clipboard");
          ysrc_sreg__import (g_csreg);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
@@ -931,32 +943,6 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    }
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
-}
-
-int
-ysrc_sreg_dump          (void *a_file)
-{
-   /*> /+---(locals)-----------+-----+-----+-+/                                                                                                                                                                                                                              <* 
-    *> char        x_end       =    0;                                                                                                                                                                                                                                       <* 
-    *> int         i           =    0;                                                                                                                                                                                                                                       <* 
-    *> char        c           =    0;                                                                                                                                                                                                                                       <* 
-    *> int         x_len       =    0;                                                                                                                                                                                                                                       <* 
-    *> /+---(header)-------------------------+/                                                                                                                                                                                                                              <* 
-    *> DEBUG_YSRC   yLOG_enter   (__FUNCTION__);                                                                                                                                                                                                                             <* 
-    *> /+---(prepare)------------------------+/                                                                                                                                                                                                                              <* 
-    *> x_end = strlen (G_SREG_LIST);                                                                                                                                                                                                                                         <* 
-    *> x_len = 80 - 60 - strlen (myVIKEYS.s_prog);                                                                                                                                                                                                                           <* 
-    *> fprintf (a_file, "##===[[ yVIKEYS source register dump from %s (:dump sreg) ]]%*.*s##\n", myVIKEYS.s_prog, x_len, x_len, "======================================================================================================================================");   <* 
-    *> /+---(walk list)----------------------+/                                                                                                                                                                                                                              <* 
-    *> for (i = 0; i <= x_end; ++i) {                                                                                                                                                                                                                                        <* 
-    *>    if (g_sregs [i].len <= 0)  continue;                                                                                                                                                                                                                               <* 
-    *>    fprintf (a_file, "%c=%s¦", G_SREG_LIST [i], g_sregs [i].data);                                                                                                                                                                                                     <* 
-    *>    ++c;                                                                                                                                                                                                                                                               <* 
-    *> }                                                                                                                                                                                                                                                                     <* 
-    *> fprintf (a_file, "##===[[ end-of-dump (%2d recs) ]]==============================================##\n", c);                                                                                                                                                           <* 
-    *> /+---(complete)-----------------------+/                                                                                                                                                                                                                              <* 
-    *> DEBUG_YSRC  yLOG_exit    (__FUNCTION__);                                                                                                                                                                                                                              <* 
-    *> return c;                                                                                                                                                                                                                                                             <*/
 }
 
 

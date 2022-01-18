@@ -265,14 +265,25 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rc          =   -1;
+   char        t           [LEN_RECD]  = "";
    /*---(quick out)----------------------*/
    if (a_major == G_KEY_SPACE)  return 0;
+   if (a_major == 0)            return 0;
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   /*---(prepare)------------------------*/
+   if (strchr ("ydxc", a_major) != NULL) {
+      if (yKEYS_repeat_beg ()) {
+         DEBUG_YSRC   yLOG_note    ("initialize yanked text");
+         mySRC.yank [0] = '\0';
+         mySRC.ylen     = 0;
+         mySRC.ybeg     = s_cur->cpos;
+      }
+   }
    /*---(multi-key)----------------------*/
    switch (a_major) {
-   case 'd' : case 'x' : case 'c' :
-      DEBUG_YSRC   yLOG_note    ("multi-key delete (d), clear (x), or change (c)");
+   case 'y' : case 'd' : case 'x' : case 'c' :
+      DEBUG_YSRC   yLOG_note    ("multi-key yank (y), delete (d), clear (x), or change (c)");
       rc = ysrc_multi_pure (a_major, a_minor);
       break;
    case 'g' :
@@ -287,6 +298,26 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_note    ("multi-key find char (F or f)");
       rc = ysrc__source_findchar (a_major, a_minor);
       break;
+   }
+   /*---(wrap-up)------------------------*/
+   if (strchr ("ydxc", a_major) != NULL) {
+      if (yKEYS_repeat_end ()) {
+         ysrc_select_reset (G_SREG_ROOT);
+         if (strchr ("HhBb0" , a_minor) != NULL) {
+            strlrev (t, mySRC.yank, LEN_RECD);
+            ysrc_sreg_push ('¶', t);
+            g_sregs [0].end    = mySRC.ybeg;
+            g_sregs [0].beg    = mySRC.ybeg - mySRC.ylen + 1;
+            g_sregs [0].root   = g_sregs [0].end;
+         } else {
+            ysrc_sreg_push ('¶', mySRC.yank);
+            g_sregs [0].beg    = mySRC.ybeg;
+            g_sregs [0].end    = mySRC.ybeg + mySRC.ylen - 1;
+            g_sregs [0].root   = g_sregs [0].beg;
+         }
+         g_sregs [0].source = 'u';
+         g_sregs [0].len    = mySRC.ylen;
+      }
    }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -339,16 +370,16 @@ ySRC_mode               (uchar a_major, uchar a_minor)
          return a_minor;
       }
       /*---(select related)--------------*/
-      if (strchr ("yYpP", a_minor) != 0) {
-         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (yYpP)");
+      if (strchr ("pPY", a_minor) != 0) {
+         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (pPY)");
          ysrc_sreg_setreg ('"');
          yMODE_enter (SMOD_SREG);
          rc = ysrc_sreg_smode (G_KEY_SPACE, a_minor);
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return rc;
       }
-      if (ySRC_select_islive () && strchr ("xXdDrs", a_minor) != 0) {
-         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (xXdDrs)");
+      if (ySRC_select_islive () && strchr ("yxdrsc", a_minor) != 0) {
+         DEBUG_YSRC   yLOG_note    ("switch to a text register mode (yxdrsc)");
          ysrc_sreg_setreg ('"');
          yMODE_enter (SMOD_SREG);
          rc = ysrc_sreg_smode (G_KEY_SPACE, a_minor);

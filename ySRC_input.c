@@ -112,7 +112,8 @@ ysrc_input_prepper      (void)
    case  'c' :
       if       (s_cur->cpos >= s_cur->npos - 1)        s_dir = 'a';
       else if  (s_cur->cpos == 0)                      s_dir = 'i';
-      else if (strchr ("$lLwWeE", x_latest) != NULL)   s_dir = 'i';
+      else if  (x_multi != 'c')                        s_dir = 'i';
+      else if  (strchr ("$lLwWeE", x_latest) != NULL)  s_dir = 'i';
       else                                             s_dir = 'a';
       break;
    }

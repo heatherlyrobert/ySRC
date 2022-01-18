@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1f"
-#define     P_VERTXT    "added 'c' multi-key into source and unit tested"
+#define     P_VERNUM    "2.1g"
+#define     P_VERTXT    "improved multi-key and added yank (y) multi-key also"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -60,6 +60,7 @@
 #include    <yMACRO.h>            /* heatherly vi-keys macro processing       */
 #include    <yCMD.h>              /* heatherly vi-keys command processing     */
 #include    <yMAP.h>              /* heatherly vi-keys location management    */
+#include    <yFILE.h>             /* heatherly vi-keys content file handling  */
 /*---(done)------------------------------*/
 
 
@@ -156,6 +157,10 @@ struct cMY {
    uchar       w_suf       [LEN_RECD];
    uchar       w_new       [LEN_RECD];
    char        w_abs;
+   /*---(holding)-----------*/
+   uchar       yank        [LEN_RECD];
+   int         ylen;
+   int         ybeg;
    /*---(done)--------------*/
 };
 extern tMY         mySRC;
@@ -296,7 +301,6 @@ char        ysrc_sreg__copy         (char a_abbr, char a_dst);
 char        ysrc_sreg__save         (char a_abbr, char *a_string);
 char        ysrc_sreg_direct        (char *a_string);
 char        ysrc_sreg_smode         (uchar a_major, uchar a_minor);
-int         ysrc_sreg_dump          (void *a_file);
 /*---(done)-----------------*/
 
 
@@ -383,6 +387,7 @@ char        ysrc_wander_umode       (uchar a_major, uchar a_minor);
 char        ysrc_select_line        (char *a_entry);
 char        ysrc_sreg_line          (uchar a_abbr, char *a_entry);
 char        ysrc_sreg_status        (char a_size, short a_wide, char *a_list);
+char        ysrc_sreg_dump          (void *f);
 
 
 #endif

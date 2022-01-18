@@ -191,8 +191,8 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
       return rce;
    }
    DEBUG_YSRC   yLOG_char    ("a_major"   , chrvisible (a_major));
-   --rce;  if (a_major == 0 || strchr ("cdx", a_major) == NULL) {
-      DEBUG_YSRC   yLOG_note    ("source only allows right and left");
+   --rce;  if (a_major == 0 || strchr ("ydxc", a_major) == NULL) {
+      DEBUG_YSRC   yLOG_note    ("multi only allows yank, delete, clear, and change");
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
@@ -240,37 +240,61 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
          DEBUG_YSRC   yLOG_value   ("x_len*"    , x_len);
       }
    }
-   /*---(end)----------------------------*/
-   rc = ysrc_sundo_beg ();
+   /*---(begin)--------------------------*/
+   if (a_major != 'y')   rc = ysrc_sundo_beg ();
+   /*---(walk)---------------------------*/
    --rce;  for (i = 0; i <  x_len; ++i) {
+      /*---(share pre-work)--------------*/
+      x_pos  = s_cur->cpos;
+      x_last = '-';
+      if (s_cur->npos <= 0) {
+         rc = rce;
+      } else {
+         if (s_cur->cpos < 0)                rc = rce;
+         if (s_cur->cpos >= s_cur->npos)     rc = rce;
+         if (s_cur->cpos >= s_cur->npos - 1) x_last = 'y';
+      }
+      DEBUG_YSRC   yLOG_complex ("loop"      , "%2di, %2dl, %3dc, %3dn, %c", i, x_len, s_cur->cpos, s_cur->npos, x_last);
+      if (rc < 0)  break;
+      /*---(yank)------------------------*/
+      mySRC.yank [mySRC.ylen]   = s_cur->contents [s_cur->cpos];
+      mySRC.yank [++mySRC.ylen] = '\0';
+      DEBUG_YSRC   yLOG_complex ("yank"      , "%2då%sæ", mySRC.ylen, mySRC.yank);
+      /*---(delete)----------------------*/
       if (a_major == 'd' || a_major == 'c') {
-         if (s_cur->cpos < 0) { rc = rce; break; }
-         if (s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
          if (x_left == 'y')  rc = ysrc_sundo_add ('d', 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          else                rc = ysrc_sundo_add ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_KEY_NULL);
          if (rc < 0)  break;
          rc = ysrc_delete_one ();
          if (rc < 0)  break;
-         if (x_left != 'y' && x_last == 'y')  { rc = rce;  break; }
-         if (strchr ("0HhBb", a_minor) != NULL && x_last != 'y')  --s_cur->cpos;
-         if (s_cur->cpos < 0)             rc = rce;
-         if (s_cur->cpos >= s_cur->npos)  rc = rce;
-      } else {
-         if (x_left == 'y' && s_cur->cpos < 0)                 { rc = rce; break; }
-         if (x_left != 'y' && s_cur->npos > 0 && s_cur->cpos >= s_cur->npos - 1)  { x_last = 'y'; }
+         /*> if (x_left != 'y' && x_last == 'y')  { rc = rce;  break; }               <*/
+      }
+      /*---(clear)-----------------------*/
+      if (a_major == 'x') {
          if (x_left == 'y')  rc = ysrc_sundo_add ('x', 'h', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
          else                rc = ysrc_sundo_add ('x', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_STORAGE);
          if (rc < 0)  break;
          rc = ysrc_replace_one (G_CHAR_STORAGE);
          if (rc < 0)  break;
-         if (x_last == 'y')  { rc = rce;  break; }
-         if (strchr ("0HhBb", a_minor) != NULL)  --s_cur->cpos;
-         else                                    ++s_cur->cpos;
-         if (s_cur->cpos < 0)             rc = rce;
-         if (s_cur->cpos >= s_cur->npos)  rc = rce;
+         /*> if (x_last == 'y')  { rc = rce;  break; }                                <*/
       }
+      /*---(re-positioning)--------------*/
+      if (a_major == 'd' || a_major == 'c') {
+         if (x_left == 'y' && x_last != 'y')  --s_cur->cpos;
+         if (x_left != 'y' && x_last == 'y')  { rc = rce;  break; }
+      } else {
+         if (x_left == 'y')  --s_cur->cpos;
+         else                ++s_cur->cpos;
+      }
+      /*---(share post-work)-------------*/
+      if (s_cur->cpos < 0)             rc = rce;
+      if (s_cur->cpos >= s_cur->npos)  rc = rce;
+      if (rc < 0)  break;
+      /*---(done)------------------------*/
    }
-   ysrc_sundo_end ();
+   /*---(end)----------------------------*/
+   if (a_major != 'y')   ysrc_sundo_end ();
+   if (rc <  0) yKEYS_repeat_reset  ();
    if (strchr ("0$", a_minor) != NULL)  rc = 0; /* no error required */
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;

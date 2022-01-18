@@ -39,7 +39,7 @@ a) source          main source mode
 b) replace         replace micro-mode
 c) input           insert/append micro-mode
 d) select          content selection pseudo-mode
-e) registers       source register sub-mode
+e) register        source register sub-mode
 f) wander          wander editing micro-mode
 g) sundo           source undo/redo pseudo-mode
 
@@ -100,7 +100,52 @@ replacement capabilities.
 
 
 
-.SH E) REGISTERS sub-mode (text)
+.SH D) SELECT pseudo-mode
+.SS ---overview-------------------------------------------------------
+.B definition.
+identifying contiguous characters for common action.
+
+.B situation.
+nearly all applications provide selection to subsequent cut, copy, or delete,
+but almost no additional or advanced capabilities.
+
+.B value.
+
+.B automation.
+
+.B answer.
+
+.SS ---full capabilities----------------------------------------------
+
+.B invoking select psuedo-mode
+   -- can only be invoked from source mode, nowhere else
+   v          start live selection
+   ¥          unselect and act normally again
+
+.B reversing
+   v          expand from opposite side
+
+.B normal movements
+   -- all source movements are still available
+   0 h \      to move left
+   l L $      to move right
+   w e b      to move by words
+   g shcle    goto multi-key is still available
+
+.B additional actions for unnamed mirror register actions
+   y   ¶ay    copy the current selection into register '¶'/'a'
+   d   ¶ad    copy selection to register '¶'/'a' and delete from text
+   x   ¶ax    copy selection to register '¶'/'a' and replace with blanks
+   r   ¶ar    replace selection with register '¶'/'a' contents
+   s   ¶as    delete selection and replace with register '¶'/'a' contents
+   c          delete selection and immediately enter input mode
+
+.B debugging 
+   :status select                                            
+
+
+
+.SH E) REGISTER sub-mode
 .SS ---overview-------------------------------------------------------
 .B definition.
 temporary text storage to aid content manipulation.
