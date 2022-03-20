@@ -453,11 +453,11 @@ ysrc_accept             (void)
        *>    rc = yvikeys_hint_direct (s_cur->contents);                                 <* 
        *>    strlcpy (s_cur->contents, "", LEN_RECD);                                    <* 
        *>    break;                                                                      <*/
-      /*> case MODE_SEARCH  :                                                            <* 
-       *>    DEBUG_YSRC   yLOG_note    ("execute search");                               <* 
-       *>    rc = yvikeys_srch_direct (s_cur->contents);                                 <* 
-       *>    strlcpy (s_cur->contents, "", LEN_RECD);                                    <* 
-       *>    break;                                                                      <*/
+      case MODE_SEARCH  :
+         DEBUG_YSRC   yLOG_note    ("execute search");
+         rc = yMARK_execute (s_cur->contents);
+         strlcpy (s_cur->contents, "", LEN_RECD);
+         break;
    }
    DEBUG_YSRC   yLOG_value   ("rc"        , rc);
    strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
