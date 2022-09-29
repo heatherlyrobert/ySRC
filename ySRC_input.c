@@ -74,42 +74,66 @@ ysrc_input_prepper      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   uchar       x_mode      =    0;
    uchar       x_latest    =    0;
    uchar       x_multi     =    0;
+   uchar       x_menu      =    0;
    int         x_repeats   =    0;
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_note    ("mark insert/append position and save existing");
    /*---(wipe)---------------------------*/
    ysrc__input_wipe ();
-   /*---(save key information)-----------*/
-   DEBUG_YSRC   yLOG_value   ("h_curr"    , yKEYS_position ());
-   DEBUG_YSRC   yLOG_value   ("h_total"   , yKEYS_count    ());
-   s_mode     = x_latest  = yKEYS_current ();
-   DEBUG_YSRC   yLOG_value   ("is_menu"   , yKEYS_is_menu  ());
-   if (yKEYS_is_menu ())  s_mode = '\\';
-   x_multi    = yKEYS_multi   ();
-   DEBUG_YSRC   yLOG_value   ("x_multi"   , x_multi);
-   if (x_multi == 'c')  s_mode = 'c';
-   DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
+   /*---(real modes)---------------------*/
    s_curr     = yMODE_curr ();
    DEBUG_YSRC   yLOG_char    ("s_curr"    , s_curr);
    s_prev     = yMODE_prev ();
    DEBUG_YSRC   yLOG_char    ("s_prev"    , s_prev);
+   /*---(save key information)-----------*/
+   yKEYS_every_current (&x_mode, &x_latest, &x_multi, &x_menu, NULL, NULL);
+   s_mode     = x_latest;
+   DEBUG_YSRC   yLOG_value   ("x_menu"    , x_menu);
+   if (x_menu)  s_mode = '\\';
+   DEBUG_YSRC   yLOG_value   ("x_multi"   , x_multi);
+   if (x_multi == 'c')  s_mode = 'c';
+   DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
+   /*---(mode overrides)-----------------*/
+   switch (s_curr) {
+   case MODE_COMMAND :
+      DEBUG_YSRC   yLOG_note    ("command input");
+      s_mode = 'A';
+      break;
+   case MODE_SEARCH  :
+      DEBUG_YSRC   yLOG_note    ("search input");
+      s_mode = 'A';
+      break;
+   case SMOD_HINT    :
+      DEBUG_YSRC   yLOG_note    ("hint input");
+      s_mode = 'A';
+      break;
+   }
+   DEBUG_YSRC   yLOG_char    ("s_mode(2)" , s_mode);
+   /*---(set start)----------------------*/
    switch (s_mode) {
    case  '=' : case  '#' : case  '+' : case  '-' :
-   case  'A' : case  ':' : case  '/' : case  ';' : case  '\\' :
+   case  'A' : case  '\\' : case G_CHAR_RETURN :
+      DEBUG_YSRC   yLOG_note    ("big append mode");
       s_mode = 'A';
       s_cur->cpos = s_cur->npos - 1;
    case  'a' :
+      DEBUG_YSRC   yLOG_note    ("little append mode");
       s_dir = 'a';
+      if (s_cur->cpos < 0)  s_cur->cpos = 0;
       break;
    case  'I' :
       s_cur->cpos = 0;
+      DEBUG_YSRC   yLOG_note    ("big input mode");
    case  'i' :
+      DEBUG_YSRC   yLOG_note    ("little input mode");
       s_dir = 'i';
       break;
    case  'c' :
+      DEBUG_YSRC   yLOG_note    ("change input mode");
       if       (s_cur->cpos >= s_cur->npos - 1)        s_dir = 'a';
       else if  (s_cur->cpos == 0)                      s_dir = 'i';
       else if  (x_multi != 'c')                        s_dir = 'i';
@@ -160,6 +184,7 @@ ysrc__input_biggies     (uchar a_major, uchar a_minor)
       rc = ysrc_delete_one ();
       if (s_dir == 'a' && s_cur->cpos < s_cur->npos - 1)  --s_cur->cpos;
       ysrc_sundo_end ();
+      s_escaping = G_KEY_SPACE;
       yMODE_exit     ();
       DEBUG_YSRC   yLOG_value   ("mode"     , yMODE_curr ());
       if (a_minor == G_KEY_RETURN && strchr (MODES_ONELINE, yMODE_curr ()) != NULL) {
@@ -265,11 +290,12 @@ char
 ysrc_input__add         (uchar a_minor)
 {
    DEBUG_YSRC   yLOG_note    ("add and move remaining chars to the right");
+   DEBUG_YSRC   yLOG_complex ("before"    , "%2dn %2dc å%sæ", s_cur->npos, s_cur->cpos, s_cur->contents);
    a_minor = chrvisible (a_minor);
    ysrc_sundo_single (s_dir, s_cur->cpos, G_CHAR_NULL, a_minor);
    ysrc_insert_one   (a_minor);
    ++s_cur->cpos;
-   DEBUG_YSRC   yLOG_complex ("contents"  , "%2dn %2dc å%sæ", s_cur->npos, s_cur->cpos, s_cur->contents);
+   DEBUG_YSRC   yLOG_complex ("after"     , "%2dn %2dc å%sæ", s_cur->npos, s_cur->cpos, s_cur->contents);
    UPDATE_AFTER_CHANGES;
    return 0;
 }
@@ -297,7 +323,9 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
    DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
-   DEBUG_YSRC   yLOG_char    ("mode"      , s_quoting);
+   DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
+   DEBUG_YSRC   yLOG_char    ("s_dir"     , s_dir);
+   DEBUG_YSRC   yLOG_char    ("s_quoting" , s_quoting);
    /*---(defenses)-----------------------*/
    DEBUG_YSRC   yLOG_char    ("mode"      , yMODE_curr ());
    --rce;  if (yMODE_not (UMOD_INPUT)) {

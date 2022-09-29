@@ -115,6 +115,11 @@ ySRC__unit              (char *a_question, int n)
       snprintf (unit_answer, LEN_FULL, "SRC display (%2d) : %c å%sæ", s_cur->apos, x_char, t);
       return unit_answer;
    }
+   else if (strcmp (a_question, "source"         )   == 0) {
+      ysrc__source_unit (t);
+      snprintf (unit_answer, LEN_FULL, "SRC source       : %s", t);
+      return unit_answer;
+   }
    else if (strcmp (a_question, "input"          )   == 0) {
       ysrc__input_unit (t);
       snprintf (unit_answer, LEN_FULL, "SRC input        : %s", t);
@@ -123,6 +128,19 @@ ySRC__unit              (char *a_question, int n)
    else if (strcmp (a_question, "replace"        )   == 0) {
       ysrc__replace_unit (t);
       snprintf (unit_answer, LEN_FULL, "SRC replace      : %s", t);
+      return unit_answer;
+   }
+   else if (strcmp (a_question, "set"            )   == 0) {
+      if (n < 0 || n > 3) {
+         snprintf (unit_answer, LEN_FULL, "SRC set          : unknown section");
+      } else {
+         sprintf (t, "%-64.64s", mySRC.s_set + n * 64);
+         snprintf (unit_answer, LEN_FULL, "SRC set      (%d) : %s", n, t);
+      }
+      return unit_answer;
+   }
+   else if (strcmp (a_question, "raw_set"        )   == 0) {
+      snprintf (unit_answer, LEN_FULL, "SRC raw set      : %2då%sæ", strlen (mySRC.s_text), mySRC.s_text);
       return unit_answer;
    }
    /*---(complex)------------------------*/

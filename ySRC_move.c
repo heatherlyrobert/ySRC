@@ -50,6 +50,7 @@ ysrc_move_simple        (uchar a_major, uchar a_minor)
       case 'l' : ++s_cur->cpos;                       break;
       case 'L' : s_cur->cpos +=  5;                   break;
       case '$' : s_cur->cpos  = s_cur->npos - 1;      break;
+      case '|' : s_cur->cpos  =  yKEYS_repeat_useall ();  break;
       }
    }
    /*---(big horizonal)------------------*/

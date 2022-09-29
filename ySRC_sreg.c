@@ -346,6 +346,8 @@ ysrc_sreg_push          (uchar a_abbr, char *a_data)
    return 0;
 }
 
+char ySRC_push      (uchar a_sreg, char *a_data)  { return ysrc_sreg_push (a_sreg, a_data); }
+
 char
 ysrc_sreg_pop           (uchar a_abbr, char *a_data)
 {

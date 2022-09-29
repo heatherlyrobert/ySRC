@@ -37,8 +37,8 @@
 
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1h"
-#define     P_VERTXT    "hooked up yMARK to allow search"
+#define     P_VERNUM    "2.1i"
+#define     P_VERTXT    "crossover contamination with yKEYS git.  fixing"
 
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -55,12 +55,13 @@
 #include    <yLOG.h>              /* heatherly program logging                */
 #include    <ySTR.h>              /* heatherly string processing              */
 /*---(custom vi-keys)--------------------*/
-#include    <yMODE.h>             /* heatherly vi-keys mode tracking          */
-#include    <yKEYS.h>             /* heatherly vi-keys key handling           */
-#include    <yMACRO.h>            /* heatherly vi-keys macro processing       */
-#include    <yCMD.h>              /* heatherly vi-keys command processing     */
-#include    <yMAP.h>              /* heatherly vi-keys location management    */
-#include    <yFILE.h>             /* heatherly vi-keys content file handling  */
+#include    <yMODE.h>             /* heatherly vikeys mode tracking          */
+#include    <yKEYS.h>             /* heatherly vikeys key handling           */
+#include    <yMACRO.h>            /* heatherly vikeys macro processing       */
+#include    <yCMD.h>              /* heatherly vikeys command processing     */
+#include    <yMAP.h>              /* heatherly vikeys location management    */
+#include    <yFILE.h>             /* heatherly vikeys content file handling  */
+#include    <yMARK.h>             /* heatherly vikeys search and marking      */
 /*---(done)------------------------------*/
 
 
@@ -161,6 +162,15 @@ struct cMY {
    uchar       yank        [LEN_RECD];
    int         ylen;
    int         ybeg;
+   /*---(marks)-------------*/
+   short       s_marks     [LEN_HUND];
+   /*---(sets)--------------*/
+   uchar       s_set       [256];
+   uchar       s_tes       [256];
+   uchar       s_text      [LEN_HUND];
+   uchar       s_code      [LEN_HUND];
+   uchar       s_once      [LEN_TERSE];
+   uchar       s_act;
    /*---(done)--------------*/
 };
 extern tMY         mySRC;
@@ -348,13 +358,21 @@ char        ysrc_move_scroll        (uchar a_major, uchar a_minor);
 
 /*===[[ ySRC_source.c ]]======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_source_smark_set   (uchar a_mark);
+char        ysrc_source_smark_clear (uchar a_mark);
+char        ysrc_source_smark_go    (uchar a_mark);
+char        ysrc_source_smark_purge (void);
+char        ysrc_source_set_purge   (void);
+char        ysrc_source_set_set     (uchar a_major, uchar *a_text);
 char        ysrc__source_biggies    (uchar a_major, uchar a_minor);
 char        ysrc__source_macro      (uchar a_major, uchar a_minor);
 char        ysrc__source_subs       (uchar a_major, uchar a_minor);
 char        ysrc__source_findchar   (uchar a_major, uchar a_minor);
 char        ysrc__source_editing    (uchar a_major, uchar a_minor);
 char        ysrc__source_multikey   (uchar a_major, uchar a_minor);
+char        ysrc_source_escaped     (uchar a_major, uchar *a_minor);
 char        ySRC_mode               (uchar a_major, uchar a_minor);
+char        ysrc__source_unit       (char *a_text);
 
 
 

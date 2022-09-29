@@ -21,6 +21,7 @@ char        ySRC_mode               (uchar a_major, uchar a_minor);
 
 char        ySRC_size               (short a_formula, short a_command);
 char        ySRC_contents           (char a_part, char *m, char *l, short *n, short *a, short *b, short *c, short *e, char *f, char *t);
+char        ySRC_push               (uchar a_sreg, char *a_data);
 
 
 

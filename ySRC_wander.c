@@ -468,7 +468,6 @@ ysrc_wander_umode       (uchar a_major, uchar a_minor)
       }
       else if (strchr (YSTR_GROUP, a_minor) != NULL) {
          DEBUG_YMAP   yLOG_note    ("grouping, prepare for next");
-         /*> rc = ysrc__wander_done       (a_minor);                                     <*/
          rc = ysrc__wander_and        (a_minor);
       }
       /*---(return to origin)------------*/

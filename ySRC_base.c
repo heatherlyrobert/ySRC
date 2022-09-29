@@ -83,6 +83,8 @@ ySRC_init               (void)
    ysrc_sreg_init    ();
    ysrc_replace_init ();
    ysrc_input_init   ();
+   ysrc_source_smark_purge ();
+   ysrc_source_set_purge   ();
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
