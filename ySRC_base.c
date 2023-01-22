@@ -49,6 +49,8 @@ ySRC_init               (void)
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
+   /*---(hook to yVIHUB)-----------------*/
+   yVIHUB_from_ySRC (ySRC_select_islive, ySRC_start, ySRC_size, ySRC_push);
    /*---(pointer)------------------------*/
    DEBUG_YSRC   yLOG_note    ("clear s_saver pointer");
    s_saver  = NULL;
@@ -75,7 +77,7 @@ ySRC_init               (void)
    DEBUG_YSRC   yLOG_info    ("replace"   , yMODE_actual (UMOD_REPLACE));
    yMODE_init_set   (UMOD_INPUT  , ysrc_input_prepper  , ysrc_input_umode);
    DEBUG_YSRC   yLOG_info    ("input"     , yMODE_actual (UMOD_INPUT));
-   yMODE_init_set   (UMOD_SUNDO  , NULL                , yMODE_handler_stub);
+   yMODE_init_set   (UMOD_SUNDO  , NULL                , yMODE_unit_stub);
    DEBUG_YSRC   yLOG_info    ("sundo"     , yMODE_actual (UMOD_SUNDO));
    yMODE_init_set   (UMOD_WANDER , ysrc_wander_prepper , ysrc_wander_umode);
    DEBUG_YSRC   yLOG_info    ("wander"    , yMODE_actual (UMOD_WANDER));
@@ -85,6 +87,24 @@ ySRC_init               (void)
    ysrc_input_init   ();
    ysrc_source_smark_purge ();
    ysrc_source_set_purge   ();
+   /*---(complete)-----------------------*/
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+ySRC_init_after         (void)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rce         =  -10;
+   char        rc          =    0;
+   /*---(header)-------------------------*/
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   /*---(other updates)------------------*/
+   rc = yVIHUB_yFILE_dump_add ("sreg"      , "", "inventory of source registers", ysrc_sreg_dump);
+   rc = yVIHUB_yVIEW_switch_add ('s', "sreg"  , "sregister"    , ySRC_sreg_status       , "details of current source register"       );
+   rc = yVIHUB_yVIEW_switch_add ('s', "sel"   , "selection"    , ySRC_select_status     , "displays selection status"                );
+   yMODE_after_set  (MODE_SOURCE);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -447,7 +467,7 @@ ysrc_accept             (void)
       break;
    case MODE_COMMAND :
       DEBUG_YSRC   yLOG_note    ("execute command");
-      rc = yCMD_direct (s_cur->contents);
+      rc = yVIHUB_yCMD_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
       /*> case SMOD_HINT    :                                                            <* 
@@ -457,7 +477,7 @@ ysrc_accept             (void)
        *>    break;                                                                      <*/
       case MODE_SEARCH  :
          DEBUG_YSRC   yLOG_note    ("execute search");
-         rc = yMARK_execute (s_cur->contents);
+         rc = yVIHUB_yMARK_execute (s_cur->contents);
          strlcpy (s_cur->contents, "", LEN_RECD);
          break;
    }
@@ -467,7 +487,7 @@ ysrc_accept             (void)
    ysrc_select_reset (G_SREG_ZERO);
    ysrc_sundo_reset  ();
    ySRC_update (s_src.label, s_src.format, s_src.original);
-   yMAP_refresh ();
+   yVIHUB_yMAP_refresh ();
    /*> yvikeys_map_reposition  ();                                                    <*/
    DEBUG_YSRC   yLOG_value   ("rc"        , rc);
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);

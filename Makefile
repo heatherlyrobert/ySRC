@@ -8,7 +8,7 @@ NAME_BASE  = ySRC
 # additional standard and outside libraries
 LIB_STD    = 
 # all heatherly libraries used, debug versions whenever available
-LIB_MINE   = -lyMODE_debug -lyKEYS_debug -lyMACRO_debug -lyCMD_debug -lyMAP_debug -lyFILE_debug -lySTR_debug -lyMARK_debug
+LIB_MINE   = -lySTR_debug   -lyVIHUB_debug -lyMODE_debug -lyKEYS_debug
 # directory for production code, no trailing slash
 INST_DIR   = 
 

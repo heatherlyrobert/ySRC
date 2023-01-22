@@ -106,6 +106,13 @@ ysrc_sundo_add          (char a_major, char a_minor, short a_pos, char a_before,
 {
    DEBUG_YSRC   yLOG_senter  (__FUNCTION__);
    ++g_csundo;
+   DEBUG_YSRC   yLOG_sint    (g_csundo);
+   DEBUG_YSRC   yLOG_sint    (g_nseq);
+   DEBUG_YSRC   yLOG_schar   (a_major);
+   DEBUG_YSRC   yLOG_schar   (a_minor);
+   DEBUG_YSRC   yLOG_sint    (a_pos);
+   DEBUG_YSRC   yLOG_schar   (a_before);
+   DEBUG_YSRC   yLOG_schar   (a_after);
    g_sundos [g_csundo].seq    = g_nseq;
    g_sundos [g_csundo].major  = a_major;
    g_sundos [g_csundo].minor  = a_minor;

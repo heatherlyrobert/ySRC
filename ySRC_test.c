@@ -15,14 +15,18 @@ char           unit_answer [LEN_FULL];
 char       /*----: set up program urgents/debugging --------------------------*/
 ysrc__unit_quiet        (void)
 {
+   char        rc           =    0;
    int         x_narg       = 1;
    char       *x_args [20]  = {"ySRC_unit" };
    /*> yURG_logger   (x_narg, x_args);                                                <*/
    /*> yURG_urgs     (x_narg, x_args);                                                <*/
-   yMODE_init (MODE_MAP);
-   yMODE_handler_setup ();
-   yMACRO_global_init ();
-   ySRC_init ();
+   rc = yMODE_init  (MODE_MAP);
+   rc = yMODE_init_after ();
+   yKEYS_unit_handlers ();
+   yKEYS_init  ();
+   yKEYS_init_after ();
+   ySRC_init   ();
+   ySRC_init_after  ();
    ySRC_config (NULL);
    return 0;
 }
@@ -30,22 +34,27 @@ ysrc__unit_quiet        (void)
 char       /*----: set up program urgents/debugging --------------------------*/
 ysrc__unit_loud         (void)
 {
+   char        rc           =    0;
    int         x_narg       = 1;
    char       *x_args [20]  = {"ySRC_unit" };
    yURG_logger   (x_narg, x_args);
    yURG_urgs     (x_narg, x_args);
-   yURG_name  ("kitchen"      , YURG_ON);
-   yURG_name  ("edit"         , YURG_ON);
-   yURG_name  ("ystr"         , YURG_ON);
-   yURG_name  ("ymode"        , YURG_ON);
-   yURG_name  ("ykeys"        , YURG_ON);
-   yURG_name  ("ymap"         , YURG_ON);
-   yURG_name  ("ysrc"         , YURG_ON);
+   yURG_by_name  ("kitchen"      , YURG_ON);
+   yURG_by_name  ("edit"         , YURG_ON);
+   yURG_by_name  ("ystr"         , YURG_ON);
+   yURG_by_name  ("yvihub"       , YURG_ON);
+   yURG_by_name  ("ymode"        , YURG_ON);
+   yURG_by_name  ("ykeys"        , YURG_ON);
+   yURG_by_name  ("ymap"         , YURG_ON);
+   yURG_by_name  ("ysrc"         , YURG_ON);
    DEBUG_YSRC  yLOG_info     ("ySRC"      , ySRC_version   ());
    yMODE_init (MODE_MAP);
-   yMODE_handler_setup ();
-   yMACRO_global_init ();
-   ySRC_init ();
+   rc = yMODE_init_after ();
+   yKEYS_unit_handlers ();
+   yKEYS_init  ();
+   yKEYS_init_after ();
+   ySRC_init   ();
+   ySRC_init_after  ();
    ySRC_config (NULL);
    return 0;
 }

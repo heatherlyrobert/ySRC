@@ -10,6 +10,7 @@ typedef  unsigned char        uchar;
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
 char*       ySRC_version            (void);
 char        ySRC_init               (void);
+char        ySRC_init_after         (void);
 char        ySRC_config             (void *a_saver);
 char        ySRC_wrap               (void);
 
@@ -29,6 +30,7 @@ char        ySRC_select_islive      (void);
 char        ySRC_select_status      (char a_size, short a_wide, char *a_list);
 char        ySRC_sreg_status        (char a_size, short a_wide, char *a_list);
 
+char*       ySRC__unit              (char *a_question, int n);
 
 #endif
 /*============================----end-of-source---============================*/

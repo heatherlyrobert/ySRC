@@ -104,7 +104,7 @@ char
 ysrc__wander_loc        (char *a_label, char *a_len)
 {
    /*---(find new)-----------------------*/
-   yMAP_current  (NULL, &(mySRC.w_univ), &(mySRC.w_xpos), &(mySRC.w_ypos), &(mySRC.w_zpos));
+   yVIHUB_yMAP_current  (NULL, &(mySRC.w_univ), &(mySRC.w_xpos), &(mySRC.w_ypos), &(mySRC.w_zpos));
    str4gyges (mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos, mySRC.w_abs, s_curr, YSTR_USABLE);
    DEBUG_YSRC   yLOG_complex ("current"   , "%-10.10s, %2dt, %3dx, %4dy, %4dz", s_curr, mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos);
    /*---(save back)----------------------*/
@@ -131,9 +131,9 @@ ysrc_wander_prepper     (void)
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(get current)--------------------*/
-   yMAP_current  (NULL, &(mySRC.w_uorig), &(mySRC.w_xorig), &(mySRC.w_yorig), &(mySRC.w_zorig));
+   yVIHUB_yMAP_current  (NULL, &(mySRC.w_uorig), &(mySRC.w_xorig), &(mySRC.w_yorig), &(mySRC.w_zorig));
    DEBUG_YSRC   yLOG_complex ("original"  , "%2dt, %3dx, %4dy, %4dz", mySRC.w_uorig, mySRC.w_xorig, mySRC.w_yorig, mySRC.w_zorig);
-   yMAP_beg      (NULL, NULL           , &(mySRC.w_xbeg), &(mySRC.w_ybeg), &(mySRC.w_zbeg));
+   yVIHUB_yMAP_beg      (NULL, NULL           , &(mySRC.w_xbeg), &(mySRC.w_ybeg), &(mySRC.w_zbeg));
    DEBUG_YSRC   yLOG_complex ("begininng" , "%2dt, %3dx, %4dy, %4dz", mySRC.w_uorig, mySRC.w_xbeg, mySRC.w_ybeg, mySRC.w_zbeg);
    /*---(save contents)------------------*/
    strlcpy (mySRC.w_contents, ysrc_contents (), LEN_RECD);
@@ -195,7 +195,7 @@ ysrc_wander_prepper     (void)
          return rce;
       }
       DEBUG_YSRC   yLOG_complex ("x_label"   , "%2dt, %3dx, %4dy, %4dz", u, x, y, z);
-      yMAP_jump (u, x, y, z);
+      yVIHUB_yMAP_jump (u, x, y, z);
       ysrc__wander_pos_set (strlen (mySRC.w_pre));
    }
    ysrc__wander_loc (x_label, NULL);
@@ -211,7 +211,7 @@ char
 ysrc__wander_return     (void)
 {
    DEBUG_YSRC   yLOG_complex ("original"  , "%2dt, %3dx, %4dy, %4dz", mySRC.w_uorig, mySRC.w_xorig, mySRC.w_yorig, mySRC.w_zorig);
-   yMAP_jump (mySRC.w_uorig, mySRC.w_xorig, mySRC.w_yorig, mySRC.w_zorig);
+   yVIHUB_yMAP_jump (mySRC.w_uorig, mySRC.w_xorig, mySRC.w_yorig, mySRC.w_zorig);
    return 0;
 }
 
@@ -441,7 +441,7 @@ ysrc_wander_umode       (uchar a_major, uchar a_minor)
       return a_minor;
    }
    /*---(moves)--------------------------*/
-   rc = yMAP_move_hmode (a_major, a_minor);
+   rc = yVIHUB_yMAP_move_hmode (a_major, a_minor);
    DEBUG_YMAP   yLOG_value   ("moves"     , rc);
    if (rc != 0) {  /* also for failed goto, scroll, or end multikeys */
       DEBUG_YMAP   yLOG_note    ("yMAP_move_hmove");

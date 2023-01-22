@@ -425,46 +425,46 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
    return 1;
 }
 
-char
-ysrc__source_macro      (uchar a_major, uchar a_minor)
-{
-   /*---(locals)-----------+-----+-----+-*/
-   char        rc          =   -1;
-   /*---(quick out)----------------------*/
-   if (a_major != G_KEY_SPACE)  return 0;
-   /*---(header)-------------------------*/
-   DEBUG_YSRC_U  yLOG_enter   (__FUNCTION__);
-   /*---(macros modes)-------------------*/
-   switch (a_minor) {
-   case '@'      :
-      DEBUG_YSRC_U  yLOG_note    ("macro execution");
-      yMODE_enter  (SMOD_MACRO   );
-      DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);
-      return a_minor;
-      break;
-   case 'q'      :
-      IF_MACRO_RECORDING {
-         DEBUG_YSRC_U  yLOG_note    ("end macro recording");
-         rc = yMACRO_rec_end ();
-      } else {
-         DEBUG_YSRC_U  yLOG_note    ("begin macro recording");
-         yMODE_enter  (SMOD_MACRO   );
-         rc = a_minor;
-      }
-      DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);
-      return rc;
-      break;
-   case 'Q'      :
-      DEBUG_YSRC_U  yLOG_note    ("reset macro recording");
-      rc = yMACRO_reset_all ();
-      DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);
-      return rc;
-      break;
-   }
-   /*---(complete)-----------------------*/
-   DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);
-   return 0;
-}
+/*> char                                                                              <* 
+ *> ysrc__source_macro      (uchar a_major, uchar a_minor)                            <* 
+ *> {                                                                                 <* 
+ *>    /+---(locals)-----------+-----+-----+-+/                                       <* 
+ *>    char        rc          =   -1;                                                <* 
+ *>    /+---(quick out)----------------------+/                                       <* 
+ *>    if (a_major != G_KEY_SPACE)  return 0;                                         <* 
+ *>    /+---(header)-------------------------+/                                       <* 
+ *>    DEBUG_YSRC_U  yLOG_enter   (__FUNCTION__);                                     <* 
+ *>    /+---(macros modes)-------------------+/                                       <* 
+ *>    switch (a_minor) {                                                             <* 
+ *>    case '@'      :                                                                <* 
+ *>       DEBUG_YSRC_U  yLOG_note    ("macro execution");                             <* 
+ *>       yMODE_enter  (SMOD_MACRO   );                                               <* 
+ *>       DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);                                  <* 
+ *>       return a_minor;                                                             <* 
+ *>       break;                                                                      <* 
+ *>    case 'q'      :                                                                <* 
+ *>       IF_MACRO_RECORDING {                                                        <* 
+ *>          DEBUG_YSRC_U  yLOG_note    ("end macro recording");                      <* 
+ *>          rc = yMACRO_rec_end ();                                                  <* 
+ *>       } else {                                                                    <* 
+ *>          DEBUG_YSRC_U  yLOG_note    ("begin macro recording");                    <* 
+ *>          yMODE_enter  (SMOD_MACRO   );                                            <* 
+ *>          rc = a_minor;                                                            <* 
+ *>       }                                                                           <* 
+ *>       DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);                                  <* 
+ *>       return rc;                                                                  <* 
+ *>       break;                                                                      <* 
+ *>    case 'Q'      :                                                                <* 
+ *>       DEBUG_YSRC_U  yLOG_note    ("reset macro recording");                       <* 
+ *>       rc = yMACRO_reset_all ();                                                   <* 
+ *>       DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);                                  <* 
+ *>       return rc;                                                                  <* 
+ *>       break;                                                                      <* 
+ *>    }                                                                              <* 
+ *>    /+---(complete)-----------------------+/                                       <* 
+ *>    DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);                                     <* 
+ *>    return 0;                                                                      <* 
+ *> }                                                                                 <*/
 
 char
 ysrc__source_subs       (uchar a_major, uchar a_minor)
@@ -785,7 +785,7 @@ ysrc_source_escaped         (uchar a_major, uchar *a_minor)
       DEBUG_YSRC_U  yLOG_note    ("converting backslash character");
       *a_minor = chrslashed (x_minor);
       s_escaping = G_CHAR_SPACE;
-      if (*a_minor == 0) {
+      if (*a_minor == G_CHAR_REDACT) {
          ysrc_trouble ();
          DEBUG_YSRC_U  yLOG_exitr   (__FUNCTION__, rce);
          return rce;
@@ -798,7 +798,7 @@ ysrc_source_escaped         (uchar a_major, uchar *a_minor)
       DEBUG_YSRC_U  yLOG_note    ("converting backslash/underscore");
       *a_minor = chrslashed_more (x_minor);
       s_escaping = G_CHAR_SPACE;
-      if (*a_minor == 0) {
+      if (*a_minor == G_CHAR_REDACT) {
          ysrc_trouble ();
          DEBUG_YSRC_U  yLOG_exitr   (__FUNCTION__, rce);
          return rce;
@@ -953,7 +953,7 @@ ySRC_mode               (uchar a_major, uchar a_minor)
       }
       /*---(macro use)-------------------*/
       if (yKEYS_is_macro    (a_minor)) {
-         rc = ysrc__source_macro (a_major, a_minor);
+         rc = yVIHUB_yMACRO_hmode (a_major, a_minor);
          DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);
          return rc;
       }

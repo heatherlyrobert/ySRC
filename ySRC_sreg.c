@@ -173,8 +173,6 @@ ysrc_sreg_init          (void)
    DEBUG_YSRC   yLOG_note    ("add commands/status");
    /*> yVIKEYS_view_optionX (YVIEW_STATUS  , "sreg", ysrc_sreg_status   , "details of current source register");   <*/
    /*> yVIKEYS_cmds_addX    (YVIKEYS_M_CONFIG, "sreg", "", "a", ysrc_sreg_direct, "direct definition of source registers");   <*/
-   /*---(other updates)------------------*/
-   yFILE_dump_add ("sreg"      , "", "inventory of source registers", ysrc_sreg_dump);
    /*---(update status)------------------*/
    yMODE_init_set   (SMOD_SREG, NULL, ysrc_sreg_smode);
    DEBUG_YSRC   yLOG_info    ("sreg"      , yMODE_actual (SMOD_SREG));
@@ -779,7 +777,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       } else if (a_minor == '_') {
          DEBUG_YSRC   yLOG_note    ("show register status line");
          g_wsreg = g_csreg;
-         yCMD_direct (":status sreg");
+         yVIHUB_yCMD_direct (":status sreg");
          yMODE_exit ();
          DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
          return  0;

@@ -91,10 +91,12 @@ ysrc_input_prepper      (void)
    DEBUG_YSRC   yLOG_char    ("s_prev"    , s_prev);
    /*---(save key information)-----------*/
    yKEYS_every_current (&x_mode, &x_latest, &x_multi, &x_menu, NULL, NULL);
+   DEBUG_YSRC   yLOG_char    ("x_mode"    , x_mode);
+   DEBUG_YSRC   yLOG_char    ("x_latest"  , x_latest);
+   DEBUG_YSRC   yLOG_char    ("x_multi"   , x_multi);
+   DEBUG_YSRC   yLOG_char    ("x_menu"    , x_menu);
    s_mode     = x_latest;
-   DEBUG_YSRC   yLOG_value   ("x_menu"    , x_menu);
    if (x_menu)  s_mode = '\\';
-   DEBUG_YSRC   yLOG_value   ("x_multi"   , x_multi);
    if (x_multi == 'c')  s_mode = 'c';
    DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
    /*---(mode overrides)-----------------*/

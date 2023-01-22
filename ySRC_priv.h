@@ -3,48 +3,62 @@
 #define ySRC_priv yes
 
 
-
-/*===[[ BEG_HEADER ]]=========================================================*/
-/*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345678901-12345678901-*/
-
-/*===[[ ONE_LINERS ]]=========================================================*/
-
+/*===[[ HEADER BEG ]]=========================================================*/
+/*                      ´·········1·········2·········3·········4·········5·········6·········7*/
+/*--------- 12345678901 ´123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
+/*········· ··········· ´·····························´········································*/
+#define     P_NAME      "ySRC"
+/*········· ··········· ´·····························´········································*/
 #define     P_FOCUS     "RS (run-time support)"
 #define     P_NICHE     "us (user control)"
 #define     P_SUBJECT   "efficent ascii-text content creation"
 #define     P_PURPOSE   "provides efficient, flexible ascii-text content creation services"
-
+/*········· ··········· ´·····························´········································*/
 #define     P_NAMESAKE  "angelia-minyma (message)"
+#define     P_PRONOUNCE ""
 #define     P_TERSE     "embodiment of the gods communications"
 #define     P_HERITAGE  "daimona, message personified, daughter of the god hermes"
+#define     P_BRIEFLY   ""
 #define     P_IMAGERY   "beautiful young woman with graceful wings and feathers in her hair"
 #define     P_REASON    "this library is about editing source/messages"
-
+/*········· ··········· ´·····························´········································*/
 #define     P_ONELINE   P_NAMESAKE " " P_SUBJECT
-
+/*········· ··········· ´·····························´········································*/
+#define     P_HOMEDIR   "/home/system/ySRC.vi_keys_input_processing"
 #define     P_BASENAME  "ySRC"
 #define     P_FULLNAME  "/usr/local/lib64/libySRC"
-#define     P_SUFFIX    "n/a"
-#define     P_CONTENT   "n/a"
-
+#define     P_SUFFIX    "···"
+#define     P_CONTENT   "···"
+/*········· ··········· ´·····························´········································*/
 #define     P_SYSTEM    "gnu/linux   (powerful, ubiquitous, technical, and hackable)"
 #define     P_LANGUAGE  "ansi-c      (wicked, limitless, universal, and everlasting)"
+#define     P_COMPILER  "gcc 11.3.0"
 #define     P_CODESIZE  "large       (appoximately 10,000 slocl)"
-#define     P_DEPENDS   "none"
-
+/*········· ··········· ´·····························´········································*/
+#define     P_DEPSTDC   "stdio,stdlib,string"
+#define     P_DEPGRAPH  "···"
+#define     P_DEPCORE   "yURG,yLOG,ySTR"
+#define     P_DEPVIKEYS "yVIHUB,yMODE,yKEYS"
+#define     P_DEPOTHER  "···"
+#define     P_DEPSOLO   "···"
+/*········· ··········· ´·····························´········································*/
 #define     P_AUTHOR    "heatherlyrobert"
 #define     P_CREATED   ""
-
+/*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1i"
-#define     P_VERTXT    "crossover contamination with yKEYS git.  fixing"
-
+#define     P_VERNUM    "2.1j"
+#define     P_VERTXT    "updated to yURG_by_name after change"
+/*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
 #define     P_REMINDER  "there are many better options, but i *own* every byte of this one"
+/*········· ··········· ´·····························´········································*/
+/*--------- 12345678901 ´123456789-123456789-123456789-123456789-123456789-123456789-123456789-*/
+/*                      ´·········1·········2·········3·········4·········5·········6·········7*/
+/*===[[ HEADER END ]]=========================================================*/
 
-/*===[[ END_HEADER ]]=========================================================*/
+
 
 /*---(ansi-c standard)-------------------*/
 #include    <stdio.h>             /* clibc  standard input/output             */
@@ -55,13 +69,9 @@
 #include    <yLOG.h>              /* heatherly program logging                */
 #include    <ySTR.h>              /* heatherly string processing              */
 /*---(custom vi-keys)--------------------*/
+#include    <yVIHUB.h>
 #include    <yMODE.h>             /* heatherly vikeys mode tracking          */
 #include    <yKEYS.h>             /* heatherly vikeys key handling           */
-#include    <yMACRO.h>            /* heatherly vikeys macro processing       */
-#include    <yCMD.h>              /* heatherly vikeys command processing     */
-#include    <yMAP.h>              /* heatherly vikeys location management    */
-#include    <yFILE.h>             /* heatherly vikeys content file handling  */
-#include    <yMARK.h>             /* heatherly vikeys search and marking      */
 /*---(done)------------------------------*/
 
 
