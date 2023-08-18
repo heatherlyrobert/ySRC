@@ -445,4 +445,45 @@ ysrc_replace            (void)
    return 0;
 }
 
+char         /*-> remove existing and add new --------[ ------ [gz.640.151.11]*/ /*-[01.0000.213.!]-*/ /*-[--.---.---.--]-*/
+ysrc_swap               (char *a_new)
+{
+   /*---(locals)-----------+-----+-----+-*/
+   char        rc          =    0;
+   int         i           =    0;
+   int         x_len       =    0;
+   char        x_old       [LEN_RECD];
+   /*---(header)-------------------------*/
+   DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_info    ("a_new"     , a_new);
+   /*---(start undo logging)-------------*/
+   yKEYS_repeat_reset ();
+   ysrc_sundo_beg ();
+   /*---(remove existing)----------------*/
+   DEBUG_YSRC   yLOG_value   ("npos"      , s_cur->npos);
+   x_len = s_cur->npos;
+   s_cur->cpos = 0;
+   for (i = 0; i < x_len; ++i) {
+      DEBUG_YSRC   yLOG_complex ("delete"    , "%2d, %c", s_cur->cpos, s_cur->contents [s_cur->cpos]);
+      ysrc_sundo_add  ('d', 'l', s_cur->cpos, s_cur->contents [s_cur->cpos], G_CHAR_NULL);
+      ysrc_delete_one ();
+   }
+   /*---(add new)------------------------*/
+   x_len  = strlen (a_new);
+   s_cur->cpos = 0;
+   for (i = 0; i < x_len; ++i) {
+      ysrc_sundo_add  (G_KEY_SPACE, 'a', i, G_KEY_NULL, a_new [i]);
+      rc = ysrc_append_one (a_new [i]);
+      DEBUG_YSRC   yLOG_complex ("append"    , "%4d, %2d, %c, %2d, %s", rc, i, a_new [i], s_cur->npos, s_cur->contents);
+   }
+   /*---(stop undo logging)--------------*/
+   ysrc_sundo_end ();
+   s_cur->cpos = 0;
+   ysrc_select_reset  (G_SREG_CURR);
+   UPDATE_AFTER_CHANGES;
+   /*---(complete)-----------------------*/
+   DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
 

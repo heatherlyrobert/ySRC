@@ -375,22 +375,22 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
       rc = ysrc_input__add (a_minor);
    }
    /*---(check for history)--------------*/
-   /*> s_curr = yMODE_prev ();                                                                       <* 
-    *> sprintf (x_history, "%c%c%c¤"  , s_curr, s_curr, s_curr);                                     <* 
-    *> if (strcmp (s_cur->contents, x_history) == 0) {                                               <* 
-    *>    rc = yvikeys_src_one_delete ();                                                            <* 
-    *>    --s_cur->cpos;                                                                             <* 
-    *>    yvikeys_sundo_end (__FUNCTION__);                                                          <* 
-    *>    UPDATE_AFTER_CHANGES;                                                                      <* 
-    *>    yMODE_exit ();                                                                             <* 
-    *>    /+> if (s_curr == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);   <*             <* 
-    *>     *> else                        strlcpy (s_cur->contents, ":", LEN_RECD);   <+/            <* 
-    *>    /+> UPDATE_AFTER_CHANGES;                                                            <+/   <* 
-    *>    yvikeys_hist__bounds ();                                                                   <* 
-    *>    yMODE_enter  (UMOD_HISTORY);                                                               <* 
-    *>    myVIKEYS.cursor = '-';                                                                     <* 
-    *>    DEBUG_YSRC   yLOG_note    ("change to history mode");                                      <* 
-    *> }                                                                                             <*/
+   s_curr = yMODE_prev ();
+   sprintf (x_history, "%c%c%c¤"  , s_curr, s_curr, s_curr);
+   DEBUG_YSRC   yLOG_info    ("sentinel"  , x_history);
+   if (strcmp (s_cur->contents, x_history) == 0) {
+      DEBUG_YSRC   yLOG_note    ("history requested");
+      rc = ysrc_delete_one ();
+      --s_cur->cpos;
+      ysrc_sundo_end ();
+      yMODE_exit ();
+      if (s_curr == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);
+      else                        strlcpy (s_cur->contents, ":", LEN_RECD);
+      UPDATE_AFTER_CHANGES;
+      /*> yvikeys_hist__bounds ();                                                    <*/
+      DEBUG_YSRC   yLOG_note    ("change to history mode");
+      yMODE_enter  (UMOD_HISTORY);
+   }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;

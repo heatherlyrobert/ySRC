@@ -3,7 +3,6 @@
 #include    "ySRC.h"
 #include    "ySRC_priv.h"
 
-
 tEDIT   s_src;
 tEDIT   s_cmd;
 tEDIT  *s_cur    = &s_src;
@@ -655,7 +654,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       rc = ysrc_source_smark_go  (a_minor);
       break;
    case 'S' :
-      if (a_minor == (uchar) '˜') {
+      if (a_minor == (uchar) '±') {
          DEBUG_YSRC_U  yLOG_note    ("complete base set");
          DEBUG_YSRC_U  yLOG_info    ("s_text"    , mySRC.s_text);
          rc = ysrc_source_set_set (a_major, mySRC.s_text);
@@ -668,7 +667,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       }
       break;
    case 'E' :
-      if (a_minor == (uchar) '˜') {
+      if (a_minor == (uchar) '±') {
          DEBUG_YSRC_U  yLOG_note    ("complete encode set");
          DEBUG_YSRC_U  yLOG_info    ("s_text"    , mySRC.s_text);
          rc = ysrc_source_set_set (a_major, mySRC.s_text);

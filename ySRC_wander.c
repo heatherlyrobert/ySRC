@@ -470,6 +470,10 @@ ysrc_wander_umode       (uchar a_major, uchar a_minor)
          DEBUG_YMAP   yLOG_note    ("grouping, prepare for next");
          rc = ysrc__wander_and        (a_minor);
       }
+      else if (strchr (",;"      , a_minor) != NULL) {
+         DEBUG_YMAP   yLOG_note    ("sequencing, prepare for next");
+         rc = ysrc__wander_and        (a_minor);
+      }
       /*---(return to origin)------------*/
       else if (a_minor == G_KEY_BTICK) {
          DEBUG_YMAP   yLOG_note    ("backtick, head to starting point");

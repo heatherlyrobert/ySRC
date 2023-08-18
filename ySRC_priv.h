@@ -47,8 +47,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1j"
-#define     P_VERTXT    "updated to yURG_by_name after change"
+#define     P_VERNUM    "2.1l"
+#define     P_VERTXT    "command history is working again, needs more work"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

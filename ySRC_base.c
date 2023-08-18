@@ -50,7 +50,7 @@ ySRC_init               (void)
       return rce;
    }
    /*---(hook to yVIHUB)-----------------*/
-   yVIHUB_from_ySRC (ySRC_select_islive, ySRC_start, ySRC_size, ySRC_push);
+   yVIHUB_from_ySRC (ySRC_select_islive, ySRC_start, ySRC_size, ySRC_push, ysrc_swap);
    /*---(pointer)------------------------*/
    DEBUG_YSRC   yLOG_note    ("clear s_saver pointer");
    s_saver  = NULL;
@@ -470,16 +470,16 @@ ysrc_accept             (void)
       rc = yVIHUB_yCMD_direct (s_cur->contents);
       strlcpy (s_cur->contents, "", LEN_RECD);
       break;
-      /*> case SMOD_HINT    :                                                            <* 
-       *>    DEBUG_YSRC   yLOG_note    ("execute hint");                                 <* 
-       *>    rc = yvikeys_hint_direct (s_cur->contents);                                 <* 
-       *>    strlcpy (s_cur->contents, "", LEN_RECD);                                    <* 
-       *>    break;                                                                      <*/
-      case MODE_SEARCH  :
-         DEBUG_YSRC   yLOG_note    ("execute search");
-         rc = yVIHUB_yMARK_execute (s_cur->contents);
-         strlcpy (s_cur->contents, "", LEN_RECD);
-         break;
+   case SMOD_HINT    :
+      DEBUG_YSRC   yLOG_note    ("execute hint");
+      /*> rc = yvikeys_hint_direct (s_cur->contents);                                 <*/
+      /*> strlcpy (s_cur->contents, "", LEN_RECD);                                    <*/
+      break;
+   case MODE_SEARCH  :
+      DEBUG_YSRC   yLOG_note    ("execute search");
+      rc = yVIHUB_yMARK_execute (s_cur->contents);
+      strlcpy (s_cur->contents, "", LEN_RECD);
+      break;
    }
    DEBUG_YSRC   yLOG_value   ("rc"        , rc);
    strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
