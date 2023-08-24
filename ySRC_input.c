@@ -74,7 +74,7 @@ ysrc_input_prepper      (void)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
-   uchar       x_mode      =    0;
+   char        x_mode      =    0;
    uchar       x_latest    =    0;
    uchar       x_multi     =    0;
    uchar       x_menu      =    0;
@@ -107,7 +107,7 @@ ysrc_input_prepper      (void)
       break;
    case MODE_SEARCH  :
       DEBUG_YSRC   yLOG_note    ("search input");
-      s_mode = 'A';
+      if (yMODE_exited () != UMOD_HISTORY)  s_mode = 'A';
       break;
    case SMOD_HINT    :
       DEBUG_YSRC   yLOG_note    ("hint input");

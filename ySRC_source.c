@@ -354,9 +354,9 @@ static void  o___MODE____________o () { return; }
 char
 ySRC_size               (short a_formula, short a_command)
 {
-   s_src.wide = a_formula;
-   s_src.apos = a_formula - 6;
-   s_cmd.wide = a_command;
+   /*> s_src.wide = a_formula;                                                        <*/
+   s_src.apos = a_formula;
+   /*> s_cmd.wide = a_command;                                                        <*/
    s_cmd.apos = a_command - 6;
    return 0;
 }
