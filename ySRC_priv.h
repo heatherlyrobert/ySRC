@@ -47,8 +47,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1m"
-#define     P_VERTXT    "fix to make formula line editing fit window again"
+#define     P_VERNUM    "2.1n"
+#define     P_VERTXT    "much better mark goto, and cool character find curoring"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"

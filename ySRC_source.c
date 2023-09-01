@@ -108,6 +108,7 @@ ysrc_source_smark_go    (uchar a_mark)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
+   char        rc          =    0;
    uchar      *p           = NULL;
    char        n           =   -1;
    /*---(header)-------------------------*/
@@ -126,9 +127,11 @@ ysrc_source_smark_go    (uchar a_mark)
       return rce;
    }
    s_cur->cpos  = mySRC.s_marks [n];
+   /*---(update screen)------------------*/
+   rc = UPDATE_AFTER_CHANGES;
    /*---(complete)-----------------------*/
    DEBUG_YSRC_U   yLOG_sexit   (__FUNCTION__);
-   return 0;
+   return rc;
 }
 
 
@@ -533,16 +536,22 @@ ysrc__source_findchar   (uchar a_major, uchar a_minor)
       return 0;
    }
    switch (a_minor) {
-   case  '#' :
-      DEBUG_YSRC_U  yLOG_note    ("current char find");
-      rc = ysrc_move_char_next (1);
+   case  '[' :
+      DEBUG_YSRC_U  yLOG_note    ("char find head/first");
+      ysrc_move_simple (' ', '0');
+      rc = ysrc_move_char_next (0);
       break;
-   case  'n' :
+   case  '<' :
+      DEBUG_YSRC_U  yLOG_note    ("char find prev");
+      rc = ysrc_move_char_prev (0);
+      break;
+   case  '>' :
       DEBUG_YSRC_U  yLOG_note    ("char find next");
       rc = ysrc_move_char_next (0);
       break;
-   case  'N' :
-      DEBUG_YSRC_U  yLOG_note    ("char find reverse");
+   case  ']' :
+      DEBUG_YSRC_U  yLOG_note    ("char find head/first");
+      ysrc_move_simple (' ', '$');
       rc = ysrc_move_char_prev (0);
       break;
    }
@@ -579,7 +588,7 @@ ysrc__source_editing    (uchar a_major, uchar a_minor)
    switch (a_minor) {
    case '|' :
       DEBUG_YSRC_U  yLOG_value   ("repeats"   , yKEYS_repeats);
-      s_cur->cpos = yKEYS_repeat_useall ();
+      s_cur->cpos = yKEYS_repeat_useall () + 5;
       DEBUG_YSRC_U  yLOG_value   ("cpos"      , s_cur->cpos);
       rc     = 0;
       ysrc_after ();

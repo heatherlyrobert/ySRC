@@ -10,6 +10,7 @@ uchar      g_goto      = 'c';
 
 
 
+
 /*====================------------------------------------====================*/
 /*===----                    absolute position moves                   ----===*/
 /*====================------------------------------------====================*/
@@ -50,7 +51,7 @@ ysrc_move_simple        (uchar a_major, uchar a_minor)
       case 'l' : ++s_cur->cpos;                       break;
       case 'L' : s_cur->cpos +=  5;                   break;
       case '$' : s_cur->cpos  = s_cur->npos - 1;      break;
-      case '|' : s_cur->cpos  =  yKEYS_repeat_useall ();  break;
+      case '|' : s_cur->cpos  = yKEYS_repeat_useall () + 1;  break;
       }
    }
    /*---(big horizonal)------------------*/
@@ -214,11 +215,11 @@ ysrc_move_scroll        (uchar a_major, uchar a_minor)
    x_haf  = s_cur->apos / 2;
    /*---(scrolls)------------------------*/
    switch (a_minor) {
-   case 's' : s_cur->bpos += s_cur->cpos -  s_cur->bpos;               break;
+   case 's' : s_cur->bpos += s_cur->cpos -  s_cur->bpos;                   break;
    case 'h' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 1) + 1;  break;
-   case 'c' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_haf) + 1;  break;
+   case 'c' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_haf) + 1;      break;
    case 'l' : s_cur->bpos += s_cur->cpos - (s_cur->bpos + x_qtr * 3) + 1;  break;
-   case 'e' : s_cur->bpos += s_cur->cpos -  s_cur->epos;               break;
+   case 'e' : s_cur->bpos += s_cur->cpos -  s_cur->epos;                   break;
    }
    /*---(wrapup)-------------------------*/
    UPDATE_AFTER_CHANGES;
