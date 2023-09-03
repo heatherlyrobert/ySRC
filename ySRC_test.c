@@ -27,7 +27,7 @@ ysrc__unit_quiet        (void)
    yKEYS_init_after ();
    ySRC_init   ();
    ySRC_init_after  ();
-   ySRC_config (NULL);
+   ySRC_config (NULL, NULL);
    return 0;
 }
 
@@ -55,7 +55,7 @@ ysrc__unit_loud         (void)
    yKEYS_init_after ();
    ySRC_init   ();
    ySRC_init_after  ();
-   ySRC_config (NULL);
+   ySRC_config (NULL, NULL);
    return 0;
 }
 

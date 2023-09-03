@@ -249,8 +249,14 @@ ysrc_replace_prepper    (void)
    /*---(wipe)---------------------------*/
    ysrc__replace_wipe ();
    /*---(save key information)-----------*/
-   s_mode    = yKEYS_current ();
+   DEBUG_YSRC   yLOG_value   ("count"     , yKEYS_count    ());
+   DEBUG_YSRC   yLOG_value   ("position"  , yKEYS_position ());
+   DEBUG_YSRC   yLOG_char    ("current"   , yKEYS_current  ());
+   DEBUG_YSRC   yLOG_char    ("ecurrent"  , yKEYS_ecurrent ());
+   s_mode    = yKEYS_ecurrent ();
+   DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
    s_repeats = yKEYS_repeats ();
+   DEBUG_YSRC   yLOG_value   ("s_repeats" , s_repeats);
    yKEYS_repeat_reset ();
    --rce;  if (s_mode == 'R' && s_repeats > 0) {
       ysrc__replace_wipe ();
@@ -294,6 +300,7 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rce;
    }
+   DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
    /*---(prepare)------------------------*/
    s_last  = s_minor;
    s_major = a_major;

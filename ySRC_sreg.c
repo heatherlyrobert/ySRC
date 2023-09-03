@@ -27,6 +27,7 @@ uchar       g_wsreg   = '"';
 uchar       g_psreg   = '"';
 tSREG       g_save;
 
+char    (*e_sreg)  (char a_reg, char *a_contents) = NULL;
 
 
 #define     S_SREG_NONE     '-'
@@ -158,9 +159,11 @@ ysrc_sreg_init          (void)
    }
    /*---(macro abbrev list)--------------*/
    strlcpy (G_SREG_LIST, "¶"        , S_SREG_MAX);
+   strlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
    strlcat (G_SREG_LIST, YSTR_LOWER , S_SREG_MAX);
    strlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
    strlcat (G_SREG_LIST, YSTR_GREEK , S_SREG_MAX);
+   strlcat (G_SREG_LIST, "¤"        , S_SREG_MAX);
    DEBUG_YSRC   yLOG_info    ("SREG_LIST" , G_SREG_LIST);
    g_nsreg  = strlen (G_SREG_LIST);
    DEBUG_YSRC   yLOG_value   ("g_nsreg"   , g_nsreg);
@@ -294,6 +297,11 @@ ysrc_sreg_clear         (uchar a_abbr)
    }
    /*---(clear)--------------------------*/
    ysrc_sreg__wipeall ('-', &g_sregs [n]);
+   /*---(back-to-host)-------------------*/
+   if (e_sreg != NULL) {
+      DEBUG_YSRC   yLOG_note    ("save back to host");
+      e_sreg (a_abbr, "");
+   }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -339,6 +347,11 @@ ysrc_sreg_push          (uchar a_abbr, char *a_data)
       a_dst->source = S_SREG_MULTI;
    }
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
+   /*---(back-to-host)-------------------*/
+   if (e_sreg != NULL) {
+      DEBUG_YSRC   yLOG_note    ("save back to host");
+      e_sreg (a_abbr, a_dst->data);
+   }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -418,6 +431,11 @@ ysrc_sreg_save          (void)
    }
    a_dst->len    = strllen (a_dst->data , LEN_RECD);
    DEBUG_YSRC   yLOG_value   ("len"       , a_dst->len);
+   /*---(back-to-host)-------------------*/
+   if (e_sreg != NULL) {
+      DEBUG_YSRC   yLOG_note    ("save back to host");
+      e_sreg (g_csreg, a_dst->data);
+   }
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -702,10 +720,10 @@ ysrc_sreg_direct        (char *a_string)
    }
    /*---(swap)---------------------------*/
    --rce;  if (x_len == 3 && x_div == ')') {
-      rc = ysrc_sreg__copy  (a_string [2], '¶');
+      rc = ysrc_sreg__copy  (a_string [2], '¤');
       rc = ysrc_sreg__copy  (x_abbr      , a_string [2]);
-      rc = ysrc_sreg__copy  ('¶'         , x_abbr);
-      rc = ysrc_sreg_clear  ('¶');
+      rc = ysrc_sreg__copy  ('¤'         , x_abbr);
+      rc = ysrc_sreg_clear  ('¤');
       DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return rc;
    }
@@ -808,15 +826,23 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          ysrc_sreg__wipeall ('-', &g_sregs [n]);
          yMODE_exit ();
          break;
-      case  'y' : case  'Y' :
-         DEBUG_YSRC   yLOG_note    ("yank (y) selection source to register");
+      case  'y' :
+         DEBUG_YSRC   yLOG_note    ("yank/copy (y) selection source to register");
          ysrc_copy          ();
          ysrc_select_reset (G_SREG_ROOT);
          yMODE_exit   ();
          break;
+      case  'Y'  :
+         DEBUG_YSRC   yLOG_note    ("yank/cut (Y) selection source");
+         ysrc_copy          ();
+         ysrc_delete_select ();
+         ysrc_select_reset (G_SREG_CURR);
+         yMODE_exit   ();
+         UPDATE_AFTER_CHANGES;
+         break;
       case  'x' :
          DEBUG_YSRC   yLOG_note    ("clear (x) selection source");
-         ysrc_copy          ();
+         /*> ysrc_copy          ();                                                   <*/
          ysrc_clear_select  ();
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
@@ -824,7 +850,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          break;
       case  'd' :
          DEBUG_YSRC   yLOG_note    ("delete (d) selection source");
-         ysrc_copy          ();
+         /*> ysrc_copy          ();                                                   <*/
          ysrc_delete_select ();
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
@@ -832,7 +858,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          break;
       case  'c' :
          DEBUG_YSRC   yLOG_note    ("change (c) selection source");
-         ysrc_copy          ();
+         /*> ysrc_copy          ();                                                   <*/
          ysrc_delete_select ();
          ysrc_select_reset  (G_SREG_CURR);
          yMODE_exit         ();
@@ -856,14 +882,14 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
-      case  'p' : case  'a' :
+      case  'p' :
          DEBUG_YSRC   yLOG_note    ("paste after (a) selection source");
          ysrc_paste        ('a');
          ysrc_select_reset (G_SREG_CURR);
          yMODE_exit   ();
          UPDATE_AFTER_CHANGES;
          break;
-      case  'P' : case  'i' :
+      case  'P' :
          DEBUG_YSRC   yLOG_note    ("paste before (i) selection source");
          ysrc_paste        ('i');
          ysrc_select_reset (G_SREG_CURR);
@@ -909,15 +935,15 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_note    ("move one register to another");
       rc = 0;
       rc = ysrc_sreg__copy (g_csreg, a_minor);
-      if (rc >= 0)  rc = ysrc_sreg_clear  (g_csreg);
+      rc = ysrc_sreg_clear  (g_csreg);
       yMODE_exit   ();
    }
    else if (a_major == ')') {
       DEBUG_YSRC   yLOG_note    ("swap content of two registers");
-      rc = ysrc_sreg__copy (g_csreg, '¶');
+      rc = ysrc_sreg__copy (g_csreg, '¤');
       if (rc >= 0)  rc = ysrc_sreg__copy (a_minor, g_csreg);
-      if (rc >= 0)  rc = ysrc_sreg__copy ('¶', a_minor);
-      if (rc >= 0)  rc = ysrc_sreg_clear ('¶');
+      if (rc >= 0)  rc = ysrc_sreg__copy ('¤', a_minor);
+      if (rc >= 0)  rc = ysrc_sreg_clear ('¤');
       yMODE_exit   ();
    }
    else if (a_major == '=') {
@@ -944,6 +970,7 @@ ysrc_sreg_smode         (uchar a_major, uchar a_minor)
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
 }
+
 
 
 

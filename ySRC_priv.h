@@ -47,8 +47,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1n"
-#define     P_VERTXT    "much better mark goto, and cool character find curoring"
+#define     P_VERNUM    "2.1o"
+#define     P_VERTXT    "added ySRC source register variable support"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -77,6 +77,7 @@
 
 
 extern char    (*s_saver) (char *a_contents);
+extern char    (*e_sreg)  (char a_reg, char *a_contents);
 extern uchar    *g_stub;
 extern uchar     g_char;
 extern uchar     g_goto;

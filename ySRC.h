@@ -11,7 +11,7 @@ typedef  unsigned char        uchar;
 char*       ySRC_version            (void);
 char        ySRC_init               (void);
 char        ySRC_init_after         (void);
-char        ySRC_config             (void *a_saver);
+char        ySRC_config             (void *a_saver, void *a_sreg);
 char        ySRC_wrap               (void);
 
 char        ySRC_source             (char *a_label, char *a_format, char *a_contents);
@@ -29,6 +29,7 @@ char        ySRC_push               (uchar a_sreg, char *a_data);
 char        ySRC_select_islive      (void);
 char        ySRC_select_status      (char a_size, short a_wide, char *a_list);
 char        ySRC_sreg_status        (char a_size, short a_wide, char *a_list);
+char        ySRC_sreg_saver         (void *a_saver);
 
 char*       ySRC__unit              (char *a_question, int n);
 

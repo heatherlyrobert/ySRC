@@ -54,6 +54,7 @@ ySRC_init               (void)
    /*---(pointer)------------------------*/
    DEBUG_YSRC   yLOG_note    ("clear s_saver pointer");
    s_saver  = NULL;
+   e_sreg   = NULL;
    /*---(command/search)-----------------*/
    DEBUG_YSRC   yLOG_note    ("clear command/search values");
    s_cur = &s_cmd;
@@ -102,8 +103,8 @@ ySRC_init_after         (void)
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(other updates)------------------*/
    rc = yVIHUB_yFILE_dump_add ("sreg"      , "", "inventory of source registers", ysrc_sreg_dump);
-   rc = yVIHUB_yVIEW_switch_add ('s', "sreg"  , "sregister"    , ySRC_sreg_status       , "details of current source register"       );
-   rc = yVIHUB_yVIEW_switch_add ('s', "sel"   , "selection"    , ySRC_select_status     , "displays selection status"                );
+   rc = yVIHUB_yVIEW_switch_add ('s', "sregister"    , "sreg"  , ySRC_sreg_status       , "details of current source register"       );
+   rc = yVIHUB_yVIEW_switch_add ('s', "selection"    , "sel"   , ySRC_select_status     , "displays selection status"                );
    yMODE_after_set  (MODE_SOURCE);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -111,7 +112,7 @@ ySRC_init_after         (void)
 }
 
 char         /*-> initialize source environment ------[ shoot  [gz.210.001.01]*/ /*-[00.0000.102.4]-*/ /*-[--.---.---.--]-*/
-ySRC_config             (void *a_saver)
+ySRC_config             (void *a_saver, void *a_sreg)
 {
    /*---(locals)-----------+-----+-----+-*/
    char        rce         =  -10;
@@ -125,6 +126,7 @@ ySRC_config             (void *a_saver)
    }
    /*---(save pointer)-------------------*/
    if (a_saver != NULL)  s_saver  = a_saver;
+   if (a_sreg  != NULL)  e_sreg   = a_sreg;
    /*---(update status)------------------*/
    yMODE_conf_set   (MODE_SOURCE, '1');
    /*---(complete)-----------------------*/
