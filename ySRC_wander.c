@@ -19,7 +19,8 @@ ysrc__wander_biggies    (uchar a_major, uchar a_minor)
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(major keys)---------------------*/
    switch (a_minor) {
-   case G_KEY_SPACE  :
+   case G_KEY_SPACE  : case G_CHAR_SPACE :
+      break;
       DEBUG_YSRC   yLOG_note    ("space, nothing to do");
       break;
    case G_KEY_ESCAPE :

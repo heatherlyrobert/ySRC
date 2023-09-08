@@ -43,7 +43,6 @@ ysrc_sundo_init         (void)
 {
    char        rc          =    0;
    rc = ysrc_sundo_reset ();
-   /*> rc = yVIKEYS_view_optionX (YVIKEYS_STATUS, "sundo", ysrc_sundo_status, "source editing undo stack");   <*/
    return 0;
 }
 
@@ -352,7 +351,7 @@ ysrc_sundo_redo         (void)
 static void  o___STATUS__________o () { return; }
 
 char
-ysrc_sundo_status       (char *a_list)
+ysrc_sundo_status       (char a_size, short a_wide, char *a_list)
 {
    char        rce         =  -10;
    int         i           =    0;
@@ -366,16 +365,16 @@ ysrc_sundo_status       (char *a_list)
    --rce;  if (a_list  == NULL) return rce;
    strcpy (a_list, "");
    /*---(fast path)-------------------*/
-   /*> if (g_nsundo == 0) {                                                           <* 
-    *>    sprintf (a_list, "%3dn, %3dc", g_nsundo, g_csundo);                         <* 
-    *>    return 0;                                                                   <* 
-    *> }                                                                              <*/
+   if (g_nsundo == 0) {
+      sprintf (a_list, " sundo   (empty) Ï", g_nsundo);
+      return 0;
+   }
    /*---(prepare)---------------------*/
    x_end = g_nsundo;
    x_beg = x_end - 10;
    if (x_beg < 0)  x_beg = 0;
    /*---(write line)------------------*/
-   /*> sprintf (a_list, "%3dn, %3dc, ", g_nsundo, g_csundo);                          <*/
+   sprintf (a_list, " sundo   %3dn, %3dc, ", g_nsundo, g_csundo);
    for (i = x_beg; i < x_end; ++i) {
       if (g_sundos [i].seq  < 0)  x_seq = '·';
       else                        x_seq = YSTR_CHARS [g_sundos [i].seq];
@@ -387,6 +386,7 @@ ysrc_sundo_status       (char *a_list)
        *> else                      sprintf (t, "%d%c%d%c%c,"  , g_sundos [i].seq,       g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <*/
       strlcat (a_list, t, LEN_RECD);
    }
+   strlcat (a_list, "Ï", LEN_RECD);
    /*---(complete)--------------------*/
    return 0;
 }

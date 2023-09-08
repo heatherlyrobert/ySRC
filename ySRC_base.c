@@ -105,6 +105,7 @@ ySRC_init_after         (void)
    rc = yVIHUB_yFILE_dump_add ("sreg"      , "", "inventory of source registers", ysrc_sreg_dump);
    rc = yVIHUB_yVIEW_switch_add ('s', "sregister"    , "sreg"  , ySRC_sreg_status       , "details of current source register"       );
    rc = yVIHUB_yVIEW_switch_add ('s', "selection"    , "sel"   , ySRC_select_status     , "displays selection status"                );
+   rc = yVIHUB_yVIEW_switch_add ('s', "sundo"        , ""      , ysrc_sundo_status      , "displays source undo/redo status"         );
    yMODE_after_set  (MODE_SOURCE);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -236,6 +237,8 @@ ySRC_start         (char *a_prefix)
       return rce;
    }
    DEBUG_YSRC   yLOG_info    ("a_prefix"  , a_prefix);
+   /*---(prepare)------------------------*/
+   ysrc_source_push (yMODE_curr(), g_nsundo);
    /*---(select mode)--------------------*/
    switch (a_prefix [0]) {
    case ':' :
@@ -264,8 +267,6 @@ ySRC_start         (char *a_prefix)
       yMODE_enter  (MODE_SOURCE );
       break;
    }
-   /*---(clear sundo)--------------------*/
-   ysrc_sundo_reset ();
    /*---(populate globals)---------------*/
    /*> SOURCE_menu_prep ();                                                           <*/
    if (a_prefix [0] != '¦') {
@@ -458,9 +459,11 @@ ysrc_accept             (void)
    char        rc          =    0;
    char        t           [LEN_RECD] = "";
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_char    ("yMODE_curr", yMODE_curr ());
    switch (yMODE_curr ()) {
    case MODE_SOURCE  :
       DEBUG_YSRC   yLOG_note    ("save source back");
+      DEBUG_YSRC   yLOG_value   ("npos"      , s_cur->npos);
       if (s_saver != NULL && s_cur->npos > 0) {
          strlcpy (t, s_cur->contents, LEN_RECD);
          strldchg (t, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
@@ -487,8 +490,9 @@ ysrc_accept             (void)
    strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    ysrc_select_reset (G_SREG_ZERO);
-   ysrc_sundo_reset  ();
-   ySRC_update (s_src.label, s_src.format, s_src.original);
+   /*> ysrc_sundo_reset  ();                                                          <*/
+   ysrc_source_pop ();
+   /*> ySRC_update (s_src.label, s_src.format, s_src.original);                       <*/
    yVIHUB_yMAP_refresh ();
    /*> yvikeys_map_reposition  ();                                                    <*/
    DEBUG_YSRC   yLOG_value   ("rc"        , rc);
@@ -509,9 +513,10 @@ ysrc_reset              (void)
    strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    DEBUG_YSRC   yLOG_complex ("reset"     , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
-   ysrc_select_reset (G_SREG_ZERO);
-   ysrc_sundo_reset ();
-   ySRC_update (s_src.label, s_src.format, s_src.original);
+   ysrc_source_pop ();
+   /*> ysrc_select_reset (G_SREG_ZERO);                                               <*/
+   /*> ysrc_sundo_reset ();                                                           <*/
+   /*> ySRC_update (s_src.label, s_src.format, s_src.original);                       <*/
    /*> yvikeys_map_reposition  ();                                                    <*/
    DEBUG_YSRC   yLOG_complex ("post-reset", "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    return 0;

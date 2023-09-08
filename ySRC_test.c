@@ -83,7 +83,7 @@ ySRC__unit              (char *a_question, int n)
    strcpy  (unit_answer, "SRC unit         : question not understood");
    /*---(selection)----------------------*/
    if      (strcmp (a_question, "undo"           )   == 0) {
-      ysrc_sundo_status (t);
+      ysrc_sundo_status (0, 0, t);
       snprintf (unit_answer, LEN_FULL, "SRC undo (%2d/%2d) : å%sæ", g_nsundo, g_csundo, t);
       return unit_answer;
    }

@@ -47,8 +47,8 @@
 /*········· ··········· ´·····························´········································*/
 #define     P_VERMAJOR  "2.--, clean, improve, and expand"
 #define     P_VERMINOR  "2.1-, back onto github and moving forward"
-#define     P_VERNUM    "2.1o"
-#define     P_VERTXT    "added ySRC source register variable support"
+#define     P_VERNUM    "2.1p"
+#define     P_VERTXT    "improvements found by vikeys_content.script demo"
 /*········· ··········· ´·····························´········································*/
 #define     P_PRIORITY  "direct, simple, brief, vigorous, and lucid (h.w. fowler)"
 #define     P_PRINCIPAL "[grow a set] and build your wings on the way down (r. bradbury)"
@@ -276,7 +276,7 @@ char        ysrc_sundo_undo         (void);
 char        ysrc_sundo__redo        (void);
 char        ysrc_sundo_redo         (void);
 /*---(reporting)------------*/
-char        ysrc_sundo_status       (char *a_list);
+char        ysrc_sundo_status       (char a_size, short a_wide, char *a_list);
 /*---(done)-----------------*/
 
 
@@ -369,6 +369,8 @@ char        ysrc_move_scroll        (uchar a_major, uchar a_minor);
 
 /*===[[ ySRC_source.c ]]======================================================*/
 /*345678901-12345678901-12345678901-12345678901-12345678901-12345678901-123456*/
+char        ysrc_source_push        (char a_prev, int a_tail);
+char        ysrc_source_pop         (void);
 char        ysrc_source_smark_set   (uchar a_mark);
 char        ysrc_source_smark_clear (uchar a_mark);
 char        ysrc_source_smark_go    (uchar a_mark);

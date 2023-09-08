@@ -179,6 +179,10 @@ ysrc__input_biggies     (uchar a_major, uchar a_minor)
    uchar       x_ch        = '\0';
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , a_minor);
+   DEBUG_YSRC   yLOG_value   ("a_minor"   , a_minor);
+   /*---(handler)------------------------*/
    switch (a_minor) {
    case G_KEY_ESCAPE : case G_KEY_RETURN :
       /*---(get rid of placeholder)------*/
@@ -197,6 +201,7 @@ ysrc__input_biggies     (uchar a_major, uchar a_minor)
       UPDATE_AFTER_CHANGES;
       break;
    default        :
+      DEBUG_YSRC   yLOG_note    ("character not a biggie");
       DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
       return 0;
       break;

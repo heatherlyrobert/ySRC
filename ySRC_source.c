@@ -6,9 +6,106 @@
 tEDIT   s_src;
 tEDIT   s_cmd;
 tEDIT  *s_cur    = &s_src;
+tEDIT   s_save;
+
+static  char  s_pmode = '·';
+static  int   s_ptail =  0;
 
 static  uchar *s_valid = "abcdefghijklmnopqrstuvwxyz<>";
 static  uchar  s_escaping  = G_CHAR_SPACE;  /* in backslash/escape handling   */
+
+
+char
+ysrc_source_push      (char a_prev, int a_tail)
+{
+   /*---(header)-------------------------*/
+   DEBUG_YSRC     yLOG_enter   (__FUNCTION__);
+   /*---(always)-------------------------*/
+   s_pmode = a_prev;
+   DEBUG_YSRC   yLOG_char    ("s_pmode"   , s_pmode);
+   /*---(non-map)------------------------*/
+   if (a_prev != MODE_MAP) {
+      DEBUG_YSRC     yLOG_note    ("non-map before, saving");
+      DEBUG_YSRC     yLOG_info    ("contents"  , s_cur->contents);
+      s_save.type  = s_cur->type;
+      strlcpy (s_save.label   , s_cur->label   , LEN_LABEL);
+      strlcpy (s_save.format  , s_cur->format  , LEN_LABEL);
+      strlcpy (s_save.original, s_cur->original, LEN_RECD);
+      strlcpy (s_save.contents, s_cur->contents, LEN_RECD);
+      s_save.wide  = s_cur->wide;
+      s_save.apos  = s_cur->apos;
+      s_save.npos  = s_cur->npos;
+      s_save.cpos  = s_cur->cpos;
+      s_save.bpos  = s_cur->bpos;
+      s_save.epos  = s_cur->epos;
+      strlcpy (s_save.words   , s_cur->words   , LEN_RECD);
+      s_ptail      = a_tail;
+   } 
+   /*---(map)----------------------------*/
+   else {
+      DEBUG_YSRC     yLOG_note    ("normal, clearing");
+      s_save.type  = '·';
+      strlcpy (s_save.label   , ""             , LEN_LABEL);
+      strlcpy (s_save.format  , ""             , LEN_LABEL);
+      strlcpy (s_save.original, ""             , LEN_RECD);
+      strlcpy (s_save.contents, ""             , LEN_RECD);
+      s_save.wide  = 0;
+      s_save.apos  = 0;
+      s_save.npos  = 0;
+      s_save.cpos  = 0;
+      s_save.bpos  = 0;
+      s_save.epos  = 0;
+      strlcpy (s_save.words   , ""             , LEN_RECD);
+      s_ptail      = 0;
+   }
+   /*---(always)-------------------------*/
+   DEBUG_YSRC   yLOG_value   ("s_ptail"   , s_ptail);
+   /*---(complete)-----------------------*/
+   DEBUG_YSRC     yLOG_exit    (__FUNCTION__);
+   return 0;
+}
+
+char
+ysrc_source_pop       (void)
+{
+   /*---(header)-------------------------*/
+   DEBUG_YSRC     yLOG_enter   (__FUNCTION__);
+   DEBUG_YSRC   yLOG_char    ("s_pmode"   , s_pmode);
+   DEBUG_YSRC   yLOG_char    ("yMODE_curr", yMODE_curr ());
+   DEBUG_YSRC   yLOG_char    ("yMODE_prev", yMODE_prev ());
+   DEBUG_YSRC   yLOG_char    ("ecurrent"  , yKEYS_ecurrent ());
+   /*---(fix if source)------------------*/
+   if (s_pmode != MODE_MAP) {
+      DEBUG_YSRC     yLOG_note    ("non-map before, retrieving");
+      s_cur = &s_src;
+      s_cur->type  = s_save.type;
+      strlcpy (s_cur->label   , s_save.label   , LEN_LABEL);
+      strlcpy (s_cur->format  , s_save.format  , LEN_LABEL);
+      strlcpy (s_cur->original, s_save.original, LEN_RECD);
+      strlcpy (s_cur->contents, s_save.contents, LEN_RECD);
+      s_cur->wide  = s_save.wide;
+      s_cur->apos  = s_save.apos;
+      s_cur->npos  = s_save.npos;
+      s_cur->cpos  = s_save.cpos;
+      s_cur->bpos  = s_save.bpos;
+      s_cur->epos  = s_save.epos;
+      strlcpy (s_cur->words   , s_save.words   , LEN_RECD);
+      DEBUG_YSRC     yLOG_info    ("contents"  , s_cur->contents);
+      s_pmode = MODE_MAP;
+   }
+   /*---(map)----------------------------*/
+   else {
+      DEBUG_YSRC     yLOG_note    ("normal, nothing to do");
+      /*> ySRC_update (s_src.label, s_src.format, s_src.original);                    <*/
+      yMODE_exit ();
+   }
+   /*---(sundo_back)---------------------*/
+   ysrc_sundo_trim (s_ptail);
+   s_ptail      = 0;
+   /*---(complete)-----------------------*/
+   DEBUG_YSRC     yLOG_exit    (__FUNCTION__);
+   return 0;
+}
 
 
 /*====================------------------------------------====================*/
@@ -381,7 +478,7 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
    DEBUG_YSRC_U  yLOG_enter   (__FUNCTION__);
    /*---(major keys)---------------------*/
    switch (a_minor) {
-   case G_KEY_SPACE  :
+   case G_KEY_SPACE  : case G_CHAR_SPACE :
       DEBUG_YSRC_U  yLOG_note    ("space, nothing to do");
       break;
    case G_KEY_ESCAPE :
@@ -403,9 +500,15 @@ ysrc__source_biggies    (uchar a_major, uchar a_minor)
       DEBUG_YSRC_U  yLOG_note    ("enter, means save and return to previous mode");
       ysrc_accept ();
       ysrc_after  ();
+      DEBUG_YSRC_U  yLOG_note    ("after after");
       s_escaping = G_CHAR_SPACE;
       mySRC.s_act = '·';
-      yMODE_exit  ();
+      DEBUG_YSRC   yLOG_char    ("s_pmode"   , s_pmode);
+      DEBUG_YSRC   yLOG_char    ("yMODE_curr", yMODE_curr ());
+      DEBUG_YSRC   yLOG_char    ("yMODE_prev", yMODE_prev ());
+      DEBUG_YSRC   yLOG_char    ("ecurrent"  , yKEYS_ecurrent ());
+      DEBUG_YSRC   yLOG_value   ("ecurrent"  , yKEYS_ecurrent ());
+      DEBUG_YSRC_U  yLOG_note    ("after all");
       break;
    case G_KEY_BTICK :
       DEBUG_YSRC_U  yLOG_note    ("backtick, means re-wander or move label");
@@ -869,6 +972,13 @@ ySRC_mode               (uchar a_major, uchar a_minor)
    }
    /*---(single letter)------------------*/
    if (a_major == G_KEY_SPACE) {
+      /*---(select related)--------------*/
+      if (a_minor == ':') {
+         DEBUG_YSRC_U  yLOG_note    ("switch to command mode");
+         yVIHUB_ySRC_start (":");
+         DEBUG_YSRC_U  yLOG_exit    (__FUNCTION__);
+         return 'A';
+      }
       /*---(repeats)---------------------*/
       if (yKEYS_is_repeater (a_minor)) {
          DEBUG_YSRC_U  yLOG_note    ("repeat character 1-9");
