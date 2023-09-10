@@ -28,34 +28,34 @@ ysrc_source_push      (char a_prev, int a_tail)
       DEBUG_YSRC     yLOG_note    ("non-map before, saving");
       DEBUG_YSRC     yLOG_info    ("contents"  , s_cur->contents);
       s_save.type  = s_cur->type;
-      strlcpy (s_save.label   , s_cur->label   , LEN_LABEL);
-      strlcpy (s_save.format  , s_cur->format  , LEN_LABEL);
-      strlcpy (s_save.original, s_cur->original, LEN_RECD);
-      strlcpy (s_save.contents, s_cur->contents, LEN_RECD);
+      ystrlcpy (s_save.label   , s_cur->label   , LEN_LABEL);
+      ystrlcpy (s_save.format  , s_cur->format  , LEN_LABEL);
+      ystrlcpy (s_save.original, s_cur->original, LEN_RECD);
+      ystrlcpy (s_save.contents, s_cur->contents, LEN_RECD);
       s_save.wide  = s_cur->wide;
       s_save.apos  = s_cur->apos;
       s_save.npos  = s_cur->npos;
       s_save.cpos  = s_cur->cpos;
       s_save.bpos  = s_cur->bpos;
       s_save.epos  = s_cur->epos;
-      strlcpy (s_save.words   , s_cur->words   , LEN_RECD);
+      ystrlcpy (s_save.words   , s_cur->words   , LEN_RECD);
       s_ptail      = a_tail;
    } 
    /*---(map)----------------------------*/
    else {
       DEBUG_YSRC     yLOG_note    ("normal, clearing");
       s_save.type  = '·';
-      strlcpy (s_save.label   , ""             , LEN_LABEL);
-      strlcpy (s_save.format  , ""             , LEN_LABEL);
-      strlcpy (s_save.original, ""             , LEN_RECD);
-      strlcpy (s_save.contents, ""             , LEN_RECD);
+      ystrlcpy (s_save.label   , ""             , LEN_LABEL);
+      ystrlcpy (s_save.format  , ""             , LEN_LABEL);
+      ystrlcpy (s_save.original, ""             , LEN_RECD);
+      ystrlcpy (s_save.contents, ""             , LEN_RECD);
       s_save.wide  = 0;
       s_save.apos  = 0;
       s_save.npos  = 0;
       s_save.cpos  = 0;
       s_save.bpos  = 0;
       s_save.epos  = 0;
-      strlcpy (s_save.words   , ""             , LEN_RECD);
+      ystrlcpy (s_save.words   , ""             , LEN_RECD);
       s_ptail      = 0;
    }
    /*---(always)-------------------------*/
@@ -79,17 +79,17 @@ ysrc_source_pop       (void)
       DEBUG_YSRC     yLOG_note    ("non-map before, retrieving");
       s_cur = &s_src;
       s_cur->type  = s_save.type;
-      strlcpy (s_cur->label   , s_save.label   , LEN_LABEL);
-      strlcpy (s_cur->format  , s_save.format  , LEN_LABEL);
-      strlcpy (s_cur->original, s_save.original, LEN_RECD);
-      strlcpy (s_cur->contents, s_save.contents, LEN_RECD);
+      ystrlcpy (s_cur->label   , s_save.label   , LEN_LABEL);
+      ystrlcpy (s_cur->format  , s_save.format  , LEN_LABEL);
+      ystrlcpy (s_cur->original, s_save.original, LEN_RECD);
+      ystrlcpy (s_cur->contents, s_save.contents, LEN_RECD);
       s_cur->wide  = s_save.wide;
       s_cur->apos  = s_save.apos;
       s_cur->npos  = s_save.npos;
       s_cur->cpos  = s_save.cpos;
       s_cur->bpos  = s_save.bpos;
       s_cur->epos  = s_save.epos;
-      strlcpy (s_cur->words   , s_save.words   , LEN_RECD);
+      ystrlcpy (s_cur->words   , s_save.words   , LEN_RECD);
       DEBUG_YSRC     yLOG_info    ("contents"  , s_cur->contents);
       s_pmode = MODE_MAP;
    }
@@ -773,7 +773,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       } else {
          DEBUG_YSRC_U  yLOG_note    ("accumulate base set");
          sprintf (t, "%c", a_minor);
-         strlcat (mySRC.s_text, t, LEN_HUND);
+         ystrlcat (mySRC.s_text, t, LEN_HUND);
          DEBUG_YSRC_U  yLOG_info    ("s_text"    , mySRC.s_text);
          rc = a_major;
       }
@@ -786,7 +786,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       } else {
          DEBUG_YSRC_U  yLOG_note    ("accumulate encode set");
          sprintf (t, "%c", a_minor);
-         strlcat (mySRC.s_code, t, LEN_HUND);
+         ystrlcat (mySRC.s_code, t, LEN_HUND);
          DEBUG_YSRC_U  yLOG_info    ("s_code"    , mySRC.s_code);
          rc = a_major;
       }
@@ -833,7 +833,7 @@ ysrc__source_multikey   (uchar a_major, uchar a_minor)
       if (yKEYS_repeat_end ()) {
          ysrc_select_reset (G_SREG_ROOT);
          if (strchr ("HhBb0" , a_minor) != NULL) {
-            strlrev (t, mySRC.yank, LEN_RECD);
+            ystrlrev (t, mySRC.yank, LEN_RECD);
             ysrc_sreg_push ('¶', t);
             g_sregs [0].end    = mySRC.ybeg;
             g_sregs [0].beg    = mySRC.ybeg - mySRC.ylen + 1;

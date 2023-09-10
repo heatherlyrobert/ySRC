@@ -59,15 +59,15 @@ ySRC_init               (void)
    DEBUG_YSRC   yLOG_note    ("clear command/search values");
    s_cur = &s_cmd;
    s_cur->type  = EDIT_CMDS;
-   strlcpy (s_cur->original, "" , LEN_RECD );
-   strlcpy (s_cur->label   , "-", LEN_LABEL);
+   ystrlcpy (s_cur->original, "" , LEN_RECD );
+   ystrlcpy (s_cur->label   , "-", LEN_LABEL);
    ysrc_reset ();
    /*---(source)-------------------------*/
    DEBUG_YSRC   yLOG_note    ("clear source values");
    s_cur = &s_src;
    s_cur->type  = EDIT_NORM;
-   strlcpy (s_cur->original, "" , LEN_RECD );
-   strlcpy (s_cur->label   , "-", LEN_LABEL);
+   ystrlcpy (s_cur->original, "" , LEN_RECD );
+   ystrlcpy (s_cur->label   , "-", LEN_LABEL);
    ysrc_reset ();
    /*---(clear)--------------------------*/
    ysrc_sundo_reset ();
@@ -157,21 +157,21 @@ ySRC_source             (char *a_label, char *a_format, char *a_contents)
    /*---(check inputs)-------------------*/
    DEBUG_YSRC   yLOG_point   ("a_label"   , a_label);
    DEBUG_YSRC   yLOG_info    ("a_label"   , a_label);
-   if (a_label    == NULL)  strlcpy (s_src.label   , "-"       , LEN_LABEL);
-   else                     strlcpy (s_src.label   , a_label   , LEN_LABEL);
+   if (a_label    == NULL)  ystrlcpy (s_src.label   , "-"       , LEN_LABEL);
+   else                     ystrlcpy (s_src.label   , a_label   , LEN_LABEL);
    DEBUG_YSRC   yLOG_info    ("label"     , s_src.label);
    DEBUG_YSRC   yLOG_point   ("a_format"  , a_format);
    DEBUG_YSRC   yLOG_info    ("a_format"  , a_format);
-   if (a_format   == NULL)  strlcpy (s_src.format  , "·····"   , LEN_LABEL);
-   else                     strlcpy (s_src.format  , a_format  , LEN_LABEL);
+   if (a_format   == NULL)  ystrlcpy (s_src.format  , "·····"   , LEN_LABEL);
+   else                     ystrlcpy (s_src.format  , a_format  , LEN_LABEL);
    DEBUG_YSRC   yLOG_info    ("format"    , s_src.format);
    DEBUG_YSRC   yLOG_point   ("a_contents", a_contents);
    DEBUG_YSRC   yLOG_info    ("a_contents", a_contents);
-   if (a_contents == NULL)  strlcpy (s_src.original, ""        , LEN_RECD);
-   else                     strlcpy (s_src.original, a_contents, LEN_RECD);
+   if (a_contents == NULL)  ystrlcpy (s_src.original, ""        , LEN_RECD);
+   else                     ystrlcpy (s_src.original, a_contents, LEN_RECD);
    DEBUG_YSRC   yLOG_info    ("contents"  , s_src.original);
-   strldchg (s_src.original, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
-   strlcpy  (s_src.contents, s_cur->original, LEN_RECD);
+   ystrldchg (s_src.original, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   ystrlcpy  (s_src.contents, s_cur->original, LEN_RECD);
    DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->original);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -196,24 +196,24 @@ ySRC_update             (char *a_label, char *a_format, char *a_contents)
    /*---(check inputs)-------------------*/
    DEBUG_YSRC   yLOG_point   ("a_label"   , a_label);
    DEBUG_YSRC   yLOG_info    ("a_label"   , a_label);
-   if (a_label    == NULL)  strlcpy (s_cur->label   , "-"       , LEN_LABEL);
-   else                     strlcpy (s_cur->label   , a_label   , LEN_LABEL);
+   if (a_label    == NULL)  ystrlcpy (s_cur->label   , "-"       , LEN_LABEL);
+   else                     ystrlcpy (s_cur->label   , a_label   , LEN_LABEL);
    DEBUG_YSRC   yLOG_info    ("label"     , s_cur->label);
    DEBUG_YSRC   yLOG_point   ("a_format"  , a_format);
    DEBUG_YSRC   yLOG_info    ("a_format"  , a_format);
-   if (a_format   == NULL)  strlcpy (s_cur->format  , "·····"   , LEN_LABEL);
-   else                     strlcpy (s_cur->format  , a_format  , LEN_LABEL);
+   if (a_format   == NULL)  ystrlcpy (s_cur->format  , "·····"   , LEN_LABEL);
+   else                     ystrlcpy (s_cur->format  , a_format  , LEN_LABEL);
    DEBUG_YSRC   yLOG_info    ("format"    , s_cur->format);
    DEBUG_YSRC   yLOG_point   ("a_contents", a_contents);
    DEBUG_YSRC   yLOG_info    ("a_contents", a_contents);
-   if (a_contents == NULL)  strlcpy (s_cur->original, ""        , LEN_RECD);
-   else                     strlcpy (s_cur->original, a_contents, LEN_RECD);
+   if (a_contents == NULL)  ystrlcpy (s_cur->original, ""        , LEN_RECD);
+   else                     ystrlcpy (s_cur->original, a_contents, LEN_RECD);
    DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->original);
-   strldchg (s_cur->original, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
-   strlcpy  (s_cur->contents, s_cur->original, LEN_RECD);
+   ystrldchg (s_cur->original, G_KEY_SPACE, G_CHAR_STORAGE, LEN_RECD);
+   ystrlcpy  (s_cur->contents, s_cur->original, LEN_RECD);
    DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->original);
    /*---(reset content)------------------*/
-   s_cur->npos = strllen (s_cur->contents, LEN_RECD);
+   s_cur->npos = ystrllen (s_cur->contents, LEN_RECD);
    s_cur->bpos = s_cur->cpos = 0;
    s_cur->epos = s_cur->npos;
    /*---(process)------------------------*/
@@ -270,10 +270,10 @@ ySRC_start         (char *a_prefix)
    /*---(populate globals)---------------*/
    /*> SOURCE_menu_prep ();                                                           <*/
    if (a_prefix [0] != '¦') {
-      strlcpy (s_cur->contents, a_prefix , LEN_RECD);
+      ystrlcpy (s_cur->contents, a_prefix , LEN_RECD);
    }
    DEBUG_YSRC   yLOG_info    ("contents"  , s_cur->contents);
-   s_cur->npos = strllen (s_cur->contents, LEN_RECD);
+   s_cur->npos = ystrllen (s_cur->contents, LEN_RECD);
    s_cur->bpos = s_cur->cpos = 0;
    s_cur->epos = s_cur->npos;
    UPDATE_AFTER_CHANGES;
@@ -349,14 +349,14 @@ ySRC_contents           (char a_part, char *m, char *l, short *n, short *a, shor
    else                 x = &s_src;
    /*---(save back)----------------------*/
    if (m != NULL)  *m = x->type;
-   if (l != NULL)  strlcpy (l, x->label   , LEN_LABEL);
+   if (l != NULL)  ystrlcpy (l, x->label   , LEN_LABEL);
    if (n != NULL)  *n = x->npos;
    if (a != NULL)  *a = x->apos;
    if (b != NULL)  *b = x->bpos;
    if (c != NULL)  *c = x->cpos;
    if (e != NULL)  *e = x->epos;
-   if (f != NULL)  strlcpy (f, x->format  , LEN_LABEL);
-   if (t != NULL)  strlcpy (t, x->contents, LEN_RECD);
+   if (f != NULL)  ystrlcpy (f, x->format  , LEN_LABEL);
+   if (t != NULL)  ystrlcpy (t, x->contents, LEN_RECD);
    /*---(complete)-----------------------*/
    return 0;
 }
@@ -465,29 +465,29 @@ ysrc_accept             (void)
       DEBUG_YSRC   yLOG_note    ("save source back");
       DEBUG_YSRC   yLOG_value   ("npos"      , s_cur->npos);
       if (s_saver != NULL && s_cur->npos > 0) {
-         strlcpy (t, s_cur->contents, LEN_RECD);
-         strldchg (t, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
+         ystrlcpy (t, s_cur->contents, LEN_RECD);
+         ystrldchg (t, G_CHAR_STORAGE, G_KEY_SPACE, LEN_RECD);
          s_saver (t);
       }
       break;
    case MODE_COMMAND :
       DEBUG_YSRC   yLOG_note    ("execute command");
       rc = yVIHUB_yCMD_direct (s_cur->contents);
-      strlcpy (s_cur->contents, "", LEN_RECD);
+      ystrlcpy (s_cur->contents, "", LEN_RECD);
       break;
    case SMOD_HINT    :
       DEBUG_YSRC   yLOG_note    ("execute hint");
       /*> rc = yvikeys_hint_direct (s_cur->contents);                                 <*/
-      /*> strlcpy (s_cur->contents, "", LEN_RECD);                                    <*/
+      /*> ystrlcpy (s_cur->contents, "", LEN_RECD);                                    <*/
       break;
    case MODE_SEARCH  :
       DEBUG_YSRC   yLOG_note    ("execute search");
       rc = yVIHUB_yMARK_execute (s_cur->contents);
-      strlcpy (s_cur->contents, "", LEN_RECD);
+      ystrlcpy (s_cur->contents, "", LEN_RECD);
       break;
    }
    DEBUG_YSRC   yLOG_value   ("rc"        , rc);
-   strlcpy (s_cur->original, s_cur->contents, LEN_RECD);
+   ystrlcpy (s_cur->original, s_cur->contents, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    ysrc_select_reset (G_SREG_ZERO);
    /*> ysrc_sundo_reset  ();                                                          <*/
@@ -507,10 +507,10 @@ ysrc_reset              (void)
    case MODE_COMMAND :
    case MODE_SEARCH  :
    case SMOD_HINT    :
-      strlcpy (s_cur->original, "", LEN_RECD);
+      ystrlcpy (s_cur->original, "", LEN_RECD);
       break;
    }
-   strlcpy (s_cur->contents, s_cur->original, LEN_RECD);
+   ystrlcpy (s_cur->contents, s_cur->original, LEN_RECD);
    s_cur->npos  = s_cur->bpos  = s_cur->cpos  = s_cur->epos  = 0;
    DEBUG_YSRC   yLOG_complex ("reset"     , "%3dn %3db %3de %3dc", s_cur->npos, s_cur->bpos, s_cur->epos, s_cur->cpos);
    ysrc_source_pop ();

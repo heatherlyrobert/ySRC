@@ -133,7 +133,7 @@ ysrc_select_get         (short *a_beg, short *a_end, short *a_root, short *a_len
    if (a_end  != NULL)  *a_end  = g_sreg.end;
    if (a_root != NULL)  *a_root = g_sreg.root;
    if (a_len  != NULL)  *a_len  = g_sreg.end - g_sreg.beg + 1;
-   if (a_data != NULL)  strlcpy (a_data, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
+   if (a_data != NULL)  ystrlcpy (a_data, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
    /*---(complete)-----------------------*/
    return 0;
 }

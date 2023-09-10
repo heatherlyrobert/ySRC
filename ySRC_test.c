@@ -88,7 +88,7 @@ ySRC__unit              (char *a_question, int n)
       return unit_answer;
    }
    else if (strcmp (a_question, "selection"      )   == 0) {
-      /*> strlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);     <*/
+      /*> ystrlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);     <*/
       /*> t [g_sreg.root - g_sreg.beg] = 'Ï';                                         <*/
       /*> snprintf (unit_answer, LEN_FULL, "SRC selection    : %c %2db %2de %2d# %2dr å%sæ", g_sreg.active, g_sreg.beg, g_sreg.end, g_sreg.end - g_sreg.beg + 1, g_sreg.root, t);   <*/
       ysrc_select_line (t);
@@ -115,7 +115,7 @@ ySRC__unit              (char *a_question, int n)
    }
    else if (strcmp (a_question, "display"        )   == 0) {
       if (strlen (s_cur->contents) > 0) {
-         strlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
+         ystrlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
          x_char = chrvisible (t [s_cur->cpos - s_cur->bpos]);
          t [s_cur->cpos - s_cur->bpos] = 'Ï';
       } else {
@@ -156,7 +156,7 @@ ySRC__unit              (char *a_question, int n)
    x_abbr = n;
    n = ysrc_sreg_index  (x_abbr);
    if (n < 0) {
-      strlcpy  (unit_answer, "SRC sreg         : not a valid register name", LEN_FULL);
+      ystrlcpy  (unit_answer, "SRC sreg         : not a valid register name", LEN_FULL);
       return unit_answer;
    }
    if      (strcmp (a_question, "saved"          )   == 0) {

@@ -384,9 +384,9 @@ ysrc_sundo_status       (char a_size, short a_wide, char *a_list)
       /*> x_ch = g_sundos [i].major;                                                                                                                                        <* 
        *> if (x_ch != G_KEY_SPACE)  sprintf (t, "%d%c%c%d%c%c,", g_sundos [i].seq, x_ch, g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <* 
        *> else                      sprintf (t, "%d%c%d%c%c,"  , g_sundos [i].seq,       g_sundos [i].minor, g_sundos [i].cpos, g_sundos [i].before, g_sundos [i].after);   <*/
-      strlcat (a_list, t, LEN_RECD);
+      ystrlcat (a_list, t, LEN_RECD);
    }
-   strlcat (a_list, "Ï", LEN_RECD);
+   ystrlcat (a_list, "Ï", LEN_RECD);
    /*---(complete)--------------------*/
    return 0;
 }

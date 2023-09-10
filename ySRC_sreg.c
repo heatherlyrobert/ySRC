@@ -158,12 +158,12 @@ ysrc_sreg_init          (void)
       return rce;
    }
    /*---(macro abbrev list)--------------*/
-   strlcpy (G_SREG_LIST, "¶"        , S_SREG_MAX);
-   strlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
-   strlcat (G_SREG_LIST, YSTR_LOWER , S_SREG_MAX);
-   strlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
-   strlcat (G_SREG_LIST, YSTR_GREEK , S_SREG_MAX);
-   strlcat (G_SREG_LIST, "¤"        , S_SREG_MAX);
+   ystrlcpy (G_SREG_LIST, "¶"        , S_SREG_MAX);
+   ystrlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
+   ystrlcat (G_SREG_LIST, YSTR_LOWER , S_SREG_MAX);
+   ystrlcat (G_SREG_LIST, YSTR_NUMBER, S_SREG_MAX);
+   ystrlcat (G_SREG_LIST, YSTR_GREEK , S_SREG_MAX);
+   ystrlcat (G_SREG_LIST, "¤"        , S_SREG_MAX);
    DEBUG_YSRC   yLOG_info    ("SREG_LIST" , G_SREG_LIST);
    g_nsreg  = strlen (G_SREG_LIST);
    DEBUG_YSRC   yLOG_value   ("g_nsreg"   , g_nsreg);
@@ -207,7 +207,7 @@ ysrc_sreg_index         (uchar a_abbr)
    }
    DEBUG_YSRC   yLOG_snote   ("check");
    if (a_abbr == '"')  n  = 0;
-   else                n  = strlchr (G_SREG_LIST, a_abbr, g_nsreg);
+   else                n  = ystrlchr (G_SREG_LIST, a_abbr, g_nsreg);
    DEBUG_YSRC   yLOG_sint    (n);
    --rce;  if (n  < 0) {
       DEBUG_YSRC   yLOG_sexitr  (__FUNCTION__, n);
@@ -229,7 +229,7 @@ ysrc_sreg_setreg        (uchar a_abbr)
    /*---(defense)------------------------*/
    DEBUG_YSRC   yLOG_schar   (a_abbr);
    DEBUG_YSRC   yLOG_schar   (g_csreg);
-   n  = strlchr (G_SREG_LIST, tolower (a_abbr), g_nsreg);
+   n  = ystrlchr (G_SREG_LIST, tolower (a_abbr), g_nsreg);
    DEBUG_YSRC   yLOG_sint    (n);
    --rce;  if (n < 0) {
       g_csreg = '"';
@@ -256,7 +256,7 @@ ysrc_sreg_setwork       (uchar a_abbr)
    /*---(defense)------------------------*/
    DEBUG_YSRC   yLOG_schar   (a_abbr);
    DEBUG_YSRC   yLOG_schar   (g_wsreg);
-   n  = strlchr (G_SREG_LIST, tolower (a_abbr), g_nsreg);
+   n  = ystrlchr (G_SREG_LIST, tolower (a_abbr), g_nsreg);
    DEBUG_YSRC   yLOG_sint    (n);
    --rce;  if (n < 0) {
       g_wsreg = '"';
@@ -340,13 +340,13 @@ ysrc_sreg_push          (uchar a_abbr, char *a_data)
       a_dst->data   = strdup (a_data);
    } else {
       DEBUG_YSRC   yLOG_note    ("append mode");
-      strlcpy (t, a_dst->data, LEN_RECD);
+      ystrlcpy (t, a_dst->data, LEN_RECD);
       ysrc_sreg__wipedata (a_dst);
-      strlcat (t, a_data     , LEN_RECD);
+      ystrlcat (t, a_data     , LEN_RECD);
       a_dst->data   = strdup (t);
       a_dst->source = S_SREG_MULTI;
    }
-   a_dst->len    = strllen (a_dst->data , LEN_RECD);
+   a_dst->len    = ystrllen (a_dst->data , LEN_RECD);
    /*---(back-to-host)-------------------*/
    if (e_sreg != NULL) {
       DEBUG_YSRC   yLOG_note    ("save back to host");
@@ -369,7 +369,7 @@ ysrc_sreg_pop           (uchar a_abbr, char *a_data)
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_complex ("args"      , "abbr %u, data %-10p", a_abbr, a_data);
    /*---(prepare)------------------------*/
-   if (a_data != NULL)  strlcpy (a_data, "", LEN_RECD);
+   if (a_data != NULL)  ystrlcpy (a_data, "", LEN_RECD);
    /*---(defense)------------------------*/
    n = ysrc_sreg_index  (a_abbr);
    DEBUG_YSRC   yLOG_value   ("n"         , n);
@@ -383,7 +383,7 @@ ysrc_sreg_pop           (uchar a_abbr, char *a_data)
       return rce;
    }
    /*---(return)-------------------------*/
-   if (a_data != NULL)  strlcpy (a_data, g_sregs [n].data, LEN_RECD);
+   if (a_data != NULL)  ystrlcpy (a_data, g_sregs [n].data, LEN_RECD);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -421,15 +421,15 @@ ysrc_sreg_save          (void)
       a_dst->data   = strdup (t);
    } else {
       DEBUG_YSRC   yLOG_note    ("append mode");
-      strlcpy (s, a_dst->data, LEN_RECD);
+      ystrlcpy (s, a_dst->data, LEN_RECD);
       ysrc_sreg__wipedata (a_dst);
       ysrc_select_get (NULL         , NULL         , NULL          , &(a_dst->len), t);
-      strlcat (s, t , LEN_RECD );
+      ystrlcat (s, t , LEN_RECD );
       a_dst->source = S_SREG_MULTI;
       a_dst->data   = strdup (s);
-      a_dst->len    = strllen (a_dst->data , LEN_RECD);
+      a_dst->len    = ystrllen (a_dst->data , LEN_RECD);
    }
-   a_dst->len    = strllen (a_dst->data , LEN_RECD);
+   a_dst->len    = ystrllen (a_dst->data , LEN_RECD);
    DEBUG_YSRC   yLOG_value   ("len"       , a_dst->len);
    /*---(back-to-host)-------------------*/
    if (e_sreg != NULL) {
@@ -452,7 +452,7 @@ ysrc_sreg_fetch         (short *a_len, char *a_data)
    DEBUG_YSRC   yLOG_complex ("args"      , "len %-10p, data %-10p", a_len, a_data);
    /*---(init)---------------------------*/
    if (a_len  != NULL)  *a_len = 0;
-   if (a_data != NULL)  strlcpy (a_data, "", LEN_RECD);
+   if (a_data != NULL)  ystrlcpy (a_data, "", LEN_RECD);
    /*---(defense)------------------------*/
    n = ysrc_sreg_index  (g_csreg);
    DEBUG_YSRC   yLOG_value   ("n"         , n);
@@ -467,7 +467,7 @@ ysrc_sreg_fetch         (short *a_len, char *a_data)
    }
    /*---(init)---------------------------*/
    if (a_len  != NULL)  *a_len = g_sregs [n].len;
-   if (a_data != NULL)  strlcpy (a_data, g_sregs [n].data, LEN_RECD);
+   if (a_data != NULL)  ystrlcpy (a_data, g_sregs [n].data, LEN_RECD);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return 0;
@@ -539,7 +539,7 @@ ysrc_sreg__export       (char a_abbr)
       return rce;
    }
    /*---(write)--------------------------*/
-   rc = strlexport (0, g_sregs [n].data);
+   rc = ystrlexport (0, g_sregs [n].data);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
    return rc;
@@ -556,7 +556,7 @@ ysrc_sreg__import       (char a_abbr)
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(read)---------------------------*/
-   rc = strlimport  (0, x_recd, NULL);
+   rc = ystrlimport  (0, x_recd, NULL);
    DEBUG_YSRC   yLOG_value   ("read"      , rc);
    --rce;  if (rc < 0) {
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
@@ -600,7 +600,7 @@ ysrc_sreg__copy         (char a_abbr, char a_dst)
       return rce;
    }
    /*---(copy)---------------------------*/
-   strlcpy (x_recd, g_sregs [s].data, LEN_RECD);
+   ystrlcpy (x_recd, g_sregs [s].data, LEN_RECD);
    x_len = strlen (x_recd);
    DEBUG_YSRC   yLOG_value   ("x_len"     , x_len);
    --rce;  if (x_len <=  0) {
@@ -628,7 +628,7 @@ ysrc_sreg__save         (char a_abbr, char *a_string)
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(fix quotes)---------------------*/
-   strlcpy (x_recd, a_string, LEN_RECD);
+   ystrlcpy (x_recd, a_string, LEN_RECD);
    x_len = strlen (x_recd);
    p = x_recd;
    if (x_recd [0] == G_KEY_DQUOTE && x_recd [x_len - 1] == G_KEY_DQUOTE) {

@@ -10,7 +10,7 @@ ysrc_select_line        (char *a_entry)
    char        t           [LEN_RECD ];
    int         x_len       =    0;
    char        x_data      [LEN_RECD ];
-   strlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
+   ystrlcpy (t, s_cur->contents + g_sreg.beg, g_sreg.end - g_sreg.beg + 2);
    x_len = strlen (t);
    if (x_len > 60)  sprintf (x_data , "%3då%-.60s>", x_len, t);
    else             sprintf (x_data , "%3då%sæ"    , x_len, t);
@@ -48,7 +48,7 @@ ysrc_sreg_line     (uchar a_abbr, char *a_entry)
    char       *x_label     [LEN_LABEL];
    /*---(defense)------------------------*/
    --rce; if (a_entry == NULL)   return rce;
-   strlcpy (a_entry, "· n/a", LEN_RECD);
+   ystrlcpy (a_entry, "· n/a", LEN_RECD);
    n = ysrc_sreg_index (a_abbr);
    if (n  < 0)   return rce;
    x_sreg = &g_sregs [n];
@@ -98,7 +98,7 @@ ysrc_sreg_dump          (void *f)
    for (i = 0; i <= g_nsreg; ++i) {
       if (g_sregs [i].len <= 0)  continue;
       if (c %  5 == 0)  fprintf (f, "\n# len data--------------------------------------------- ´\n");
-      strlpadn (g_sregs [i].len, x_len, '.', '>', 3);
+      ystrlpadn (g_sregs [i].len, x_len, '.', '>', 3);
       fprintf (f, "%c %-3.3s %s\n", G_SREG_LIST [i], x_len, g_sregs [i].data);
       ++c;
    }

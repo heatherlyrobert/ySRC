@@ -70,7 +70,7 @@ char
 ysrc__wander_save        (char *a_new)
 {
    DEBUG_YSRC   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
-   strlcpy (s_cur->contents, a_new, LEN_RECD);
+   ystrlcpy (s_cur->contents, a_new, LEN_RECD);
    s_cur->npos = strlen (s_cur->contents);
    ysrc_after ();
    DEBUG_YSRC   yLOG_complex ("position"  , "%3db, %3dc, %3de, %3dn", s_cur->bpos, s_cur->cpos, s_cur->epos, s_cur->npos);
@@ -109,7 +109,7 @@ ysrc__wander_loc        (char *a_label, char *a_len)
    str4gyges (mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos, mySRC.w_abs, s_curr, YSTR_USABLE);
    DEBUG_YSRC   yLOG_complex ("current"   , "%-10.10s, %2dt, %3dx, %4dy, %4dz", s_curr, mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos);
    /*---(save back)----------------------*/
-   if (a_label != NULL)  strlcpy (a_label, s_curr, LEN_LABEL);
+   if (a_label != NULL)  ystrlcpy (a_label, s_curr, LEN_LABEL);
    if (a_len   != NULL)  *a_len = strlen (s_curr);
    /*---(complete)-----------------------*/
    return 0;
@@ -137,7 +137,7 @@ ysrc_wander_prepper     (void)
    yVIHUB_yMAP_beg      (NULL, NULL           , &(mySRC.w_xbeg), &(mySRC.w_ybeg), &(mySRC.w_zbeg));
    DEBUG_YSRC   yLOG_complex ("begininng" , "%2dt, %3dx, %4dy, %4dz", mySRC.w_uorig, mySRC.w_xbeg, mySRC.w_ybeg, mySRC.w_zbeg);
    /*---(save contents)------------------*/
-   strlcpy (mySRC.w_contents, ysrc_contents (), LEN_RECD);
+   ystrlcpy (mySRC.w_contents, ysrc_contents (), LEN_RECD);
    strcpy  (mySRC.w_pre   , "");
    strcpy  (mySRC.w_suf   , "");
    strcpy  (mySRC.w_new   , "");
@@ -150,8 +150,8 @@ ysrc_wander_prepper     (void)
          break;
       }
       mySRC.w_contents [i] = '\0';
-      strlcpy (mySRC.w_pre   , mySRC.w_contents               , LEN_RECD);
-      strlcpy (mySRC.w_suf   , mySRC.w_contents + i + 1       , LEN_RECD);
+      ystrlcpy (mySRC.w_pre   , mySRC.w_contents               , LEN_RECD);
+      ystrlcpy (mySRC.w_suf   , mySRC.w_contents + i + 1       , LEN_RECD);
       mySRC.w_contents [i] = G_CHAR_PLACE;
    }
    /*---(identify current label)---------*/
@@ -182,11 +182,11 @@ ysrc_wander_prepper     (void)
       }
       /*---(divide existing input)-------*/
       DEBUG_YSRC   yLOG_value   ("x_end"     , x_end);
-      strlcpy (mySRC.w_pre   , mySRC.w_contents               , x_beg + 1);
+      ystrlcpy (mySRC.w_pre   , mySRC.w_contents               , x_beg + 1);
       DEBUG_YSRC   yLOG_info    ("mySRC.w_pre"     , mySRC.w_pre);
-      strlcpy (mySRC.w_suf   , mySRC.w_contents + x_end + 1   , LEN_RECD);
+      ystrlcpy (mySRC.w_suf   , mySRC.w_contents + x_end + 1   , LEN_RECD);
       DEBUG_YSRC   yLOG_info    ("mySRC.w_suf"     , mySRC.w_suf);
-      strlcpy (x_label, mySRC.w_contents + x_beg, x_end - x_beg + 2);
+      ystrlcpy (x_label, mySRC.w_contents + x_beg, x_end - x_beg + 2);
       DEBUG_YSRC   yLOG_info    ("x_label"   , x_label);
       rc = str2gyges (x_label, &u, &x, &y, &z, NULL, 0, YSTR_USABLE);
       DEBUG_YSRC   yLOG_value   ("str2gyges" , rc);
@@ -200,7 +200,7 @@ ysrc_wander_prepper     (void)
       ysrc__wander_pos_set (strlen (mySRC.w_pre));
    }
    ysrc__wander_loc (x_label, NULL);
-   strlcpy (s_prev, x_label, LEN_LABEL);
+   ystrlcpy (s_prev, x_label, LEN_LABEL);
    sprintf (mySRC.w_new, "%s%s%s" , mySRC.w_pre, x_label, mySRC.w_suf);
    ysrc__wander_save    (mySRC.w_new);
    DEBUG_YSRC   yLOG_info    ("mySRC.w_contents"  , mySRC.w_contents);
@@ -301,7 +301,7 @@ ysrc__wander_and        (uchar a_math)
    char        x_math      [LEN_TERSE] = "";
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    /*---(prepare operator)---------------*/
-   if (a_math == ':')  strlcpy (x_math, "..", LEN_TERSE);
+   if (a_math == ':')  ystrlcpy (x_math, "..", LEN_TERSE);
    else                sprintf (x_math, "%c", a_math);
    /*---(current location)---------------*/
    ysrc__wander_loc (x_label, &l);
@@ -341,7 +341,7 @@ ysrc__wander_and        (uchar a_math)
    /*> sprintf (mySRC.w_pre, "%s%s%s", mySRC.w_pre, x_label, x_math);                 <*/
    mySRC.w_abs = 0;
    /*---(save prev)----------------------*/
-   strlcpy (s_prev, s_curr, LEN_LABEL);
+   ystrlcpy (s_prev, s_curr, LEN_LABEL);
    DEBUG_YSRC   yLOG_info    ("previous"  , s_prev);
    /*---(complete)-----------------------*/
    DEBUG_YSRC   yLOG_exit    (__FUNCTION__);
@@ -418,7 +418,7 @@ ysrc_wander_umode       (uchar a_major, uchar a_minor)
       return rce;
    }
    /*---(display location)---------------*/
-   strlcpy (x_label, s_curr, LEN_LABEL);
+   ystrlcpy (x_label, s_curr, LEN_LABEL);
    ysrc__wander_pos_show  ();
    /*---(universal)----------------------*/
    rc = ysrc__wander_biggies (a_major, a_minor);

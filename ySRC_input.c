@@ -389,8 +389,8 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
       --s_cur->cpos;
       ysrc_sundo_end ();
       yMODE_exit ();
-      if (s_curr == MODE_SEARCH)  strlcpy (s_cur->contents, "/", LEN_RECD);
-      else                        strlcpy (s_cur->contents, ":", LEN_RECD);
+      if (s_curr == MODE_SEARCH)  ystrlcpy (s_cur->contents, "/", LEN_RECD);
+      else                        ystrlcpy (s_cur->contents, ":", LEN_RECD);
       UPDATE_AFTER_CHANGES;
       /*> yvikeys_hist__bounds ();                                                    <*/
       DEBUG_YSRC   yLOG_note    ("change to history mode");
