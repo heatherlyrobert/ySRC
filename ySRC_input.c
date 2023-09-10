@@ -231,14 +231,14 @@ ysrc__input_escaped         (uchar a_major, uchar a_minor)
          return 2;
       }
       DEBUG_YSRC   yLOG_note    ("converting backslash character");
-      ysrc_input__add (chrslashed (a_minor));
+      ysrc_input__add (ychrslashed (a_minor));
       s_escaping = G_CHAR_SPACE;
       return 3;
    }
    /*---(backslash/more)-----------------*/
    if (s_escaping == G_CHAR_RIGHT) {
       DEBUG_YSRC   yLOG_note    ("converting backslash/underscore");
-      ysrc_input__add (chrslashed_more (a_minor));
+      ysrc_input__add (ychrslashed_more (a_minor));
       s_escaping = G_CHAR_SPACE;
       return 4;
    }
@@ -298,7 +298,7 @@ ysrc_input__add         (uchar a_minor)
 {
    DEBUG_YSRC   yLOG_note    ("add and move remaining chars to the right");
    DEBUG_YSRC   yLOG_complex ("before"    , "%2dn %2dc å%sæ", s_cur->npos, s_cur->cpos, s_cur->contents);
-   a_minor = chrvisible (a_minor);
+   a_minor = ychrvisible (a_minor);
    ysrc_sundo_single (s_dir, s_cur->cpos, G_CHAR_NULL, a_minor);
    ysrc_insert_one   (a_minor);
    ++s_cur->cpos;
@@ -329,7 +329,7 @@ ysrc_input_umode           (uchar a_major, uchar a_minor)
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
-   DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , ychrvisible (a_minor));
    DEBUG_YSRC   yLOG_char    ("s_mode"    , s_mode);
    DEBUG_YSRC   yLOG_char    ("s_dir"     , s_dir);
    DEBUG_YSRC   yLOG_char    ("s_quoting" , s_quoting);

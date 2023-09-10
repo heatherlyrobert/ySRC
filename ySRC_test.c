@@ -116,7 +116,7 @@ ySRC__unit              (char *a_question, int n)
    else if (strcmp (a_question, "display"        )   == 0) {
       if (strlen (s_cur->contents) > 0) {
          ystrlcpy (t, s_cur->contents + s_cur->bpos, s_cur->apos + 1);
-         x_char = chrvisible (t [s_cur->cpos - s_cur->bpos]);
+         x_char = ychrvisible (t [s_cur->cpos - s_cur->bpos]);
          t [s_cur->cpos - s_cur->bpos] = 'Ï';
       } else {
          x_char = G_CHAR_NULL;

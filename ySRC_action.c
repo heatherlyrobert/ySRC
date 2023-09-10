@@ -190,13 +190,13 @@ ysrc_multi_pure         (uchar a_major, uchar a_minor)
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YSRC   yLOG_char    ("a_major"   , chrvisible (a_major));
+   DEBUG_YSRC   yLOG_char    ("a_major"   , ychrvisible (a_major));
    --rce;  if (a_major == 0 || strchr ("ydxc", a_major) == NULL) {
       DEBUG_YSRC   yLOG_note    ("multi only allows yank, delete, clear, and change");
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
       return rce;
    }
-   DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , ychrvisible (a_minor));
    --rce;  if (a_minor == 0 || strchr ("HhLlWwBbEe0$", a_minor) == NULL) {
       DEBUG_YSRC   yLOG_note    ("source only allows right and left");
       DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
@@ -419,7 +419,7 @@ ysrc_replace            (void)
       /*---(get char)--------------------*/
       if (i < x_dlen)    x_ch = x_data [i];
       else               x_ch = G_CHAR_STORAGE;
-      DEBUG_YSRC   yLOG_complex ("PASS"      , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
+      DEBUG_YSRC   yLOG_complex ("PASS"      , "%2d, %c, %c, %2d, %2d", i, ychrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
       /*---(add to source)---------------*/
       if (x_append == '-' && s_cur->cpos < s_cur->npos) {
          DEBUG_YSRC   yLOG_note    ("replace mode");
@@ -430,7 +430,7 @@ ysrc_replace            (void)
          DEBUG_YSRC   yLOG_note    ("append mode");
          x_append = 'y';
          s_cur->cpos = s_cur->npos - 1;
-         DEBUG_YSRC   yLOG_complex ("new pass"  , "%2d, %c, %c, %2d, %2d", i, chrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
+         DEBUG_YSRC   yLOG_complex ("new pass"  , "%2d, %c, %c, %2d, %2d", i, ychrvisible (s_cur->contents [s_cur->cpos]), x_ch, s_cur->cpos, s_cur->npos);
          ysrc_sundo_add   (G_KEY_SPACE, 'a', s_cur->cpos, G_CHAR_NULL, x_ch);
          rc = ysrc_append_one  (x_ch);
       }

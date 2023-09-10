@@ -894,7 +894,7 @@ ysrc_source_escaped         (uchar a_major, uchar *a_minor)
          return 2;
       }
       DEBUG_YSRC_U  yLOG_note    ("converting backslash character");
-      *a_minor = chrslashed (x_minor);
+      *a_minor = ychrslashed (x_minor);
       s_escaping = G_CHAR_SPACE;
       if (*a_minor == G_CHAR_REDACT) {
          ysrc_trouble ();
@@ -907,7 +907,7 @@ ysrc_source_escaped         (uchar a_major, uchar *a_minor)
    /*---(backslash/more)-----------------*/
    --rce;  if (s_escaping == G_CHAR_RIGHT) {
       DEBUG_YSRC_U  yLOG_note    ("converting backslash/underscore");
-      *a_minor = chrslashed_more (x_minor);
+      *a_minor = ychrslashed_more (x_minor);
       s_escaping = G_CHAR_SPACE;
       if (*a_minor == G_CHAR_REDACT) {
          ysrc_trouble ();
@@ -942,7 +942,7 @@ ySRC_mode               (uchar a_major, uchar a_minor)
    /*---(header)-------------------------*/
    DEBUG_YSRC_U  yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC_U  yLOG_char    ("a_major"   , a_major);
-   DEBUG_YSRC_U  yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC_U  yLOG_char    ("a_minor"   , ychrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_YSRC_U  yLOG_char    ("mode"      , yMODE_curr ());
    DEBUG_YSRC_U  yLOG_info    ("valid"     , MODES_ONELINE);

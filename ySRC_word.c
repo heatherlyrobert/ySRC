@@ -117,7 +117,7 @@ ysrc_word_update        (void)
       s_cur->words [i] = '²';
       /*---(check)-----------------------*/
       x_mode = ysrc_word__type   (x_type, s_cur->contents [i]);
-      DEBUG_YSRC   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, chrvisible (x_save), x_mode, chrvisible (x_mode));
+      DEBUG_YSRC   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, ychrvisible (x_save), x_mode, ychrvisible (x_mode));
       if (x_mode == x_save)  continue;
       /*---(update current)--------------*/
       x_update = ysrc_word__curr (x_type, x_save, x_mode);
@@ -133,7 +133,7 @@ ysrc_word_update        (void)
    }
    /*---(mark end)-----------------------*/
    x_mode = '\0';
-   DEBUG_YSRC   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, chrvisible (x_save), x_mode, chrvisible (x_mode));
+   DEBUG_YSRC   yLOG_complex ("values"    , "%3d, save %3d/%c, curr %3d/%c", i, x_save, ychrvisible (x_save), x_mode, ychrvisible (x_mode));
    x_update = ysrc_word__prev (x_type, x_save, '\0');
    if (x_update != ' ') ysrc_word__update   (i - 1, x_update);
    DEBUG_YSRC   yLOG_char    ("prev"      , x_update);

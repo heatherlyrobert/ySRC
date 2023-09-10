@@ -155,8 +155,8 @@ ysrc__replace_escaped       (uchar a_major, uchar a_minor)
          rc = 2;
       } else {
          DEBUG_YSRC   yLOG_note    ("converting backslash character");
-         ysrc_sundo_single ('r', s_cur->cpos, s_save, chrslashed (a_minor));
-         ysrc_replace_one (chrslashed (a_minor));
+         ysrc_sundo_single ('r', s_cur->cpos, s_save, ychrslashed (a_minor));
+         ysrc_replace_one (ychrslashed (a_minor));
          s_escaping = G_CHAR_SPACE;
          rc = 3;
       }
@@ -164,8 +164,8 @@ ysrc__replace_escaped       (uchar a_major, uchar a_minor)
    /*---(backslash/more)-----------------*/
    else if (s_escaping == G_CHAR_RIGHT) {
       DEBUG_YSRC   yLOG_note    ("converting backslash/underscore");
-      ysrc_sundo_single ('r', s_cur->cpos, s_save, chrslashed_more (a_minor));
-      ysrc_replace_one (chrslashed_more (a_minor));
+      ysrc_sundo_single ('r', s_cur->cpos, s_save, ychrslashed_more (a_minor));
+      ysrc_replace_one (ychrslashed_more (a_minor));
       s_escaping = G_CHAR_SPACE;
       rc = 4;
    }
@@ -292,7 +292,7 @@ ysrc_replace_umode      (uchar a_major, uchar a_minor)
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
-   DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , ychrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_YSRC   yLOG_char    ("mode"      , yMODE_curr ());
    --rce;  if (yMODE_not (UMOD_REPLACE)) {
@@ -363,14 +363,14 @@ static void  o___UNITTEST________o () { return; }
 char
 ysrc__replace_unit      (char *a_text)
 {
-   snprintf (a_text, LEN_FULL, "%c   %c %c %c   %c %c", s_mode, s_major, s_minor, chrvisible (s_last), chrvisible (s_save), s_escaping);
+   snprintf (a_text, LEN_FULL, "%c   %c %c %c   %c %c", s_mode, s_major, s_minor, ychrvisible (s_last), ychrvisible (s_save), s_escaping);
    return 0;
 }
 
 char
 ysrc_replace_status     (char *a_text)
 {
-   snprintf (a_text, LEN_FULL, "replace   %c   %c %c %c   %c %c", s_mode, s_major, s_minor, chrvisible (s_last), chrvisible (s_save), s_escaping);
+   snprintf (a_text, LEN_FULL, "replace   %c   %c %c %c   %c %c", s_mode, s_major, s_minor, ychrvisible (s_last), ychrvisible (s_save), s_escaping);
    return 0;
 }
 

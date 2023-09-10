@@ -116,9 +116,9 @@ ysrc_sundo_add          (char a_major, char a_minor, short a_pos, char a_before,
    g_sundos [g_csundo].major  = a_major;
    g_sundos [g_csundo].minor  = a_minor;
    g_sundos [g_csundo].cpos   = a_pos;
-   if (a_before != G_KEY_SPACE)  a_before = chrvisible (a_before);
+   if (a_before != G_KEY_SPACE)  a_before = ychrvisible (a_before);
    g_sundos [g_csundo].before = a_before;
-   if (a_after  != G_KEY_SPACE)  a_after  = chrvisible (a_after);
+   if (a_after  != G_KEY_SPACE)  a_after  = ychrvisible (a_after);
    g_sundos [g_csundo].after  = a_after;
    g_nsundo = g_csundo + 1;
    DEBUG_YSRC   yLOG_sexit   (__FUNCTION__);

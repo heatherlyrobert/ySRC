@@ -382,14 +382,14 @@ ysrc__wander_escaped    (uchar *a_minor)
          return 2;
       }
       DEBUG_YSRC   yLOG_note    ("converting backslash character");
-      *a_minor = chrslashed (x_minor);
+      *a_minor = ychrslashed (x_minor);
       s_escaping = G_CHAR_SPACE;
       return 0;
    }
    /*---(backslash/more)-----------------*/
    if (s_escaping == G_CHAR_RIGHT) {
       DEBUG_YSRC   yLOG_note    ("converting backslash/underscore");
-      *a_minor = chrslashed_more (x_minor);
+      *a_minor = ychrslashed_more (x_minor);
       s_escaping = G_CHAR_SPACE;
       return 0;
    }
@@ -408,7 +408,7 @@ ysrc_wander_umode       (uchar a_major, uchar a_minor)
    /*---(header)-------------------------*/
    DEBUG_YSRC   yLOG_enter   (__FUNCTION__);
    DEBUG_YSRC   yLOG_char    ("a_major"   , a_major);
-   DEBUG_YSRC   yLOG_char    ("a_minor"   , chrvisible (a_minor));
+   DEBUG_YSRC   yLOG_char    ("a_minor"   , ychrvisible (a_minor));
    /*---(defenses)-----------------------*/
    DEBUG_YSRC   yLOG_char    ("mode"      , yMODE_curr ());
    --rce;  if (yMODE_not (UMOD_WANDER )) {
