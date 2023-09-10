@@ -106,7 +106,7 @@ ysrc__wander_loc        (char *a_label, char *a_len)
 {
    /*---(find new)-----------------------*/
    yVIHUB_yMAP_current  (NULL, &(mySRC.w_univ), &(mySRC.w_xpos), &(mySRC.w_ypos), &(mySRC.w_zpos));
-   str4gyges (mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos, mySRC.w_abs, s_curr, YSTR_USABLE);
+   ystr4gyges (mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos, mySRC.w_abs, s_curr, YSTR_USABLE);
    DEBUG_YSRC   yLOG_complex ("current"   , "%-10.10s, %2dt, %3dx, %4dy, %4dz", s_curr, mySRC.w_univ, mySRC.w_xpos, mySRC.w_ypos, mySRC.w_zpos);
    /*---(save back)----------------------*/
    if (a_label != NULL)  ystrlcpy (a_label, s_curr, LEN_LABEL);
@@ -188,8 +188,8 @@ ysrc_wander_prepper     (void)
       DEBUG_YSRC   yLOG_info    ("mySRC.w_suf"     , mySRC.w_suf);
       ystrlcpy (x_label, mySRC.w_contents + x_beg, x_end - x_beg + 2);
       DEBUG_YSRC   yLOG_info    ("x_label"   , x_label);
-      rc = str2gyges (x_label, &u, &x, &y, &z, NULL, 0, YSTR_USABLE);
-      DEBUG_YSRC   yLOG_value   ("str2gyges" , rc);
+      rc = ystr2gyges (x_label, &u, &x, &y, &z, NULL, 0, YSTR_USABLE);
+      DEBUG_YSRC   yLOG_value   ("ystr2gyges" , rc);
       if (rc < 0) {
          yKEYS_set_error ();
          DEBUG_YSRC   yLOG_exitr   (__FUNCTION__, rce);
